@@ -90,7 +90,7 @@ class SimpleIoUTracker(TrackerProvider):
     center stays within half the track box size. No appearance/biometric data.
     """
 
-    def __init__(self, iou_threshold: float = 0.2, max_age: float = 2.0):
+    def __init__(self, iou_threshold: float = 0.15, max_age: float = 3.0):
         self.tracks: dict[int, Track] = {}
         self.next_id = 1
         self.iou_threshold = iou_threshold
@@ -133,7 +133,7 @@ class SimpleIoUTracker(TrackerProvider):
                 if key in used:
                     continue
                 p = predicted[key]
-                gate = 0.5 * max(p.x2 - p.x1, p.y2 - p.y1)
+                gate = 0.6 * max(p.x2 - p.x1, p.y2 - p.y1)
                 dist = math.hypot(cx - (p.x1 + p.x2) / 2, cy - (p.y1 + p.y2) / 2)
                 if dist <= gate and (best is None or dist < best[0]):
                     best = (dist, key)

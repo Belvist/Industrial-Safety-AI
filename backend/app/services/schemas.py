@@ -158,9 +158,27 @@ class RadarEventView(BaseModel):
     other_track_id: int | None = None
     evidence_url: str | None = None
 
+class RadarTrackView(BaseModel):
+    track_id: int
+    level: Literal["NORMAL", "WARNING", "CRITICAL", "UNKNOWN"]
+    trajectory: list[tuple[float, float]]
+    predicted: list[tuple[float, float]]
+    direction: tuple[float, float] | None = None
+    intersection: tuple[float, float] | None = None
+    confidence: float = 0.0
+
+class RadarZoneView(BaseModel):
+    name: str
+    points: list[tuple[float, float]]
+
+class RadarSceneView(BaseModel):
+    tracks: list[RadarTrackView]
+    zones: list[RadarZoneView]
+
 class RadarView(BaseModel):
     track_risks: dict[int, Literal["NORMAL", "WARNING", "CRITICAL", "UNKNOWN"]]
     events: list[RadarEventView]
+    scene: RadarSceneView | None = None
 
 class FrameResult(BaseModel):
     session_id: str

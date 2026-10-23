@@ -2355,3 +2355,11 @@ td small {
 .radar-replay { margin-left: auto; font-size: 0.72rem; color: #1a5fb4; }
 .radar-video { width: 100%; margin-top: 0.4rem; border-radius: 6px; background: #000; }
 .incident-replay { width: 100%; max-height: 380px; border-radius: 8px; background: #000; display: block; }
+.radar-overlay { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.track-box { position:absolute; border:2px solid #22c55e; border-radius:2px; }
+.track-box.normal { border-color:#22c55e; }
+.track-box.warning { border-color:#f59e0b; }
+.track-box.critical { border-color:#ef4444; box-shadow:0 0 0 2px rgba(239,68,68,.35); }
+.track-box.unknown { border-color:#94a3b8; border-style:dashed; }
+.track-label { position:absolute; left:-2px; top:-2px; transform:translateY(-100%); background:rgba(10,15,25,.88); color:#fff; font-size:.68rem; line-height:1.25; padding:3px 6px; border-radius:4px; white-space:nowrap; }
+.detection-box.raw { border-style:dotted; opacity:.75; }

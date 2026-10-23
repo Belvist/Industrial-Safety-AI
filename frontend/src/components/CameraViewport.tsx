@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ScanLine, Video, Eye, EyeOff, Activity } from "lucide-react";
-import type { Camera, Detection, Point, Result } from "../types";
+import type { Camera, Point, Result } from "../types";
 import { labels, percentage } from "../types";
 import { useAuthedImageUrl } from "../useAuthedImage";
 export default function CameraViewport({
@@ -29,26 +29,14 @@ export default function CameraViewport({
     setDisplayed(null);
   }, [camera?.id, camera?.session_id]);
   const zone = editing ? points : camera?.zone || [];
-  const boxes = displayed?.detections || [];
   // Evidence frames load with auth headers into a Blob URL: the bearer
   // token never lands in an <img> URL, logs or Referer query strings.
   const frameSrc = useAuthedImageUrl(result ? result.frame_url : null);
   // By default only worker-owned objects: person boxes and PPE attached to a
   // worker (track_hint). Unassigned raw detections need the debug toggle.
-  const visible = showRaw
-    ? boxes
-    : boxes.filter(
-        (d) => d.class_name === "person" || d.track_hint != null,
-      );
   const ratio = result ? result.width / result.height : 16 / 9;
   const fittedWidth = Math.min(100, (ratio / (16 / 9)) * 100);
   const fittedHeight = Math.min(100, (16 / 9 / ratio) * 100);
-  const identify = (d: Detection) =>
-    d.class_name === "person"
-      ? "person"
-      : d.class_name.startsWith("no_")
-        ? "violation"
-        : "ppe";
   return (
     <>
       <div
@@ -128,24 +116,99 @@ export default function CameraViewport({
                 />
               ))}
           </svg>
-          {showBoxes && !editing && (
-            <div
-              className="detection-overlay"
-              aria-label="Распознанные объекты"
-            >
-              {visible.map((d, index) => {
-                const worker =
-                  d.class_name === "person"
-                    ? displayed?.tracks.find(
-                        (t) =>
-                          Math.abs(t.bbox.x1 - d.bbox.x1) < 0.0001 &&
-                          Math.abs(t.bbox.y1 - d.bbox.y1) < 0.0001,
-                      )
-                    : null;
+          {showBoxes && !editing && displayed && (
+            <div className="detection-overlay" aria-label="Работники, экипировка и прогноз">
+              {/* Safety Radar: zone fill, trajectories, predicted path */}
+              <svg
+                className="radar-overlay"
+                viewBox="0 0 1000 1000"
+                preserveAspectRatio="none"
+              >
+                {(displayed.radar?.scene?.zones ?? []).map((z) => (
+                  <polygon
+                    key={z.name}
+                    points={z.points.map(([x, y]) => `${x * 1000},${y * 1000}`).join(" ")}
+                    fill="rgba(220,38,38,.10)"
+                    stroke="rgba(220,38,38,.55)"
+                    strokeWidth="2"
+                  />
+                ))}
+                {(displayed.radar?.scene?.tracks ?? []).map((t) => {
+                  const color =
+                    t.level === "CRITICAL" ? "#ef4444"
+                    : t.level === "WARNING" ? "#f59e0b"
+                    : t.level === "UNKNOWN" ? "#94a3b8"
+                    : "#22c55e";
+                  const path = t.trajectory.map(([x, y]) => `${x * 1000},${y * 1000}`).join(" ");
+                  const last = t.trajectory[t.trajectory.length - 1];
+                  const end = t.predicted[t.predicted.length - 1];
+                  if (!last) return null;
+                  return (
+                    <g key={t.track_id}>
+                      {t.trajectory.length > 1 && (
+                        <polyline points={path} fill="none" stroke={color} strokeWidth="3" opacity="0.75" />
+                      )}
+                      {end && (
+                        <>
+                          <line
+                            x1={last[0] * 1000} y1={last[1] * 1000}
+                            x2={end[0] * 1000} y2={end[1] * 1000}
+                            stroke={color} strokeWidth="3" strokeDasharray="8 6" opacity="0.9"
+                          />
+                          <circle cx={end[0] * 1000} cy={end[1] * 1000} r="6" fill="none" stroke={color} strokeWidth="3" />
+                        </>
+                      )}
+                      {t.intersection && (
+                        <g>
+                          <circle cx={t.intersection[0] * 1000} cy={t.intersection[1] * 1000} r="9" fill="none" stroke="#f59e0b" strokeWidth="4" />
+                          <circle cx={t.intersection[0] * 1000} cy={t.intersection[1] * 1000} r="3" fill="#f59e0b" />
+                        </g>
+                      )}
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {/* Confirmed tracks with ID and PPE status */}
+              {(displayed.tracks ?? []).map((t) => {
+                const level = displayed.radar?.track_risks?.[t.id] ?? "UNKNOWN";
+                const color =
+                  level === "CRITICAL" ? "critical"
+                  : level === "WARNING" ? "warning"
+                  : level === "UNKNOWN" ? "unknown"
+                  : "normal";
+                const helmet = t.ppe?.helmet ?? "unknown";
+                const vest = t.ppe?.vest ?? "unknown";
+                const label = (v: string) =>
+                  v === "present" ? "есть" : v === "missing" ? "НЕТ" : "неизвестно";
                 return (
                   <div
-                    key={index}
-                    className={"detection-box " + identify(d)}
+                    key={t.id}
+                    className={"track-box " + color}
+                    style={{
+                      left: `${t.bbox.x1 * 100}%`,
+                      top: `${t.bbox.y1 * 100}%`,
+                      width: `${(t.bbox.x2 - t.bbox.x1) * 100}%`,
+                      height: `${(t.bbox.y2 - t.bbox.y1) * 100}%`,
+                    }}
+                  >
+                    <span className="track-label">
+                      <b>#{t.id}</b> · {level}
+                      <br />
+                      каска: {label(helmet)}
+                      {" · "}жилет: {label(vest)}
+                    </span>
+                  </div>
+                );
+              })}
+
+              {/* Diagnostics: raw/unassigned detections only in raw mode */}
+              {showRaw && (displayed.detections ?? [])
+                .filter((d) => d.track_hint == null)
+                .map((d, index) => (
+                  <div
+                    key={`raw-${index}`}
+                    className="detection-box raw"
                     style={{
                       left: `${d.bbox.x1 * 100}%`,
                       top: `${d.bbox.y1 * 100}%`,
@@ -153,22 +216,13 @@ export default function CameraViewport({
                       height: `${(d.bbox.y2 - d.bbox.y1) * 100}%`,
                     }}
                   >
-                    <span
-                      className="detection-label"
-                      style={
-                        d.bbox.x1 > 0.72
-                          ? { left: "auto", right: -1 }
-                          : undefined
-                      }
-                    >
+                    <span className="detection-label">
                       {labels[d.class_name] || d.class_name}
-                      {worker ? ` #${worker.id}` : ""}
                       {d.weak ? " · слабая" : ""}
                       <b>{percentage(d.confidence)}</b>
                     </span>
                   </div>
-                );
-              })}
+                ))}
             </div>
           )}
         </div>

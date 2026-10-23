@@ -353,7 +353,11 @@ export default function App() {
               {safety.info?.model_ready
                 ? "Детектор готов к работе"
                 : "Детектор не готов"}
-              <span>ONNX / CPU</span>
+              <span>
+                {safety.info?.inference_provider === "linq"
+                  ? `LinQ TPU · person ${safety.info?.inference?.person_detector ?? "cpu"}`
+                  : "ONNX / CPU"}
+              </span>
             </span>
           </div>
         </section>

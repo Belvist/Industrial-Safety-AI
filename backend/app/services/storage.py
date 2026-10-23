@@ -189,6 +189,65 @@ class Storage:
                 raise ValueError("Incident not found or already finished.")
         return self.get(incident_id)
 
+    def reopenable_incident(self, camera_id, kind, zone_name=None, within_seconds=60):
+        """A recently finished incident for the same camera/type/zone.
+
+        Used to merge a continuous violation across Worker ID switches and
+        short tracking gaps instead of creating a new row every time.
+        """
+        with self.connection() as db:
+            rows = db.execute(
+                "SELECT * FROM incidents WHERE camera_id=? AND type=? "
+                "AND COALESCE(zone_name,'')=? ORDER BY started_at DESC LIMIT 5",
+                (camera_id, kind, zone_name or ""),
+            ).fetchall()
+        if not rows:
+            return None
+        now = datetime.now(UTC)
+        for row in rows:
+            record = dict(row)
+            if record["status"] == "active":
+                return record
+            stamp = record.get("ended_at") or record.get("resolved_at") or record["started_at"]
+            try:
+                ended = datetime.fromisoformat(stamp)
+            except (TypeError, ValueError):
+                continue
+            if (now - ended).total_seconds() <= within_seconds:
+                return record
+        return None
+
+    def reopen(self, incident_id):
+        """Return an incident to active state for a merged continuation."""
+        with self.connection() as db:
+            db.execute(
+                "UPDATE incidents SET status='active', ended_at=NULL, "
+                "resolved_at=NULL, resolution_reason=NULL WHERE id=?",
+                (incident_id,),
+            )
+        return self.get(incident_id)
+
+    def active_incident(self, camera_id, kind, zone_name=None):
+        """An active incident for the same camera/type/zone, if any.
+
+        Used to merge a continuous violation across Worker ID switches.
+        """
+        with self.connection() as db:
+            if zone_name:
+                row = db.execute(
+                    "SELECT * FROM incidents WHERE camera_id=? AND type=? "
+                    "AND status='active' AND COALESCE(zone_name,'')=? "
+                    "ORDER BY started_at DESC LIMIT 1",
+                    (camera_id, kind, zone_name),
+                ).fetchone()
+            else:
+                row = db.execute(
+                    "SELECT * FROM incidents WHERE camera_id=? AND type=? "
+                    "AND status='active' ORDER BY started_at DESC LIMIT 1",
+                    (camera_id, kind),
+                ).fetchone()
+        return dict(row) if row else None
+
     def get(self, incident_id):
         with self.connection() as db:
             row = db.execute("SELECT * FROM incidents WHERE id=?", (incident_id,)).fetchone()

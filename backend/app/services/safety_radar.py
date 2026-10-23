@@ -18,7 +18,7 @@ from collections import deque
 from dataclasses import dataclass, field
 
 import numpy as np
-from shapely.geometry import Point, Polygon
+from shapely.geometry import LineString, Point, Polygon
 
 from app.services.engine import Track
 
@@ -83,6 +83,9 @@ class SafetyRadar:
         self._last_notified: dict[tuple[int, str], float] = {}
         self._events: list[RiskEvent] = []
         self._zones: dict[str, Polygon] = {}
+        # Smoothed direction per track (unit vector) for cautious prediction.
+        self._direction: dict[int, tuple[float, float]] = {}
+        self._speed: dict[int, float] = {}
 
     # -- configuration ---------------------------------------------------
 
@@ -116,6 +119,8 @@ class SafetyRadar:
         self._previous_type.clear()
         self._events.clear()
         self._zones.clear()
+        self._direction.clear()
+        self._speed.clear()
 
     # -- per-frame update ------------------------------------------------
 
@@ -245,6 +250,104 @@ class SafetyRadar:
             f"Работник #{track_id} приближается к зоне «{zone_name}» "
             f"(дистанция {distance:.3f} норм.)"
         )
+
+    # -- short-horizon prediction ---------------------------------------
+
+    def predict(
+        self,
+        track_id: int,
+        frame_time: float,
+        horizon_seconds: float = 1.5,
+        min_speed: float = 0.01,
+        max_gap_seconds: float = 1.5,
+    ) -> dict | None:
+        """Cautious constant-velocity projection of the foot point.
+
+        Returns None when the observation is too sparse, too slow, or stale.
+        This is normalized-image geometry only: no metres, m/s or TTC.
+        """
+        traj = self._trajectories.get(track_id)
+        if traj is None or len(traj) < self.min_history_points:
+            return None
+        last = traj[-1]
+        if frame_time - last.t > max_gap_seconds:
+            return None
+
+        # Use a short window to smooth jitter (up to ~1 s).
+        window = [p for p in traj if last.t - p.t <= 1.0] or list(traj)
+        first = window[0]
+        dt = last.t - first.t
+        if dt <= 0:
+            return None
+        vx = (last.x - first.x) / dt
+        vy = (last.y - first.y) / dt
+        speed = float(np.hypot(vx, vy))
+        if speed < min_speed:
+            return None
+
+        # Exponential smoothing against the previous direction.
+        ux, uy = vx / speed, vy / speed
+        prev = self._direction.get(track_id)
+        if prev is not None:
+            ux = 0.6 * ux + 0.4 * prev[0]
+            uy = 0.6 * uy + 0.4 * prev[1]
+            norm = float(np.hypot(ux, uy)) or 1.0
+            ux, uy = ux / norm, uy / norm
+        self._direction[track_id] = (ux, uy)
+        self._speed[track_id] = speed
+
+        end = (last.x + ux * speed * horizon_seconds,
+               last.y + uy * speed * horizon_seconds)
+        predicted = [(last.x, last.y), end]
+
+        intersection = None
+        for polygon in self._zones.values():
+            line = LineString(predicted)
+            if line.intersects(polygon.boundary):
+                hit = line.intersection(polygon.boundary)
+                if hit.is_empty:
+                    continue
+                pt = hit.geoms[0] if hasattr(hit, "geoms") else hit
+                intersection = (float(pt.x), float(pt.y))
+                break
+
+        # Reliability falls with sparse history and long gaps.
+        freshness = max(0.0, 1.0 - (frame_time - last.t) / max_gap_seconds)
+        density = min(1.0, len(window) / max(1, self.min_history_points * 4))
+        confidence = round(min(1.0, 0.5 * freshness + 0.5 * density), 2)
+
+        return {
+            "track_id": track_id,
+            "trajectory": [(p.x, p.y) for p in traj][-20:],
+            "predicted": predicted,
+            "direction": (ux, uy),
+            "speed_norm": round(speed, 4),
+            "intersection": intersection,
+            "confidence": confidence,
+        }
+
+    def snapshot(self, frame_time: float) -> dict:
+        """Per-track state for the UI: level, trajectory, prediction."""
+        tracks = []
+        for track_id in list(self._trajectories):
+            prediction = self.predict(track_id, frame_time)
+            tracks.append({
+                "track_id": track_id,
+                "level": self.get_current_risk_level(track_id),
+                "trajectory": (
+                    prediction["trajectory"] if prediction
+                    else [(p.x, p.y) for p in self._trajectories[track_id]][-20:]
+                ),
+                "predicted": prediction["predicted"] if prediction else [],
+                "direction": prediction["direction"] if prediction else None,
+                "intersection": prediction["intersection"] if prediction else None,
+                "confidence": prediction["confidence"] if prediction else 0.0,
+            })
+        zones = [
+            {"name": name, "points": list(polygon.exterior.coords)[:-1]}
+            for name, polygon in self._zones.items()
+        ]
+        return {"tracks": tracks, "zones": zones}
 
     # -- read side -------------------------------------------------------
 

@@ -347,6 +347,15 @@ class Runtime:
                     self.pairing.revoke_camera(camera_id)
                 return session._snapshot()
 
+    def _finish(self, incident_id, outcome, reason, duration):
+        """Finish once. Two tracks may share one merged incident."""
+        if not incident_id:
+            return
+        current = self.storage.get(incident_id)
+        if not current or current["status"] != "active":
+            return
+        self.storage.finish_incident(incident_id, outcome, reason, duration=duration)
+
     def _save_evidence(self, session, events):
         """Queue an MP4 clip around a radar event (never blocks the pipeline).
 
@@ -468,9 +477,9 @@ class Runtime:
     def _interrupt(self, session, reason):
         for state in session.engine.states.values():
             if state.incident_id:
-                self.storage.finish_incident(
+                self._finish(
                     state.incident_id, "interrupted", reason,
-                    duration=state.last - state.since,
+                    state.last - state.since,
                 )
         session.engine = TemporalEngine()
         session.behavior.reset()
@@ -696,6 +705,21 @@ class Runtime:
         jpeg = encoded.tobytes()
         for action, key, state in events:
             if action == "active":
+                # ID switches must not multiply one continuous violation into
+                # many incidents: reuse an active incident for the same
+                # camera + violation + zone.
+                if key[1] == "danger_zone":
+                    existing = self.storage.reopenable_incident(
+                        session.id,
+                        "danger_zone",
+                        session.config.zone_name,
+                        within_seconds=max(60.0, session.config.clear_seconds * 4),
+                    )
+                    if existing is not None:
+                        if existing["status"] != "active":
+                            self.storage.reopen(existing["id"])
+                        state.incident_id = existing["id"]
+                        continue
                 incident_id = uuid4().hex
                 path = self.data / "snapshots" / f"{incident_id}.jpg"
                 temporary = path.with_suffix(".tmp")
@@ -725,24 +749,24 @@ class Runtime:
                 state.incident_id = record["id"]
                 self.notifier.submit(record, jpeg)
             elif action == "resolved":
-                self.storage.finish_incident(
+                self._finish(
                     state.incident_id,
                     "resolved",
                     "violation_cleared",
-                    duration=state.last - state.since,
+                    state.last - state.since,
                 )
             elif action == "interrupted":
-                self.storage.finish_incident(
+                self._finish(
                     state.incident_id, "interrupted", "frame_gap",
-                    duration=state.last - state.since,
+                    state.last - state.since,
                 )
             elif action == "lost":
                 # Prolonged unknown: never claim the violation cleared.
-                self.storage.finish_incident(
+                self._finish(
                     state.incident_id,
                     "interrupted",
                     "observation_lost",
-                    duration=state.last - state.since,
+                    state.last - state.since,
                 )
         for state in session.engine.states.values():
             if state.incident_id:
@@ -795,6 +819,7 @@ class Runtime:
             "radar": {
                 "track_risks": track_risks,
                 "events": radar_events_data,
+                "scene": radar.snapshot(now),
             },
         }
         session.last_tick = ended

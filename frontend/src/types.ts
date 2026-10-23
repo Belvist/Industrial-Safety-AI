@@ -34,9 +34,23 @@ export type RadarEvent = {
   other_track_id?: number | null;
   evidence_url?: string | null;
 };
+export type RadarTrack = {
+  track_id: number;
+  level: "NORMAL" | "WARNING" | "CRITICAL" | "UNKNOWN";
+  trajectory: [number, number][];
+  predicted: [number, number][];
+  direction: [number, number] | null;
+  intersection: [number, number] | null;
+  confidence: number;
+};
+export type RadarScene = {
+  tracks: RadarTrack[];
+  zones: { name: string; points: [number, number][] }[];
+};
 export type Radar = {
   track_risks: Record<number, "NORMAL" | "WARNING" | "CRITICAL" | "UNKNOWN">;
   events: RadarEvent[];
+  scene?: RadarScene | null;
 };
 export type Result = {
   session_id: string;
@@ -116,6 +130,15 @@ export type InferenceInfo = {
   model?: string;
   last_latency_ms?: number;
   frames?: number;
+  protocol?: string | null;
+  program?: string | null;
+  ppe_runtime?: string | null;
+  person_detector?: string | null;
+  worker_verified?: boolean;
+  hardware_verified?: boolean;
+  worker_pid?: string;
+  worker_inference_ms?: number;
+  remote_calls?: number;
 } | null;
 export type Info = {
   model_ready: boolean;

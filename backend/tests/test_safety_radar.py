@@ -488,3 +488,87 @@ def test_radar_critical_confirms_single_incident(tmp_path):
         assert runtime.storage.incidents()["total"] == 1
     finally:
         runtime.close()
+
+
+def test_prediction_intersects_zone_boundary():
+    """Predicted path must hit the near boundary, not the zone centroid."""
+    radar = SafetyRadar(min_history_points=3)
+    radar.set_zones({"zone": [(0.60, 0.60), (0.90, 0.60), (0.90, 0.90), (0.60, 0.90)]})
+    # Walk diagonally toward the lower-left corner of the zone
+    for t, (x, y) in enumerate([(0.30, 0.86), (0.38, 0.84), (0.46, 0.82)]):
+        radar.update([_track(1, x, y, x + 0.10, y + 0.10)], "cam", float(t))
+    pred = radar.predict(1, 2.0, horizon_seconds=2.0)
+    assert pred is not None
+    assert pred["intersection"] is not None
+    # Intersection lies on the near (left) boundary x≈0.60
+    assert abs(pred["intersection"][0] - 0.60) < 0.08
+    assert pred["confidence"] > 0
+
+
+def test_prediction_absent_when_stationary():
+    radar = SafetyRadar(min_history_points=2, )
+    radar.set_zones({"zone": [(0.6, 0.6), (0.9, 0.6), (0.9, 0.9), (0.6, 0.9)]})
+    for t in range(5):
+        radar.update([_track(1, 0.30, 0.30, 0.40, 0.40)], "cam", float(t))
+    assert radar.predict(1, 4.0) is None
+
+
+def test_prediction_absent_with_stale_track():
+    radar = SafetyRadar(min_history_points=2)
+    radar.set_zones({"zone": [(0.6, 0.6), (0.9, 0.6), (0.9, 0.9), (0.6, 0.9)]})
+    for t in range(3):
+        radar.update([_track(1, 0.1 + t * 0.05, 0.80, 0.2 + t * 0.05, 0.95)], "cam", float(t))
+    assert radar.predict(1, 30.0) is None
+
+
+def test_prediction_parallel_path_does_not_intersect():
+    radar = SafetyRadar(min_history_points=2)
+    radar.set_zones({"zone": [(0.6, 0.2), (0.9, 0.2), (0.9, 0.4), (0.6, 0.4)]})
+    # Walk horizontally below the zone
+    for t in range(5):
+        x = 0.1 + t * 0.08
+        radar.update([_track(1, x, 0.80, x + 0.10, 0.95)], "cam", float(t) * 0.2)
+    pred = radar.predict(1, 0.8, horizon_seconds=2.0)
+    assert pred is not None
+    assert pred["intersection"] is None
+
+
+def test_snapshot_contains_scene_geometry():
+    radar = SafetyRadar(min_history_points=2)
+    radar.set_zones({"Зона": [(0.6, 0.6), (0.9, 0.6), (0.9, 0.9), (0.6, 0.9)]})
+    for t in range(4):
+        radar.update([_track(1, 0.1 + t * 0.05, 0.70, 0.2 + t * 0.05, 0.88)], "cam", float(t))
+    scene = radar.snapshot(3.0)
+    assert scene["zones"][0]["name"] == "Зона"
+    assert scene["tracks"][0]["track_id"] == 1
+    assert scene["tracks"][0]["trajectory"]
+
+
+def test_id_switch_does_not_multiply_incidents(tmp_path):
+    """One continuous zone violation must stay one incident across ID changes."""
+    from app.services.runtime import Runtime
+
+    class Provider:
+        name = "id-switch"
+        i = 0
+
+        def predict_sync(self, frame):
+            # Same physical person, deliberately alternating track identity.
+            x = 0.35 + (self.i % 3) * 0.02
+            self.i += 1
+            return [Detection("person", 0.99, BoundingBox(x, 0.40, x + 0.10, 0.50))]
+
+    settings = _settings(tmp_path)
+    runtime = Runtime(settings, Provider())
+    try:
+        cam = next(iter(runtime.sessions.values()))
+        cam.config.zone = [(0.3, 0.3), (0.9, 0.3), (0.9, 0.9), (0.3, 0.9)]
+        cam.config.zone_enabled = True
+        cam.config.confirm_seconds = 0.1
+        runtime.start(cam.id, "browser")
+        frame = np.zeros((240, 320, 3), dtype=np.uint8)
+        for t in range(30):
+            runtime.process(cam, frame, t / 10)
+        assert runtime.storage.incidents()["total"] == 1
+    finally:
+        runtime.close()
