@@ -24,3 +24,14 @@ python e2e/test_phone_flow.py --base http://127.0.0.1:8002 --master e2e-master-1
 
 Needs: `pip install playwright` + `playwright install chromium`.
 Runs in CI (`e2e` job, ubuntu, headless Chromium).
+
+`test_workspace.py` additionally checks desktop/mobile navigation, browser history,
+source focus and measured analytics through an emulated webcam and the real backend.
+Run against the same server:
+
+```bash
+python e2e/test_workspace.py --base http://127.0.0.1:8002 --master e2e-master-123
+```
+
+Both scripts accept `--browser-executable /usr/bin/chromium` to use an installed
+browser. They do not prove physical-phone support, real-video accuracy or remote TPU FPS.

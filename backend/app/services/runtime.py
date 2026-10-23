@@ -1,10 +1,14 @@
 import asyncio
+import queue
+import shutil
 import sqlite3
+import subprocess
 import threading
 import time
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, replace
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import numpy as np
@@ -18,12 +22,18 @@ from app.services.engine import (
     cleared_assigned,
     evaluate_assigned,
 )
+from app.services.metrics import Metrics
 from app.services.notifications import Notifier
 from app.services.pairing import PairingStore
+from app.services.replay import replay_frames
 from app.services.safety_radar import SafetyRadar
 from app.services.schemas import CameraConfig
 from app.services.state_machine import CameraEvent, CameraMachine, CameraState
 from app.services.storage import Storage, utcnow
+
+
+class DiscardedFrame(RuntimeError):
+    """A stale frame must not fail a newer camera session."""
 
 
 class CameraSession:
@@ -32,6 +42,16 @@ class CameraSession:
         self.tracker, self.engine = Tracker(), TemporalEngine()
         self.behavior = RunningDetector()
         self.lock = threading.Lock()
+        self.frame_gate = threading.BoundedSemaphore(1)
+        self.condition = threading.Condition(self.lock)
+        self.input_sequence = 0
+        self.next_commit = 1
+        self.source_frame_id = 0
+        self.browser_origin = None
+        self.generation = 0
+        self.metrics = Metrics()
+        self.source_wall = time.time()
+        self.last_timestamp = None
         self.control = threading.RLock()
         self.machine = CameraMachine()
         self.session_id = None
@@ -65,13 +85,18 @@ class CameraSession:
         return self.machine.state
 
     def _snapshot(self):
+        latest = self.latest
+        if latest is not None:
+            age = latest.get("data_age_ms", 0) + max(0, (time.monotonic() - (self.last_frame or time.monotonic())) * 1000)
+            latest = {**latest, "data_age_ms": round(age, 1)}
         return {
             "id": self.id,
+            "frame_capacity": getattr(self, "frame_capacity", 1),
             **self.config.model_dump(),
             "status": self.status,
             "error": self.error,
             "kind": self.kind,
-            "latest": self.latest,
+            "latest": latest,
             "session_id": self.session_id,
             "state_version": self.machine.version,
         }
@@ -108,6 +133,8 @@ def unsupported_rules(config, supported: set[str]) -> list[str]:
 class Runtime:
     def __init__(self, settings, provider=None):
         self.settings = settings
+        self.metrics = Metrics()
+        self._evidence_slots = threading.BoundedSemaphore(4)
         self.storage = Storage(settings.storage_path)
         self.data = settings.resolve(settings.data_dir)
         (self.data / "snapshots").mkdir(parents=True, exist_ok=True)
@@ -154,6 +181,7 @@ class Runtime:
                     tpu_program=settings.linq_tpu_program,
                     tpu_cache_dir=settings.linq_tpu_cache_dir,
                     tpu_output_is_logits=settings.linq_tpu_output_is_logits,
+                    max_in_flight=settings.linq_max_in_flight,
                 )
                 try:
                     self.provider.load()
@@ -306,6 +334,16 @@ class Runtime:
                 session.kind, session.error = kind, None
                 session.session_id = uuid4().hex
                 session.sequence = 0
+                session.input_sequence, session.next_commit = 0, 1
+                session.source_frame_id = 0
+                session.browser_origin = None
+                session.frame_capacity = self.settings.linq_max_in_flight if getattr(self.provider, "name", "") == "linq" else 1
+                session.frame_gate = threading.BoundedSemaphore(session.frame_capacity)
+                session.metrics = Metrics()
+                session.source_wall = time.time()
+                session.last_timestamp = None
+                session.ppe_memory.clear()
+                session.display_conf.clear()
                 session.frames.clear()
                 session.latest, session.jpeg, session.last_tick = None, None, None
                 session.last_frame = time.monotonic()
@@ -372,16 +410,27 @@ class Runtime:
         """
         if not events or not session.frames:
             return None
+        if not self._evidence_slots.acquire(blocking=False):
+            self.metrics.mark("evidence_dropped")
+            return None
         try:
             first_event = events[0]
             name = f"radar_{session.id}_{int(first_event.timestamp * 1000)}_{uuid4().hex[:6]}.mp4"
             snapshot = list(session.frames)
-            self._evidence_pool.submit(self._write_evidence, name, snapshot, session)
+            self._evidence_pool.submit(self._evidence_job, name, snapshot, session, session.session_id, first_event.timestamp)
             return name
         except Exception:  # noqa: BLE001 - evidence must not break monitoring
+            self._evidence_slots.release()
             return None
 
-    def _write_evidence(self, name, pre_frames, session):
+    def _evidence_job(self, *args):
+        try:
+            with self.metrics.stage("evidence_encoding_ms"):
+                self._write_evidence(*args)
+        finally:
+            self._evidence_slots.release()
+
+    def _write_evidence(self, name, pre_frames, session, expected_session=None, event_time=None):
         """Write pre/post frames to MP4 on a worker thread."""
         import cv2
 
@@ -390,11 +439,15 @@ class Runtime:
             # Collect a short post-event window (bounded wait, never blocks frames)
             deadline = time.monotonic() + 1.0
             post = []
-            while time.monotonic() < deadline:
+            while time.monotonic() < deadline and not self.shutdown.is_set():
                 time.sleep(0.05)
                 with session.lock:
+                    if expected_session is not None and expected_session != session.session_id:
+                        break
                     post = [f for f in session.frames if f[0] > pre_frames[-1][0]]
-            frames = (pre_frames + post)[-max(10, int(self.settings.target_fps * 6)):]
+            frames = replay_frames(pre_frames + post, max(1.0, self.settings.target_fps), event_time)
+            if not frames:
+                return
             first = cv2.imdecode(np.frombuffer(frames[0][1], np.uint8), cv2.IMREAD_COLOR)
             if first is None:
                 return
@@ -405,7 +458,9 @@ class Runtime:
                 max(1.0, float(self.settings.target_fps)),
                 (w, h),
             )
+            transcode = False
             if not writer.isOpened():
+                transcode = True
                 # Some OpenCV builds lack H.264; fall back to MPEG-4 Part 2.
                 writer = cv2.VideoWriter(
                     str(path),
@@ -417,14 +472,26 @@ class Runtime:
                 path.unlink(missing_ok=True)
                 return
             try:
-                for _, raw, _ in frames:
-                    img = cv2.imdecode(np.frombuffer(raw, np.uint8), cv2.IMREAD_COLOR)
+                for entry in frames:
+                    img = cv2.imdecode(np.frombuffer(entry[1], np.uint8), cv2.IMREAD_COLOR)
                     if img is not None:
                         writer.write(img)
             finally:
                 writer.release()
+            if transcode and shutil.which("ffmpeg"):
+                converted = path.with_name(path.stem + ".h264.mp4")
+                try:
+                    subprocess.run([
+                        "ffmpeg", "-nostdin", "-v", "error", "-y", "-i", str(path),
+                        "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                        "-movflags", "+faststart", str(converted),
+                    ], check=True, timeout=30, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    converted.replace(path)
+                finally:
+                    converted.unlink(missing_ok=True)
             self._purge_evidence(keep_name=name)
         except Exception:  # noqa: BLE001 - evidence failure must not crash a worker
+            self.metrics.mark("evidence_failures")
             path.unlink(missing_ok=True)
 
     def _purge_evidence(self, keep_name: str | None = None):
@@ -482,6 +549,12 @@ class Runtime:
             self._interrupt(session, "processing_failed")
 
     def _interrupt(self, session, reason):
+        session.generation += 1
+        session.next_commit = session.input_sequence + 1
+        session.condition.notify_all()
+        session.ppe_memory.clear()
+        session.display_conf.clear()
+        session.radar_evidence_by_track.clear()
         for state in session.engine.states.values():
             if state.incident_id:
                 self._finish(
@@ -495,97 +568,222 @@ class Runtime:
             session.latest = {**session.latest, "rules": [], "active": 0}
 
     def _source_loop(self, session, source):
+        """Capture owns OpenCV; scheduler owns ordered analytics; inference is bounded.
+
+        Live sources keep at most one unscheduled frame (latest wins). Files
+        use bounded backpressure and media timestamps, never pretend realtime.
+        """
         import cv2
 
-        capture = None
-        try:
-            if session.kind == "rtsp":
-                capture = cv2.VideoCapture(
-                    source,
-                    cv2.CAP_FFMPEG,
-                    [cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, 5000, cv2.CAP_PROP_READ_TIMEOUT_MSEC, 5000],
-                )
-                # Latest-frame wins: never process a queue of stale RTSP frames.
-                capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-            else:
-                capture = cv2.VideoCapture(str(source))
-            if not capture.isOpened():
-                raise RuntimeError("Не удалось открыть источник. Проверьте адрес/формат видео.")
-            session.capture = capture
-            with session.lock:
-                if session.stop.is_set():
-                    return
-                session.machine.dispatch(CameraEvent.READY)
-            fps = capture.get(cv2.CAP_PROP_FPS)
-            fps = fps if 0 < fps < 240 else 25
-            started = time.monotonic()
-            next_position = 0.0
-            while not session.stop.is_set():
-                before = time.monotonic()
-                if session.kind == "video":
-                    # Skip frames when inference is slower than the source; timestamps remain media time.
-                    current = capture.get(cv2.CAP_PROP_POS_FRAMES)
-                    target = max(current, int(next_position * fps))
-                    if target > current:
-                        capture.set(cv2.CAP_PROP_POS_FRAMES, target)
-                ok, frame = capture.read()
-                if not ok:
-                    if session.kind == "video":
-                        with session.lock:
-                            if not session.stop.is_set():
-                                session.machine.dispatch(CameraEvent.EOF)
-                        break
-                    raise RuntimeError("Видеопоток прерван.")
-                timestamp = (
-                    capture.get(cv2.CAP_PROP_POS_FRAMES) / fps
-                    if session.kind == "video"
-                    else time.monotonic()
-                )
+        inbox = queue.Queue(maxsize=1)
+        eof = threading.Event()
+        capture_cancel = threading.Event()
+        failure = []
+        limit = self.settings.linq_max_in_flight if getattr(self.provider, "name", "") == "linq" else 1
+        pool = ThreadPoolExecutor(max_workers=limit, thread_name_prefix="frame-inference")
+        pending = deque()
+
+        def capture_frames():
+            capture = None
+            try:
+                if session.kind == "rtsp":
+                    capture = cv2.VideoCapture(source, cv2.CAP_FFMPEG, [
+                        cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, 5000,
+                        cv2.CAP_PROP_READ_TIMEOUT_MSEC, 5000,
+                    ])
+                    capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                else:
+                    capture = cv2.VideoCapture(str(source))
+                if not capture.isOpened():
+                    raise RuntimeError("Could not open video source")
+                session.capture = capture
                 with session.lock:
-                    if not session.stop.is_set():
-                        self.process(session, frame, timestamp)
-                elapsed = time.monotonic() - before
-                next_position = max(
-                    timestamp + 1 / self.settings.target_fps, time.monotonic() - started
-                )
-                session.stop.wait(max(0, 1 / self.settings.target_fps - elapsed))
-        except Exception:  # noqa: BLE001 - isolate camera workers and redact source credentials
+                    if session.stop.is_set():
+                        return
+                    session.machine.dispatch(CameraEvent.READY)
+                fps = capture.get(cv2.CAP_PROP_FPS)
+                fps = fps if 0 < fps < 240 else 25
+                next_media = 0.0
+                next_live = 0.0
+                while not session.stop.is_set() and not capture_cancel.is_set():
+                    with session.metrics.stage("capture_decode_ms"):
+                        ok, frame = capture.read()
+                    if not ok:
+                        if session.kind == "video":
+                            break
+                        raise RuntimeError("Video source lost")
+                    session.metrics.mark("capture")
+                    captured = time.monotonic()
+                    timestamp = capture.get(cv2.CAP_PROP_POS_FRAMES) / fps if session.kind == "video" else captured
+                    # Decode live video continuously; don't accumulate decoder buffers.
+                    if session.kind == "video":
+                        if timestamp < next_media:
+                            session.metrics.mark("sampled_out")
+                            continue
+                        next_media = timestamp + 1 / self.settings.target_fps - 1e-6
+                    else:
+                        if captured < next_live:
+                            session.metrics.mark("sampled_out")
+                            continue
+                        next_live = captured + 1 / self.settings.target_fps
+                    with session.lock:
+                        item = (frame, timestamp, captured, session.session_id, session.generation)
+                    if session.kind == "video":
+                        while not session.stop.is_set() and not capture_cancel.is_set():
+                            try:
+                                inbox.put(item, timeout=0.05)
+                                break
+                            except queue.Full:
+                                continue
+                    else:
+                        try:
+                            inbox.put_nowait(item)
+                        except queue.Full:
+                            try:
+                                inbox.get_nowait()
+                                session.metrics.mark("dropped")
+                            except queue.Empty:
+                                pass
+                            try:
+                                inbox.put_nowait(item)
+                            except queue.Full:
+                                session.metrics.mark("dropped")
+            except Exception:
+                failure.append(True)
+            finally:
+                if capture is not None:
+                    capture.release()
+                session.capture = None
+                eof.set()
+
+        capture_thread = threading.Thread(target=capture_frames, daemon=True, name="video-capture")
+        capture_thread.start()
+        try:
+            while not session.stop.is_set():
+                if len(pending) < limit:
+                    try:
+                        item = inbox.get(timeout=0.01)
+                        frame, timestamp, captured, sid, generation = item
+                        pending.append((pool.submit(self._infer, frame, session.metrics), item))
+                    except queue.Empty:
+                        pass
+                if pending and pending[0][0].done():
+                    future, item = pending.popleft()
+                    frame, timestamp, captured, sid, generation = item
+                    prepared, detections, inference_ms = future.result()
+                    with session.lock:
+                        if session.stop.is_set():
+                            break
+                        if sid != session.session_id or generation != session.generation:
+                            session.metrics.mark("stale")
+                            continue
+                        self._commit(session, prepared, detections, timestamp, captured, inference_ms)
+                elif pending:
+                    session.stop.wait(0.002)
+                if eof.is_set() and inbox.empty() and not pending:
+                    if failure:
+                        raise RuntimeError("Video capture failed")
+                    with session.lock:
+                        if not session.stop.is_set():
+                            session.machine.dispatch(CameraEvent.EOF)
+                    break
+        except Exception:
             with session.lock:
                 if not session.stop.is_set():
                     session.machine.dispatch(CameraEvent.FAIL)
-                    session.error = "Не удалось обработать источник. Проверьте доступность камеры, кодек и модель."
+                    session.error = "Не удалось обработать источник. Проверьте камеру и модель."
         finally:
-            if capture is not None:
-                capture.release()
-            session.capture = None
+            for future, _ in pending:
+                future.cancel()
+            pool.shutdown(wait=False, cancel_futures=True)
+            capture_cancel.set()
+            capture_thread.join(timeout=5.5)
             with session.lock:
                 if not session.stop.is_set():
-                    self._interrupt(
-                        session, "source_ended" if session.status == "ended" else "source_lost"
-                    )
-            if session.upload_path:
+                    self._interrupt(session, "source_ended" if session.status == "ended" else "source_lost")
+            if session.upload_path and not capture_thread.is_alive():
                 session.upload_path.unlink(missing_ok=True)
                 session.upload_path = None
 
-    def process(self, session, frame, timestamp=None):
+    def _infer(self, frame, metrics):
         import cv2
 
         self.ready()
-        if session.stop.is_set() or session.status not in {CameraState.RUNNING, CameraState.STALE}:
-            raise RuntimeError("Камера не принимает кадры в текущем состоянии.")
         started = time.monotonic()
         if frame.shape[0] > 1080 or frame.shape[1] > 1920:
             ratio = min(1080 / frame.shape[0], 1920 / frame.shape[1])
-            frame = cv2.resize(
-                frame, (round(frame.shape[1] * ratio), round(frame.shape[0] * ratio))
-            )
-        now = timestamp if timestamp is not None else started
-        if hasattr(self.provider, "predict_sync"):
+            frame = cv2.resize(frame, (round(frame.shape[1]*ratio), round(frame.shape[0]*ratio)))
+        from app.inference.linq import LinqProvider
+
+        if isinstance(self.provider, LinqProvider):
+            detections = self.provider.predict_sync(frame, on_tpu_result=lambda: metrics.mark("tpu"))
+        elif hasattr(self.provider, "predict_sync"):
             detections = self.provider.predict_sync(frame)
         else:
             detections = asyncio.run(self.provider.predict(frame))
+        elapsed = (time.monotonic() - started) * 1000
+        metrics.observe("inference_ms", elapsed)
+        return frame, detections, elapsed
+
+    def process(self, session, frame, timestamp=None, expected_session=None,
+                expected_generation=None, source_frame_id=None, source_elapsed=None):
+        # Admission and commits hold the short state lock. I/O/inference never do.
+        with session.condition:
+            sid, generation = session.session_id, session.generation
+            if expected_generation is not None and generation != expected_generation:
+                raise DiscardedFrame("Устаревший кадр: правила камеры изменились.")
+            if expected_session is not None and sid != expected_session:
+                raise DiscardedFrame("Устаревший кадр: сессия камеры изменилась.")
+            if session.stop.is_set() or session.status not in {CameraState.RUNNING, CameraState.STALE}:
+                raise DiscardedFrame("Устаревший кадр: камера остановлена.")
+            captured = time.monotonic()
+            if source_frame_id is not None:
+                if source_frame_id <= session.source_frame_id:
+                    session.metrics.mark("stale")
+                    raise DiscardedFrame("Устаревший кадр: нарушен порядок источника.")
+                session.source_frame_id = source_frame_id
+                if session.browser_origin is None:
+                    session.browser_origin = captured - source_elapsed
+                timestamp = session.browser_origin + source_elapsed
+                if session.last_timestamp is not None and timestamp <= session.last_timestamp:
+                    raise DiscardedFrame("Устаревший кадр: время источника не возрастает.")
+            session.input_sequence += 1
+            ticket = session.input_sequence
+        session.metrics.mark("capture")
+        error = None
+        try:
+            prepared, detections, inference_ms = self._infer(frame, session.metrics)
+        except Exception as exc:
+            error = exc
+        with session.condition:
+            while (ticket != session.next_commit and sid == session.session_id
+                   and generation == session.generation and not session.stop.is_set()):
+                session.condition.wait(timeout=0.05)
+            if sid != session.session_id or generation != session.generation or session.stop.is_set():
+                session.metrics.mark("stale")
+                raise DiscardedFrame("Устаревший результат кадра отклонён.")
+            try:
+                if error is not None:
+                    raise error
+                return self._commit(session, prepared, detections, timestamp, captured, inference_ms)
+            finally:
+                session.next_commit += 1
+                session.condition.notify_all()
+
+    def _commit(self, session, frame, detections, timestamp, captured, inference_ms):
+        import cv2
+
+        started = time.monotonic()
+        now = timestamp if timestamp is not None else captured
+        if session.last_timestamp is not None and now <= session.last_timestamp:
+            session.metrics.mark("stale")
+            raise RuntimeError("Нарушен порядок кадров.")
+        session.last_timestamp = now
+        stage = time.perf_counter()
         tracks = session.tracker.update(detections, now)
         assignments, owners = assign_detections(tracks, detections, session.config)
+        session.metrics.observe("tracking_ms", (time.perf_counter() - stage) * 1000)
+        stage = time.perf_counter()
         
         # Safety Radar: update trajectories and detect risks
         # Use normalized coordinates [0,1] consistently with track.bbox
@@ -600,21 +798,9 @@ class Runtime:
         # Radar works directly on confirmed person tracks from tracker
         # track.bbox is normalized [0,1], use frame timestamp 'now' for time
         radar_events = radar.update(tracks, session.id, now)
+        session.metrics.observe("radar_ms", (time.perf_counter() - stage) * 1000)
         # Store radar events in session for API access
         session.radar_events = radar_events
-        # Evidence Replay: save a short clip for the first new event
-        evidence_name = None
-        if radar_events:
-            evidence_name = self._save_evidence(session, radar_events)
-            if evidence_name:
-                for event in radar_events:
-                    event.evidence = evidence_name
-        session.radar_evidence = evidence_name
-        # Map track -> evidence for this frame so the incident row can link
-        # the clip that actually contains its CRITICAL moment.
-        for event in radar_events:
-            if event.evidence:
-                session.radar_evidence_by_track[event.track_id] = event.evidence
         observed = evaluate_assigned(tracks, assignments, session.config)
         cleared = cleared_assigned(tracks, assignments, session.config)
         # Display-only PPE memory: keep the last confirmed state for a few
@@ -631,6 +817,7 @@ class Runtime:
                 if remembered and now - remembered[2] <= 5.0:
                     track.ppe = dict(remembered[0])
                     track.ppe_confidence = dict(remembered[1])
+                    track.ppe_age_seconds = round(now - remembered[2], 3)
         stale = [tid for tid, (_, _, seen) in session.ppe_memory.items() if now - seen > 30.0]
         for tid in stale:
             del session.ppe_memory[tid]
@@ -669,6 +856,7 @@ class Runtime:
             session.config.temporal_required,
             cleared,
         )
+        stage = time.perf_counter()
         annotated = frame.copy()
         h, w = frame.shape[:2]
         for zone in session.config.effective_zones():
@@ -710,24 +898,32 @@ class Runtime:
         if not ok:
             raise RuntimeError("Не удалось закодировать кадр.")
         jpeg = encoded.tobytes()
+        session.metrics.observe("jpeg_annotated_ms", (time.perf_counter() - stage)*1000)
+        stage = time.perf_counter()
+        raw_ok, raw_encoded = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+        if not raw_ok:
+            raise RuntimeError("Не удалось закодировать исходный кадр.")
+        session.metrics.observe("jpeg_raw_ms", (time.perf_counter()-stage)*1000)
+        # The event frame must already be in the immutable pre-event snapshot,
+        # even if the camera is stopped immediately after the incident.
+        session.frames.append((session.sequence + 1, raw_encoded.tobytes(), jpeg, now))
+        # Evidence Replay: save a short clip for the first new event
+        evidence_name = None
+        if radar_events:
+            evidence_name = self._save_evidence(session, radar_events)
+            if evidence_name:
+                for event in radar_events:
+                    event.evidence = evidence_name
+        session.radar_evidence = evidence_name
+        # Map track -> evidence for this frame so the incident row can link
+        # the clip that actually contains its CRITICAL moment.
+        for event in radar_events:
+            if event.evidence:
+                session.radar_evidence_by_track[event.track_id] = event.evidence
         for action, key, state in events:
             if action == "active":
-                # ID switches must not multiply one continuous violation into
-                # many incidents: reuse an active incident for the same
-                # camera + violation + zone.
-                if key[1] == "danger_zone":
-                    zone_name = self._zone_for_track(tracks, key[0]) or session.config.zone_name
-                    existing = self.storage.reopenable_incident(
-                        session.id,
-                        "danger_zone",
-                        zone_name,
-                        within_seconds=max(60.0, session.config.clear_seconds * 4),
-                    )
-                    if existing is not None:
-                        if existing["status"] != "active":
-                            self.storage.reopen(existing["id"])
-                        state.incident_id = existing["id"]
-                        continue
+                # Never merge different workers solely by camera/zone. Without
+                # identity evidence, separate episodes are safer than lost incidents.
                 incident_id = uuid4().hex
                 path = self.data / "snapshots" / f"{incident_id}.jpg"
                 temporary = path.with_suffix(".tmp")
@@ -749,6 +945,10 @@ class Runtime:
                             else None
                         ),
                         evidence=session.radar_evidence_by_track.get(key[0]),
+                        started_at=datetime.fromtimestamp(
+                            session.source_wall + state.since if session.kind == "video"
+                            else time.time() - (time.monotonic() - state.since), UTC
+                        ).isoformat(),
                     )
                 except (OSError, ValueError, sqlite3.Error):
                     path.unlink(missing_ok=True)
@@ -787,8 +987,6 @@ class Runtime:
         ended = time.monotonic()
         interval = ended - session.last_tick if session.last_tick is not None else 0
         session.sequence += 1
-        _, raw_encoded = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
-        session.frames.append((session.sequence, raw_encoded.tobytes(), jpeg))
         # Safety Radar: get current risk levels for tracks
         radar = session.radar
         track_risks = {}
@@ -812,14 +1010,21 @@ class Runtime:
                 ),
             })
 
+        session.metrics.mark("analytics")
+        session.metrics.observe("analytics_ms", (ended - started)*1000)
+        session.metrics.observe("end_to_end_ms", (ended - captured)*1000)
+        measured = session.metrics.snapshot()
         session.latest = {
+            "metrics": measured,
+            "source_timestamp": now,
+            "data_age_ms": round((ended - captured)*1000, 1),
             "session_id": session.session_id,
             "sequence": session.sequence,
             "frame_url": f"/api/v1/cameras/{session.id}/frame.jpg?raw=true&session_id={session.session_id}&sequence={session.sequence}",
             "rules": session.engine.describe(now, session.config.confirm_seconds),
             "tracks": [asdict(t) for t in tracks],
             "detections": [asdict(d) for d in display_detections],
-            "latency_ms": round((ended - started) * 1000, 1),
+            "latency_ms": round((ended - captured) * 1000, 1),
             "fps": round(1 / interval, 1) if interval > 0 else 0,
             "timestamp": utcnow(),
             "width": w,
@@ -839,11 +1044,13 @@ class Runtime:
 
     def close(self):
         self.shutdown.set()
-        self._evidence_pool.shutdown(wait=False, cancel_futures=True)
         self.watchdog.join(timeout=1)
         for camera_id in list(self.sessions):
             try:
                 self.stop(camera_id, "server_stopped")
             except RuntimeError:
                 pass
+        self._evidence_pool.shutdown(wait=True, cancel_futures=True)
         self.notifier.close()
+        if hasattr(self.provider, "close"):
+            self.provider.close()

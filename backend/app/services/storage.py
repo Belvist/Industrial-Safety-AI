@@ -107,6 +107,7 @@ class Storage:
         snapshot=None,
         zone_name=None,
         evidence=None,
+        started_at=None,
     ):
         record = {
             "id": incident_id or uuid4().hex,
@@ -118,7 +119,7 @@ class Storage:
             if key[1] in {"danger_zone", "smoking"}
             else "warning",
             "status": "active",
-            "started_at": utcnow(),
+            "started_at": started_at or utcnow(),
             "confidence": confidence,
             "duration": duration,
             "snapshot": snapshot,

@@ -45,6 +45,7 @@ class Track:
     zone_name: str | None = None
     ppe: dict = field(default_factory=dict)
     ppe_confidence: dict = field(default_factory=dict)
+    ppe_age_seconds: float = 0.0
     # Constant-velocity estimate (normalized units/sec), updated on match.
     # Used ONLY to predict the box before association so crossing workers
     # keep their IDs; never leaks label information into tracking.

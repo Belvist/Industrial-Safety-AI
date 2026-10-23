@@ -92,3 +92,12 @@ cd frontend && npm run test && npm run build
 Never commit `.ovpn`, VPN/Jupyter credentials, API tokens or private video.
 The organizers' profile contains a private key. Rotate credentials that were
 shared outside the private team channel.
+
+## Concurrent pipeline / operator workspace update
+
+See [the 5 FPS benchmark report](docs/LINQ_5FPS_BENCHMARK.md) for the bounded
+AMQP owner thread, parallel CPU person branch, ordered analytics, honest FPS
+metrics and the new desktop/mobile workspace. Keep `LINQ_MAX_IN_FLIGHT=1` until
+organizers authorize a measured higher setting. This environment has no LinQ
+VPN/broker access, so this update is **not a new hardware 5 FPS demonstration**.
+The existing `demo-stable-c809154` tag is retained.

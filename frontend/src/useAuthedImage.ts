@@ -1,33 +1,43 @@
 import { useEffect, useState } from "react";
 import { authHeaders } from "./api";
 
-/** Load an image with auth headers into a Blob URL (no bearer in the URL). */
-export function useAuthedImageUrl(src: string | null): string | null {
-  const [url, setUrl] = useState<string | null>(null);
+/** Keep the source payload with the pixels; polling must never relabel old pixels. */
+export function useAuthedImage<T>(src: string | null, payload: T) {
+  const [image, setImage] = useState<{
+    url: string;
+    payload: T;
+    startedAt: number;
+  } | null>(null);
   useEffect(() => {
     if (!src) {
-      setUrl(null);
+      setImage(null);
       return;
     }
-    let live = true;
+    const startedAt = performance.now();
+    const controller = new AbortController();
     let objectUrl: string | null = null;
-    fetch(src, { headers: authHeaders() })
+    fetch(src, { headers: authHeaders(), signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error(`image ${response.status}`);
         return response.blob();
       })
       .then((blob) => {
-        if (!live) return;
+        if (controller.signal.aborted) return;
         objectUrl = URL.createObjectURL(blob);
-        setUrl(objectUrl);
+        setImage({ url: objectUrl, payload, startedAt });
       })
       .catch(() => {
-        if (live) setUrl(null);
+        if (!controller.signal.aborted) setImage(null);
       });
     return () => {
-      live = false;
+      controller.abort();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
+    // payload belongs to this exact source URL, not subsequent polling results.
   }, [src]);
-  return url;
+  return image;
+}
+
+export function useAuthedImageUrl(src: string | null): string | null {
+  return useAuthedImage(src, null)?.url ?? null;
 }

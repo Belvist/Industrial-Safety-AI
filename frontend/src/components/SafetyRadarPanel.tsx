@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AlertTriangle, CheckCircle, HelpCircle } from "lucide-react";
 import type { Radar, RadarEvent } from "../types";
 import { useAuthedVideoUrl } from "../useAuthedVideo";
@@ -14,7 +15,9 @@ const levelConfig = {
   UNKNOWN: { label: "Нет данных", color: "unknown", icon: HelpCircle },
 };
 
-function riskSummary(radar: Radar | null | undefined): keyof typeof levelConfig {
+function riskSummary(
+  radar: Radar | null | undefined,
+): keyof typeof levelConfig {
   if (!radar) return "UNKNOWN";
   const levels = Object.values(radar.track_risks);
   if (levels.includes("CRITICAL")) return "CRITICAL";
@@ -25,7 +28,7 @@ function riskSummary(radar: Radar | null | undefined): keyof typeof levelConfig 
 
 export default function SafetyRadarPanel({ radar, workers }: Props) {
   const summary = riskSummary(radar);
-  const evidenceSrc = radar?.events.find((e) => e.evidence_url)?.evidence_url ?? null;
+  const [evidenceSrc, setEvidenceSrc] = useState<string | null>(null);
   const videoUrl = useAuthedVideoUrl(evidenceSrc);
   const cfg = levelConfig[summary];
   const Icon = cfg.icon;
@@ -47,17 +50,28 @@ export default function SafetyRadarPanel({ radar, workers }: Props) {
       {events.length > 0 && (
         <ul className="radar-events">
           {events.map((ev: RadarEvent, idx) => (
-            <li key={`${ev.track_id}-${ev.timestamp}-${idx}`} className={`radar-event ${ev.level.toLowerCase()}`}>
+            <li
+              key={`${ev.track_id}-${ev.timestamp}-${idx}`}
+              className={`radar-event ${ev.level.toLowerCase()}`}
+            >
               <span className="radar-event-level">{ev.level}</span>
               <span className="radar-event-message">{ev.message}</span>
-              {ev.evidence_url && videoUrl && (
-                <a className="radar-replay" href={videoUrl} target="_blank" rel="noreferrer">
-                  Replay
-                </a>
+              {ev.evidence_url && (
+                <button
+                  className="text-button radar-replay"
+                  onClick={() => setEvidenceSrc(ev.evidence_url!)}
+                >
+                  Смотреть видео
+                </button>
               )}
             </li>
           ))}
         </ul>
+      )}
+      {evidenceSrc && !videoUrl && (
+        <p className="radar-empty" role="status">
+          Видео подготавливается…
+        </p>
       )}
       {videoUrl && <video className="radar-video" controls src={videoUrl} />}
       {events.length === 0 && summary !== "UNKNOWN" && (

@@ -1,3 +1,5 @@
+import math
+import secrets
 import time
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
@@ -15,7 +17,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.core.config import ROOT, Settings, settings
 from app.services.pairing import token_owner_id
-from app.services.runtime import CameraSession, Runtime
+from app.services.runtime import CameraSession, DiscardedFrame, Runtime
 from app.services.schemas import (
     CameraConfig,
     CameraView,
@@ -40,8 +42,8 @@ def create_app(config: Settings = settings, runtime=None):
     app.add_middleware(
         CORSMiddleware,
         allow_origins=sorted(origins),
-        allow_methods=["GET", "POST", "PUT"],
-        allow_headers=["Content-Type", "X-Session-Id", "X-API-Token", "Authorization"],
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
+        allow_headers=["Content-Type", "X-Session-Id", "X-API-Token", "Authorization", "X-Frame-Id", "X-Capture-Time"],
     )
 
     def caller(request):
@@ -58,7 +60,7 @@ def create_app(config: Settings = settings, runtime=None):
                 token = auth[7:].strip()
         if not config.api_token:
             return True, None
-        if token == config.api_token:
+        if token and secrets.compare_digest(token.encode(), config.api_token.encode()):
             return True, None
         try:
             service = request.app.state.runtime
@@ -129,6 +131,20 @@ def create_app(config: Settings = settings, runtime=None):
                         )
         return await call_next(request)
 
+    @app.middleware("http")
+    async def security_headers(request, call_next):
+        started = time.perf_counter()
+        response = await call_next(request)
+        service = getattr(request.app.state, "runtime", None)
+        if request.url.path.startswith("/api/") and hasattr(service, "metrics"):
+            service.metrics.observe("api_response_headers_ms", (time.perf_counter()-started)*1000)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        if request.url.path.startswith("/api/"):
+            response.headers["Cache-Control"] = "no-store"
+        return response
+
     def rt(request):
         return request.app.state.runtime
 
@@ -167,13 +183,15 @@ def create_app(config: Settings = settings, runtime=None):
         except Exception:  # noqa: BLE001 - optional dependency state
             available_providers = ["CPUExecutionProvider"]
         master, scope = caller(request)
-        scoped_stats = service.storage.stats(camera_ids=scope if not master else None)
+        scoped_stats = service.storage.stats(camera_ids=(scope or set()) if not master else None)
+        if not master:
+            provider_status = None
         return {
             "environment": config.app_env,
             "inference_provider": config.inference_provider,
             "incident_confirm_seconds": config.incident_confirm_seconds,
             "model_ready": service.model_error is None,
-            "model_error": service.model_error,
+            "model_error": service.model_error if master else None,
             "inference": provider_status,
             "available_providers": available_providers,
             # Never expose the demo token: strip any query (?token=) defensively
@@ -183,6 +201,7 @@ def create_app(config: Settings = settings, runtime=None):
             "telegram_ready": service.notifier.ready,
             "target_fps": config.target_fps,
             "stats": scoped_stats,
+            "api_metrics": service.metrics.snapshot() if master and hasattr(service, "metrics") else None,
         }
 
     @app.post("/api/v1/pairing", status_code=201)
@@ -260,6 +279,7 @@ def create_app(config: Settings = settings, runtime=None):
     @app.post("/api/v1/cameras", status_code=201, response_model=CameraView)
     def add_camera(config: CameraConfig, request: Request):
         service = rt(request)
+        config = config.model_copy(update={"owner": None})
         with service.sessions_lock:
             if len(service.sessions) >= 8:
                 raise HTTPException(400, "Локальная версия поддерживает до 8 конфигураций камер.")
@@ -276,6 +296,7 @@ def create_app(config: Settings = settings, runtime=None):
     def update_camera(camera_id: str, config: CameraConfig, request: Request):
         current = session(request, camera_id)
         with current.lock:
+            config = config.model_copy(update={"owner": current.config.owner})
             bad = rt(request).check_rules_supported(config)
             if bad:
                 raise HTTPException(
@@ -339,11 +360,23 @@ def create_app(config: Settings = settings, runtime=None):
         current = session(request, camera_id)
         if current.kind != "browser" or current.status not in {"running", "stale"}:
             raise HTTPException(409, "Сначала запустите браузерную камеру.")
-        if not current.lock.acquire(blocking=False):
+        gate = current.frame_gate
+        if not gate.acquire(blocking=False):
             raise HTTPException(429, "Предыдущий кадр ещё обрабатывается.")
         try:
             if request.headers.get("X-Session-Id") != current.session_id:
                 raise HTTPException(409, "Кадр относится к другой сессии камеры.")
+            expected_session = current.session_id
+            expected_generation = current.generation
+            source_id, elapsed = None, None
+            if request.headers.get("X-Frame-Id") or request.headers.get("X-Capture-Time"):
+                try:
+                    source_id = int(request.headers.get("X-Frame-Id", ""))
+                    elapsed = float(request.headers.get("X-Capture-Time", ""))
+                    if not 0 < source_id < 2**53 or not math.isfinite(elapsed) or not 0 <= elapsed <= 1e9:
+                        raise ValueError
+                except ValueError:
+                    raise HTTPException(422, "Некорректный ID или время кадра.") from None
             raw = bytearray()
             async for chunk in request.stream():
                 raw.extend(chunk)
@@ -351,22 +384,37 @@ def create_app(config: Settings = settings, runtime=None):
                     raise HTTPException(413, "Кадр слишком большой (максимум 5 МБ).")
 
             def process():
-                image = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
+                from app.services.images import frame_dimensions
+
+                try:
+                    width, height = frame_dimensions(raw)
+                except ValueError:
+                    raise HTTPException(400, "Нужен корректный JPEG/PNG кадр.") from None
+                if width <= 0 or height <= 0 or width * height > 16_777_216:
+                    raise HTTPException(413, "Слишком большое разрешение кадра (максимум 16 Мп).")
+                try:
+                    image = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
+                except cv2.error:
+                    raise HTTPException(400, "Не удалось прочитать JPEG/PNG кадр.") from None
                 if image is None:
                     raise HTTPException(400, "Не удалось прочитать JPEG/PNG кадр.")
                 if current.stop.is_set():
                     raise HTTPException(409, "Камера остановлена.")
                 try:
-                    return rt(request).process(current, image)
+                    return rt(request).process(current, image, expected_session=expected_session, expected_generation=expected_generation, source_frame_id=source_id, source_elapsed=elapsed)
+                except DiscardedFrame as exc:
+                    raise HTTPException(409, str(exc)) from None
                 except Exception as exc:  # noqa: BLE001 - camera boundary must fail closed
-                    rt(request).fail_processing(current)
+                    with current.lock:
+                        if current.session_id == expected_session and current.generation == expected_generation:
+                            rt(request).fail_processing(current)
                     raise RuntimeError(
                         "Обработка кадра остановлена. Проверьте модель и доступ к папке данных."
                     ) from exc
 
             return await run_in_threadpool(process)
         finally:
-            current.lock.release()
+            gate.release()
 
     @app.get("/api/v1/cameras/{camera_id}/frame.jpg")
     def preview(
@@ -399,10 +447,12 @@ def create_app(config: Settings = settings, runtime=None):
 
         session(request, camera_id)  # 404 if the camera is unknown
         # Path traversal guard: only a bare filename from our evidence dir.
-        if "/" in name or "\\" in name or not name.endswith(".mp4"):
+        if ("/" in name or "\\" in name or not name.endswith(".mp4")
+                or not name.startswith(f"radar_{camera_id}_")):
             raise HTTPException(404, "Доказательство не найдено.")
-        path = rt(request).data / "evidence" / name
-        if not path.is_file():
+        folder = (rt(request).data / "evidence").resolve()
+        path = folder / name
+        if path.resolve().parent != folder or not path.is_file():
             raise HTTPException(404, "Доказательство не найдено.")
         return FileResponse(
             path, media_type="video/mp4", headers={"Cache-Control": "no-store"}

@@ -92,7 +92,7 @@ def test_real_image_pipeline_persists_evidence_and_resolves(runtime):
     assert runtime.storage.get(record["id"])["status"] == "resolved"
     assert runtime.storage.get(record["id"])["resolution_reason"] == "violation_cleared"
     runtime.provider.missing = True
-    for timestamp in [7, 8, 9]:
+    for timestamp in [8, 9, 10]:
         runtime.process(camera, frame, timestamp)
     assert runtime.storage.incidents()["total"] == 2
     runtime.stop(camera.id)
@@ -123,7 +123,7 @@ def test_frames_with_identical_clock_ticks_do_not_fail(runtime, monkeypatch):
 def test_api_frames_settings_history_feedback_and_origin(runtime):
     original = runtime.process
     ticks = iter([0, 1, 2])
-    runtime.process = lambda session, frame: original(session, frame, next(ticks))
+    runtime.process = lambda session, frame, **kw: original(session, frame, next(ticks), **kw)
     with TestClient(create_app(runtime.settings, runtime)) as client:
         camera = client.get("/api/v1/cameras").json()[0]
         cid = camera["id"]
@@ -360,7 +360,7 @@ def test_token_gates_frame_preview_and_snapshot(tmp_path):
     try:
         original = runtime.process
         ticks = iter([0, 1, 2])
-        runtime.process = lambda session, frame: original(session, frame, next(ticks))
+        runtime.process = lambda session, frame, **kw: original(session, frame, next(ticks), **kw)
         with TestClient(create_app(config, runtime)) as client:
             cid = client.get("/api/v1/cameras?token=secret").json()[0]["id"]
             started = client.post(

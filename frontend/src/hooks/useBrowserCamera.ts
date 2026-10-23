@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { api, authHeaders, errorText, json, stopPath } from "../api";
+import { ApiError, api, authHeaders, errorText, json, stopPath } from "../api";
 import { CaptureMachine } from "../machines/capture";
 import type { Camera, Result } from "../types";
 
@@ -16,13 +16,14 @@ export function useBrowserCamera(onError: (message: string) => void) {
   } | null>(null);
   const epoch = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const request = useRef<AbortController | null>(null);
+  const requests = useRef(new Set<AbortController>());
   const pending = useRef<Promise<void> | null>(null);
   const errorHandler = useRef(onError);
   errorHandler.current = onError;
   const dispose = () => {
     if (timer.current) clearTimeout(timer.current);
-    request.current?.abort();
+    requests.current.forEach((request) => request.abort());
+    requests.current.clear();
     resource.current?.stream.getTracks().forEach((t) => t.stop());
     resource.current = null;
     setOwner(null);
@@ -101,68 +102,105 @@ export function useBrowserCamera(onError: (message: string) => void) {
         setOwner(cameraId);
         machine.send("CONNECTED");
         const canvas = document.createElement("canvas");
-        const loop = async () => {
-          if (run !== epoch.current || !resource.current) return;
-          const before = performance.now();
+        const capacity = Math.max(1, Math.min(12, server.frame_capacity ?? 1));
+        let inFlight = 0;
+        let frameId = 0;
+        const sourceStarted = performance.now();
+        const fail = (e: unknown) => {
+          if (run !== epoch.current) return;
+          const old = resource.current;
+          epoch.current++;
+          dispose();
+          machine.send("FAIL", undefined, errorText(e));
+          errorHandler.current(errorText(e));
+          if (old)
+            void api(stopPath(old.cameraId, old.sessionId), {
+              method: "POST",
+            }).catch(() => {});
+        };
+        const settle = () => {
+          if (machine.getSnapshot().phase === "submitting") {
+            machine.send("RESULT");
+            machine.send("NEXT");
+          }
+        };
+        const submit = async (blob: Blob, id: number, elapsed: number) => {
+          inFlight++;
+          const controller = new AbortController();
+          requests.current.add(controller);
           try {
-            if (!video.videoWidth || !video.videoHeight)
-              throw new Error("Камера не передаёт изображение.");
-            canvas.width = Math.min(video.videoWidth, 1280);
-            canvas.height = Math.round(
-              (video.videoHeight * canvas.width) / video.videoWidth,
-            );
-            canvas
-              .getContext("2d")!
-              .drawImage(video, 0, 0, canvas.width, canvas.height);
-            const blob = await new Promise<Blob>((resolve, reject) =>
-              canvas.toBlob(
-                (b) =>
-                  b
-                    ? resolve(b)
-                    : reject(new Error("Не удалось получить кадр")),
-                "image/jpeg",
-                0.85,
-              ),
-            );
-            if (run !== epoch.current) return;
-            machine.send("CAPTURED");
-            request.current = new AbortController();
             const next = await api<Result>(`/cameras/${cameraId}/frame`, {
               method: "POST",
               headers: {
                 "Content-Type": "image/jpeg",
                 "X-Session-Id": server!.session_id!,
+                "X-Frame-Id": String(id),
+                "X-Capture-Time": String(elapsed),
               },
               body: blob,
-              signal: request.current.signal,
+              signal: controller.signal,
             });
             if (run !== epoch.current) return;
             if (next.session_id !== server!.session_id)
               throw new Error(
                 "Сессия камеры изменилась. Перезапустите мониторинг.",
               );
-            setResult(next);
-            machine.send("RESULT");
+            setResult((old) =>
+              old && old.sequence > next.sequence ? old : next,
+            );
+            settle();
+          } catch (e) {
+            if (run !== epoch.current) return;
+            // Bounded overload and explicitly discarded old frames are not camera failures.
+            if (
+              e instanceof ApiError &&
+              (e.status === 429 ||
+                (e.status === 409 && e.message.includes("Устаревший")))
+            )
+              settle();
+            else fail(e);
+          } finally {
+            inFlight--;
+            requests.current.delete(controller);
+          }
+        };
+        const loop = async () => {
+          if (run !== epoch.current || !resource.current) return;
+          const before = performance.now();
+          try {
+            if (inFlight < capacity) {
+              if (!video.videoWidth || !video.videoHeight)
+                throw new Error("Камера не передаёт изображение.");
+              canvas.width = Math.min(video.videoWidth, 1280);
+              canvas.height = Math.round(
+                (video.videoHeight * canvas.width) / video.videoWidth,
+              );
+              const elapsed = (performance.now() - sourceStarted) / 1000;
+              const id = ++frameId;
+              canvas
+                .getContext("2d")!
+                .drawImage(video, 0, 0, canvas.width, canvas.height);
+              const blob = await new Promise<Blob>((resolve, reject) =>
+                canvas.toBlob(
+                  (b) =>
+                    b
+                      ? resolve(b)
+                      : reject(new Error("Не удалось получить кадр")),
+                  "image/jpeg",
+                  0.85,
+                ),
+              );
+              if (run !== epoch.current) return;
+              machine.send("CAPTURED");
+              void submit(blob, id, elapsed);
+            }
+            // Capture cadence is independent of reply latency. Capacity bounds memory and HTTP load.
             timer.current = setTimeout(
-              () => {
-                if (run === epoch.current) {
-                  machine.send("NEXT");
-                  void loop();
-                }
-              },
+              () => void loop(),
               Math.max(0, 1000 / targetFps - (performance.now() - before)),
             );
           } catch (e) {
-            if (run !== epoch.current) return;
-            const old = resource.current;
-            epoch.current++;
-            dispose();
-            machine.send("FAIL", undefined, errorText(e));
-            errorHandler.current(errorText(e));
-            if (old)
-              void api(stopPath(old.cameraId, old.sessionId), {
-                method: "POST",
-              }).catch(() => {});
+            fail(e);
           }
         };
         media.getVideoTracks()[0].onended = () => {
@@ -195,7 +233,8 @@ export function useBrowserCamera(onError: (message: string) => void) {
     const leave = () => {
       epoch.current++;
       if (timer.current) clearTimeout(timer.current);
-      request.current?.abort();
+      requests.current.forEach((request) => request.abort());
+      requests.current.clear();
       const old = resource.current;
       old?.stream.getTracks().forEach((t) => t.stop());
       if (old)

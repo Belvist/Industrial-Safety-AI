@@ -1,0 +1,8 @@
+{
+  "video_sha256": "1189ae5dd896f60725fa06af94575bf9066f181d23dbec5fcda89c3ee1253b84",
+  "approved_max": 1,
+  "results": [],
+  "status": "blocked",
+  "error_type": "RuntimeError",
+  "reason": "Check configured LinQ access, CPU person weights and input video. No fallback was used."
+}

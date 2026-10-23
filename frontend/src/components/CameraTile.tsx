@@ -1,3 +1,4 @@
+import { Video } from "lucide-react";
 import { useAuthedImageUrl } from "../useAuthedImage";
 import { cameraAlert } from "../monitor";
 import { labels } from "../types";
@@ -18,16 +19,22 @@ export default function CameraTile({
   return (
     <button
       className={
-        "camera-tile" + (selected ? " selected" : "") + (alert ? " alarming" : "")
+        "camera-tile" +
+        (selected ? " selected" : "") +
+        (alert ? " alarming" : "")
       }
       onClick={onSelect}
       aria-label={`Камера ${camera.name}`}
+      aria-pressed={selected}
     >
       <span className="tile-shot">
         {img ? (
           <img src={img} alt="" />
         ) : (
-          <span className="tile-empty">{live ? "…" : "стоп"}</span>
+          <span className="tile-empty">
+            <Video size={27} />
+            <small>{live ? "Ожидание кадра" : "Камера остановлена"}</small>
+          </span>
         )}
         {alert && (
           <span className={"tile-badge " + alert.level}>
@@ -37,7 +44,7 @@ export default function CameraTile({
       </span>
       <span className="tile-meta">
         <strong>{camera.name}</strong>
-        <small className={"status-dot " + camera.status} />
+        <span className="tile-state">{labels[camera.status]}</span>
       </span>
     </button>
   );

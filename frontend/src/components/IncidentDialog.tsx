@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Check, X } from "lucide-react";
 import type { Incident } from "../types";
 import { date, labels, percentage } from "../types";
@@ -21,13 +21,49 @@ export default function IncidentDialog({
   onFeedback: (verdict: string) => void;
   busy: boolean;
 }) {
+  const panel = useRef<HTMLElement>(null);
+  const close = useRef(onClose);
+  close.current = onClose;
   useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    panel.current?.focus();
     const listener = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") close.current();
+      if (e.key === "Tab") {
+        const items = Array.from(
+          panel.current?.querySelectorAll<HTMLElement>(
+            "button:not(:disabled), a[href], input:not(:disabled), video[controls]",
+          ) ?? [],
+        );
+        const first = items[0],
+          last = items[items.length - 1];
+        if (!first) {
+          e.preventDefault();
+          return;
+        }
+        if (
+          e.shiftKey &&
+          (document.activeElement === first ||
+            document.activeElement === panel.current)
+        ) {
+          e.preventDefault();
+          last.focus();
+        } else if (
+          !e.shiftKey &&
+          (document.activeElement === last ||
+            document.activeElement === panel.current)
+        ) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     document.addEventListener("keydown", listener);
-    return () => document.removeEventListener("keydown", listener);
-  }, [onClose]);
+    return () => {
+      document.removeEventListener("keydown", listener);
+      if (previous?.isConnected) previous.focus();
+    };
+  }, []);
   const evidenceUrl = incident.evidence
     ? `/api/v1/cameras/${incident.camera_id}/evidence/${incident.evidence}`
     : null;
@@ -43,6 +79,8 @@ export default function IncidentDialog({
     <div className="modal-backdrop" onClick={onClose}>
       <section
         className="modal"
+        ref={panel}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label="Инцидент"
@@ -90,7 +128,8 @@ export default function IncidentDialog({
           <p>{notification[incident.notification] || incident.notification}</p>
           {incident.resolution_reason && (
             <p className="notice-text">
-              Причина: {labels[incident.resolution_reason] || incident.resolution_reason}
+              Причина:{" "}
+              {labels[incident.resolution_reason] || incident.resolution_reason}
             </p>
           )}
           {incident.status === "interrupted" && (

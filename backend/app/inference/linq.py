@@ -22,15 +22,16 @@ agnostic by design (see docs/ARCHITECTURE.md).
 """
 
 import asyncio
-import json
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from threading import Lock
 
 from app.domain.models import Detection
 from app.inference.base import Frame, InferenceProvider
+from app.services.metrics import Metrics
 
 PROTOCOL = "linq-rabbitmq-tpu-v1"
 
@@ -86,6 +87,7 @@ class LinqProvider(InferenceProvider):
         tpu_program: str = "ppe_nosig_p999.tpu",
         tpu_cache_dir: str = "/auto/cache/hackathon93154",
         tpu_output_is_logits: bool = True,
+        max_in_flight: int = 1,
     ) -> None:
         self.model_path = Path(model_path)
         self.confidence = confidence
@@ -123,6 +125,12 @@ class LinqProvider(InferenceProvider):
         self._channel = None
         self._reply_queue = ""
         self._lock = Lock()
+        if not 1 <= max_in_flight <= 12:
+            raise ValueError("max_in_flight must be in 1..12")
+        self.max_in_flight = max_in_flight
+        self.metrics = Metrics()
+        self._transport = None
+        self._person_pool = ThreadPoolExecutor(max_workers=max_in_flight, thread_name_prefix="person")
 
     @property
     def name(self) -> str:
@@ -195,8 +203,7 @@ class LinqProvider(InferenceProvider):
             return self.readiness
         self.readiness = "connecting"
         try:
-            with self._lock:
-                self._connect()
+            self._rpc().call(None)
             self.readiness = "reachable"
         except Exception:
             self.readiness = "failed"
@@ -307,23 +314,29 @@ class LinqProvider(InferenceProvider):
             "frames": self.stats.frames,
             "remote_calls": self.stats.remote_calls,
             "remote_failures": self.stats.remote_failures,
+            "max_in_flight": self.max_in_flight,
+            "metrics": self.metrics.snapshot(),
         }
 
     async def predict(self, frame: Frame) -> list[Detection]:
         return await asyncio.to_thread(self.predict_sync, frame)
 
-    def predict_sync(self, frame: Frame) -> list[Detection]:
+    def predict_sync(self, frame: Frame, on_tpu_result=None) -> list[Detection]:
         self.load()
         started = time.perf_counter()
         if self.stats.mode == "linq_remote":
-            detections = self._predict_remote(frame)
-            if self._person is not None:
-                people = [
-                    d for d in self._person.predict_sync(frame)
-                    if d.class_name == "person"
-                ]
-                if people:
-                    detections = people + detections
+            # Both branches receive the exact same immutable source frame.
+            person = self._person_pool.submit(self._predict_people, frame) if self._person else None
+            try:
+                detections = self._predict_remote(frame)
+                if on_tpu_result is not None:
+                    on_tpu_result()
+                if person is not None:
+                    detections = person.result() + detections
+            except BaseException:
+                if person is not None:
+                    person.cancel()
+                raise
         elif self._local is not None:
             detections = self._local.predict_sync(frame)
         else:  # pragma: no cover - defensive; load() always sets a mode
@@ -331,6 +344,25 @@ class LinqProvider(InferenceProvider):
         self.stats.last_latency_ms = (time.perf_counter() - started) * 1000
         self.stats.frames += 1
         return detections
+
+    def _predict_people(self, frame):
+        with self.metrics.stage("cpu_person_ms"):
+            return [d for d in self._person.predict_sync(frame) if d.class_name == "person"]
+
+    def _rpc(self):
+        from app.inference.amqp_pipeline import AmqpPipeline
+
+        with self._lock:
+            if self._transport is None:
+                self._transport = AmqpPipeline(self, self.max_in_flight)
+            return self._transport
+
+    def close(self):
+        with self._lock:
+            transport = self._transport
+        if transport is not None:
+            transport.close()
+        self._person_pool.shutdown(wait=True, cancel_futures=True)
 
     # -- RabbitMQ protocol --------------------------------------------------
 
@@ -357,7 +389,8 @@ class LinqProvider(InferenceProvider):
         )
         self._channel = self._connection.channel()
         self._reply_queue = f"linq_{uuid.uuid4().hex[:12]}"
-        self._channel.queue_declare(queue=self._reply_queue, auto_delete=True)
+        self._channel.queue_declare(queue=self._reply_queue, auto_delete=True, exclusive=True,
+                                    arguments={"x-expires": 120000, "x-max-length": self.max_in_flight * 2})
         self._channel.queue_bind(
             exchange=self.amqp_exchange,
             queue=self._reply_queue,
@@ -385,6 +418,7 @@ class LinqProvider(InferenceProvider):
         """
         import cv2
 
+        started = time.perf_counter()
         height, width = frame.shape[:2]
         scale = min(640 / width, 640 / height)
         nw, nh = round(width * scale), round(height * scale)
@@ -397,90 +431,60 @@ class LinqProvider(InferenceProvider):
             np.ascontiguousarray(canvas[:, :, ::-1].transpose(2, 0, 1)[None], dtype=np.float32)
             / 255.0
         )
+        self.metrics.observe("preprocess_ms", (time.perf_counter() - started) * 1000)
         output = self._send_tensor(tensor)
-        return self._decode(output, width, height, scale, left, top)
+        with self.metrics.stage("postprocess_ms"):
+            return self._decode(output, width, height, scale, left, top)
 
     def _send_tensor(self, tensor):
-        import pika
+        from app.inference.tpu_wire import PyTask, deserialize, serialize
 
-        from app.inference.tpu_wire import (
-            MESSAGE_ID_ATTR_NAME,
-            RESPONSE_ROUTING_KEYS_ATTR_NAME,
-            TARGET_URI_ATTR_NAME,
-            PyTask,
-            deserialize,
-            serialize,
-        )
-
-        with self._lock:
-            channel = self._connect()
-            task_id = uuid.uuid4().hex
-            headers = {
-                TARGET_URI_ATTR_NAME: self.program_uri,
-                RESPONSE_ROUTING_KEYS_ATTR_NAME: json.dumps([self._reply_queue]),
-                MESSAGE_ID_ATTR_NAME: task_id,
-            }
-            channel.basic_publish(
-                exchange=self.amqp_exchange,
-                routing_key=self.amqp_input_queue,
-                body=serialize(PyTask({"images": tensor})),
-                properties=pika.BasicProperties(headers=headers),
-            )
-            deadline = time.monotonic() + self.timeout_seconds
-            try:
-                while time.monotonic() < deadline:
-                    method, properties, body = channel.basic_get(
-                        self._reply_queue, auto_ack=True
-                    )
-                    if method is None:
-                        time.sleep(0.005)
-                        continue
-                    reply_headers = properties.headers or {}
-                    if reply_headers.get(MESSAGE_ID_ATTR_NAME) != task_id:
-                        continue
-                    data, _metadata, worker = deserialize(body)
-                    self.stats.worker_pid = str(worker.get("worker_pid", ""))
-                    self.stats.worker_status = int(worker.get("status_code", -1))
-                    self.stats.worker_error = str(worker.get("error_message", ""))
-                    self.stats.worker_inference_ms = (
-                        float(worker.get("inference_time", 0.0)) * 1000
-                    )
-                    self.stats.remote_calls += 1
-                    if self.stats.worker_status != 0:
-                        self.stats.remote_failures += 1
-                        self.readiness = "failed"
-                        raise RuntimeError(
-                            f"LinQ TPU worker error {self.stats.worker_status}: "
-                            f"{self.stats.worker_error or 'без описания'}"
-                        )
-                    self.readiness = "inference_verified"
-                    if not isinstance(data, dict) or "output0" not in data:
-                        raise RuntimeError("LinQ TPU вернул ответ без тензора output0.")
-                    return data["output0"]
-            except RuntimeError:
-                raise
-            except Exception as exc:
+        started = time.perf_counter()
+        try:
+            with self.metrics.stage("serialization_ms"):
+                body = serialize(PyTask({"images": tensor}))
+            self.metrics.observe("tensor_bytes", len(body))
+            with self.metrics.stage("rpc_ms"):
+                reply = self._rpc().call(body)
+            if len(reply) > 4 * 1024 * 1024:
+                raise RuntimeError("LinQ reply exceeds the tensor size limit.")
+            with self.metrics.stage("deserialize_ms"):
+                data, _metadata, worker = deserialize(reply)
+            if not isinstance(data, dict) or "output0" not in data:
+                raise RuntimeError("LinQ TPU вернул ответ без тензора output0.")
+            with self._lock:
+                self.stats.worker_pid = str(worker.get("worker_pid", ""))
+                self.stats.worker_status = int(worker.get("status_code", -1))
+                self.stats.worker_error = str(worker.get("error_message", ""))
+                self.stats.worker_inference_ms = float(worker.get("inference_time", 0.0)) * 1000
+                if self.stats.worker_status != 0:
+                    raise RuntimeError(f"LinQ TPU worker error {self.stats.worker_status}")
+                self.stats.remote_calls += 1
+                self.readiness = "inference_verified"
+                worker_ms = self.stats.worker_inference_ms
+            self.metrics.observe("worker_inference_ms", worker_ms)
+            self.metrics.mark("tpu")
+            return data["output0"]
+        except Exception:
+            with self._lock:
                 self.stats.remote_failures += 1
                 self.readiness = "failed"
-                self._close()
-                raise RuntimeError(f"LinQ TPU недоступен: {exc}") from exc
-            self.stats.remote_failures += 1
-            self.readiness = "failed"
-            self._close()
-            raise RuntimeError(
-                f"LinQ TPU не ответил за {self.timeout_seconds:.1f} с "
-                f"(program={self.tpu_program})."
-            )
+            self.metrics.mark("failures")
+            raise
+        finally:
+            self.metrics.observe("remote_total_ms", (time.perf_counter() - started) * 1000)
 
     def _decode(self, output, width, height, scale, left, top) -> list[Detection]:
         import numpy as np
 
+        if output.shape != (1, 18, 8400) or not np.isfinite(output).all():
+            raise RuntimeError("Invalid LinQ output tensor shape or non-finite data.")
         rows = output[0].T
         if rows.shape[1] < 5:
             raise RuntimeError("Неподдерживаемый формат выхода LinQ (ожидается YOLOv8).")
         if self.tpu_output_is_logits:
             rows = rows.copy()
-            rows[:, 4:] = 1.0 / (1.0 + np.exp(-rows[:, 4:]))
+            rows[:, 4:] = 1.0 / (1.0 + np.exp(-np.clip(rows[:, 4:], -80, 80)))
         # Reuse the exact local decode contract (class map, thresholds, NMS,
         # letterbox projection) by delegating to a lightweight provider.
         from app.inference.local_onnx import LocalOnnxProvider

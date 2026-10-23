@@ -1,3 +1,4 @@
+import { observeClient } from "./clientMetrics";
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -24,18 +25,28 @@ export function bootstrapOperatorAuth(): void {
   saveOperatorToken(token);
   url.searchParams.delete("token");
   if (typeof history !== "undefined") {
-    history.replaceState(history.state, "", url.pathname + url.search + url.hash);
+    history.replaceState(
+      history.state,
+      "",
+      url.pathname + url.search + url.hash,
+    );
   }
 }
 function accessToken(): string | null {
   if (typeof location === "undefined") return null;
   if (location.pathname === "/phone" || location.pathname === "/connect") {
-    return typeof localStorage !== "undefined" ? localStorage.getItem("phone_token") : null;
+    return typeof localStorage !== "undefined"
+      ? localStorage.getItem("phone_token")
+      : null;
   }
   return (
     new URLSearchParams(location.search).get("token") ||
-    (typeof sessionStorage !== "undefined" ? sessionStorage.getItem("operator_token") : null) ||
-    (typeof localStorage !== "undefined" ? localStorage.getItem("phone_token") : null)
+    (typeof sessionStorage !== "undefined"
+      ? sessionStorage.getItem("operator_token")
+      : null) ||
+    (typeof localStorage !== "undefined"
+      ? localStorage.getItem("phone_token")
+      : null)
   );
 }
 /** Auth header for API calls (preferred over query strings). */
@@ -51,23 +62,28 @@ export async function api<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await fetch("/api/v1" + path, {
-    ...options,
-    headers: { ...(options.headers || {}), ...authHeaders() },
-  });
-  if (!response.ok) {
-    const data = await response
-      .json()
-      .catch(() => ({ detail: "Сервер вернул ошибку" }));
-    const message =
-      typeof data.detail === "string"
-        ? data.detail
-        : Array.isArray(data.detail)
-          ? data.detail.map((e: { msg: string }) => e.msg).join("; ")
-          : "Ошибка запроса";
-    throw new ApiError(message, response.status);
+  const started = performance.now();
+  try {
+    const response = await fetch("/api/v1" + path, {
+      ...options,
+      headers: { ...(options.headers || {}), ...authHeaders() },
+    });
+    if (!response.ok) {
+      const data = await response
+        .json()
+        .catch(() => ({ detail: "Сервер вернул ошибку" }));
+      const message =
+        typeof data.detail === "string"
+          ? data.detail
+          : Array.isArray(data.detail)
+            ? data.detail.map((e: { msg: string }) => e.msg).join("; ")
+            : "Ошибка запроса";
+      throw new ApiError(message, response.status);
+    }
+    return await response.json();
+  } finally {
+    observeClient("api_roundtrip_ms", performance.now() - started);
   }
-  return response.json();
 }
 export const json = (value: unknown, method = "POST") => ({
   method,

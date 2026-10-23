@@ -35,7 +35,12 @@ const transitions: Record<
   permission: { PERMITTED: "connecting", STOP: "stopping", FAIL: "failed" },
   connecting: { CONNECTED: "capturing", STOP: "stopping", FAIL: "failed" },
   capturing: { CAPTURED: "submitting", STOP: "stopping", FAIL: "failed" },
-  submitting: { RESULT: "waiting", STOP: "stopping", FAIL: "failed" },
+  submitting: {
+    CAPTURED: "submitting",
+    RESULT: "waiting",
+    STOP: "stopping",
+    FAIL: "failed",
+  },
   waiting: { NEXT: "capturing", STOP: "stopping", FAIL: "failed" },
   stopping: { STOPPED: "idle", FAIL: "failed" },
   failed: { START: "permission", STOP: "stopping", STOPPED: "idle" },

@@ -20,6 +20,8 @@ class Zone(BaseModel):
             raise ValueError("Zone coordinates must be in 0..1.")
         if self.enabled and len(self.points) < 3:
             raise ValueError("An enabled zone needs at least three points.")
+        if self.points:
+            CameraConfig(zone=self.points)
         return self
 
 
@@ -41,10 +43,6 @@ class CameraConfig(BaseModel):
     # Named zones. When present they replace the legacy single zone for
     # monitoring; the legacy fields mirror the first enabled zone so older
     # clients and incident filters keep working.
-    zones: list[Zone] = Field(default_factory=list, max_length=10)
-    # Multiple named zones. When non-empty, these replace the legacy fields
-    # for monitoring; the legacy fields mirror the first enabled zone so old
-    # UI code and filters keep working.
     zones: list[Zone] = Field(default_factory=list, max_length=10)
     # Behavioural analytics (case slide 4, scenario 01). Runs on Worker
     # tracks only: no model class is required, so it works with any detector.
@@ -113,21 +111,13 @@ class CameraConfig(BaseModel):
             )
             if area < 0.0001:
                 raise ValueError("Zone area must be greater than zero.")
+        if len({z.name for z in self.zones}) != len(self.zones):
+            raise ValueError("Zone names must be unique.")
         if self.zones:
             enabled = [z for z in self.zones if z.enabled]
             if enabled:
                 self.zone = list(enabled[0].points)
                 self.zone_name = enabled[0].name
-                self.zone_enabled = True
-            else:
-                self.zone_enabled = False
-            return self
-        if self.zones:
-            enabled = [z for z in self.zones if z.enabled]
-            if enabled:
-                first = enabled[0]
-                self.zone = list(first.points)
-                self.zone_name = first.name
                 self.zone_enabled = True
             else:
                 self.zone_enabled = False
@@ -150,8 +140,8 @@ class StartSource(BaseModel):
             # SSRF guard: only stream schemes reach OpenCV/FFmpeg. Credentials
             # inside rtsp(s) URLs stay allowed (cameras need them); probing
             # internal networks is a documented trusted-operator risk.
-            if scheme not in {"rtsp", "rtmp", "http", "https"}:
-                raise ValueError("RTSP-источник должен начинаться с rtsp://, rtmp:// или http(s)://.")
+            if scheme not in {"rtsp", "rtsps", "http", "https"}:
+                raise ValueError("RTSP-источник должен начинаться с rtsp://, rtsps:// или http(s)://.")
         return self
 
 
@@ -185,6 +175,7 @@ class TrackView(BaseModel):
     violations: list[str]
     ppe: dict[str, Literal["present", "missing", "unknown"]]
     ppe_confidence: dict[str, float]
+    ppe_age_seconds: float = 0.0
 
 
 class RuleView(BaseModel):
@@ -246,9 +237,13 @@ class FrameResult(BaseModel):
     height: int = Field(gt=0)
     active: int = Field(ge=0)
     radar: RadarView | None = None
+    metrics: dict | None = None
+    source_timestamp: float | None = None
+    data_age_ms: float = 0.0
 
 
 class CameraView(CameraConfig):
+    frame_capacity: int = 1
     id: str
     status: CameraState
     error: str | None

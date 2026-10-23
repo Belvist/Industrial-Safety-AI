@@ -99,3 +99,4 @@ jobs:
           DATABASE_URL="sqlite:////tmp/e2e/db.sqlite" DATA_DIR=/tmp/e2e/data API_TOKEN=e2e-master-123 PUBLIC_URL=http://127.0.0.1:8002 EXTRA_ORIGINS=http://127.0.0.1:8002 nohup python -m uvicorn app.main:app --host 127.0.0.1 --port 8002 --app-dir backend > /tmp/e2e-server.log 2>&1 &
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:8002/health && break || sleep 2; done
       - run: python e2e/test_phone_flow.py --base http://127.0.0.1:8002 --master e2e-master-123
+      - run: python e2e/test_workspace.py --base http://127.0.0.1:8002 --master e2e-master-123

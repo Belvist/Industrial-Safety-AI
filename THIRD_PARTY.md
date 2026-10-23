@@ -15,6 +15,14 @@ Files: `__init__.py`, `_io.py`, `headers.py`, `message.proto`,
 `message_pb2.py`. Keep this copy in sync with the organizers' wheel if the
 wire format changes.
 
+## Optional evidence encoder
+
+When OpenCV cannot encode H.264, the application invokes an installed FFmpeg
+binary with `libx264` to produce a browser-playable MP4. No binary is vendored.
+FFmpeg licensing depends on build options (LGPL/GPL); libx264 is GPL-licensed.
+Use the notices for the actual binary when packaging the desktop application.
+Sources: https://ffmpeg.org/legal.html and https://www.videolan.org/developers/x264.html.
+
 ## Runtime libraries
 
 

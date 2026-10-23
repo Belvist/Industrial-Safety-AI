@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     linq_api_key: str = ""
     linq_timeout_seconds: float = Field(default=8.0, ge=1.0, le=60.0)
     linq_model: str = "ppe-linq"
+    # Keep 1 until an authorized hardware concurrency benchmark selects a limit.
+    linq_max_in_flight: int = Field(default=1, ge=1, le=12)
 
     # LinQ TPU service: RabbitMQ broker + compiled program on the shared cache.
     # Empty host keeps LinqProvider on the local ONNX fallback. For the

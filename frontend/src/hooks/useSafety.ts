@@ -18,6 +18,7 @@ export function useSafety() {
   const [command, setCommand] = useState(initialCommand);
   const executing = useRef(false);
   const requestId = useRef(0);
+  const incidentsRequestId = useRef(0);
   const refreshState = useCallback(async () => {
     const id = ++requestId.current;
     const [nextInfo, nextCameras] = await Promise.all([
@@ -31,7 +32,7 @@ export function useSafety() {
     setConnection("online");
   }, []);
   const refreshIncidents = useCallback(async () => {
-    const id = ++requestId.current;
+    const id = ++incidentsRequestId.current;
     const params = new URLSearchParams({
       limit: "30",
       offset: String(offset),
@@ -42,7 +43,7 @@ export function useSafety() {
     const list = await api<{ items: Incident[]; total: number }>(
       `/incidents?${params.toString()}`,
     );
-    if (id !== requestId.current) return;
+    if (id !== incidentsRequestId.current) return;
     // In-place update: pagination and scroll position survive the poll.
     setIncidents(list.items);
     setTotal(list.total);
@@ -56,7 +57,7 @@ export function useSafety() {
     let authFailed = false;
     let fast: ReturnType<typeof setTimeout>;
     let slow: ReturnType<typeof setTimeout>;
-    // Live state (info + cameras + frame) polls every second;
+    // Live state polls up to 10 Hz; this is transport cadence, not analytics FPS;
     // incident history is heavier and polls every 5 seconds instead,
     // so the list no longer churns under the operator's hands.
     const pollFast = async () => {
@@ -69,7 +70,7 @@ export function useSafety() {
           setConnection("offline");
         }
       } finally {
-        if (!cancelled && !authFailed) fast = setTimeout(pollFast, 1000);
+        if (!cancelled && !authFailed) fast = setTimeout(pollFast, 100);
       }
     };
     const pollSlow = async () => {
@@ -86,6 +87,7 @@ export function useSafety() {
     return () => {
       cancelled = true;
       requestId.current++;
+      incidentsRequestId.current++;
       clearTimeout(fast);
       clearTimeout(slow);
     };

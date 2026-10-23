@@ -69,3 +69,22 @@ python run.py            # one-command local start (installs vision+linq extras)
 - `docs/LINQ_CASE_TRACEABILITY.md` — requirement → evidence matrix.
 - `docs/LINQ_HARDWARE_REPORT.md` — real TPU evidence, parity and timings.
 - `docs/DEMO_SCRIPT.md`, `docs/SUBMISSION_CHECKLIST.md`.
+
+## Operator workspace / bounded pipeline update (23 Oct 2026)
+
+- Work is based on `hackathon/linq-final-2026` at `8f581d6`; `main` and the
+  existing `demo-stable-c809154` tag are untouched.
+- `AmqpPipeline` has a single Pika owner thread, bounded admission, UUID response
+  correlation, consuming callbacks, timeouts and reconnect-on-next-request.
+- CPU person and remote PPE are parallel on the same frame. Server sources and
+  browser requests commit analytics in order with session/rules generation guards.
+- `LINQ_MAX_IN_FLIGHT=1` remains the default. No configured VPN/LinQ access was
+  available here: **real 5 FPS acceptance is still blocked**, not demonstrated.
+- Separate capture/TPU/analytics/UI FPS, stage percentiles and age/drop metrics;
+  no UI polling speed is used as inference FPS.
+- Desktop sidebar/mobile bottom navigation; distinct overview; timestamp-safe
+  evidence and frame payloads. H.264 fallback uses an installed FFmpeg/libx264.
+- Security fixes and dependency audit: see `docs/SECURITY_PIPELINE_REVIEW.md`.
+- Reproducible real/controlled procedures: `docs/LINQ_5FPS_BENCHMARK.md`.
+- Hosted CI at `8f581d6` never started jobs due to GitHub billing/spending limit;
+  do not describe it as an observed code failure or as green CI.

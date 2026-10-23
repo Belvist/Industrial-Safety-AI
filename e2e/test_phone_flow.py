@@ -37,10 +37,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base", required=True)
     parser.add_argument("--master", required=True)
+    parser.add_argument("--browser-executable", default=None)
     args = parser.parse_args()
 
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(args=CHROMIUM_ARGS)
+        browser = pw.chromium.launch(args=CHROMIUM_ARGS, executable_path=args.browser_executable)
         operator = browser.new_context()
         operator.grant_permissions(["camera", "microphone"])
         page = operator.new_page()

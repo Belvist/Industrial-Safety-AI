@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScanLine, Video, Eye, EyeOff, Activity } from "lucide-react";
 import type { Camera, Point, Result } from "../types";
 import { labels, percentage } from "../types";
-import { useAuthedImageUrl } from "../useAuthedImage";
+import { observeClient } from "../clientMetrics";
+import { useAuthedImage } from "../useAuthedImage";
 export default function CameraViewport({
   camera,
   result,
@@ -15,6 +16,7 @@ export default function CameraViewport({
   setShowBoxes,
   showRaw,
   setShowRaw,
+  dataStale = false,
 }: {
   camera?: Camera;
   result?: Result | null;
@@ -27,17 +29,43 @@ export default function CameraViewport({
   setShowBoxes: (value: boolean) => void;
   showRaw: boolean;
   setShowRaw: (value: boolean) => void;
+  dataStale?: boolean;
 }) {
   const [displayed, setDisplayed] = useState<Result | null>(null);
+  const rendered = useRef<{ started: number; frames: number[]; last: number }>({
+    started: performance.now(),
+    frames: [],
+    last: -1,
+  });
+  const [uiFps, setUiFps] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = performance.now();
+      rendered.current.frames = rendered.current.frames.filter(
+        (t) => now - t < 60000,
+      );
+      const seconds = Math.min(60, (now - rendered.current.started) / 1000);
+      setUiFps(seconds > 0 ? rendered.current.frames.length / seconds : 0);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
   useEffect(() => {
     setDisplayed(null);
+    rendered.current = { started: performance.now(), frames: [], last: -1 };
+    setUiFps(0);
   }, [camera?.id, camera?.session_id]);
+  const stale =
+    dataStale ||
+    camera?.status === "stale" ||
+    (result?.data_age_ms ?? 0) > 5000;
   // When editing, show every draft zone; the active one is highlighted.
-  const draftZones = editing ? zones ?? [] : [];
+  const draftZones = editing ? (zones ?? []) : [];
   const activeZone = editing ? points : camera?.zone || [];
   // Evidence frames load with auth headers into a Blob URL: the bearer
   // token never lands in an <img> URL, logs or Referer query strings.
-  const frameSrc = useAuthedImageUrl(result ? result.frame_url : null);
+  const loaded = useAuthedImage(result?.frame_url ?? null, result);
+  const frameSrc =
+    loaded?.payload?.session_id === camera?.session_id ? loaded?.url : null;
   // By default only worker-owned objects: person boxes and PPE attached to a
   // worker (track_hint). Unassigned raw detections need the debug toggle.
   const ratio = result ? result.width / result.height : 16 / 9;
@@ -66,8 +94,21 @@ export default function CameraViewport({
               src={frameSrc || undefined}
               alt="Кадр камеры с распознанными объектами"
               onLoad={(e) => {
-                if (frameSrc && e.currentTarget.src === frameSrc)
-                  setDisplayed(result);
+                if (
+                  frameSrc &&
+                  e.currentTarget.src === frameSrc &&
+                  loaded?.payload
+                ) {
+                  setDisplayed(loaded.payload);
+                  observeClient(
+                    "frame_display_ms",
+                    performance.now() - loaded.startedAt,
+                  );
+                  if (rendered.current.last !== loaded.payload.sequence) {
+                    rendered.current.frames.push(performance.now());
+                    rendered.current.last = loaded.payload.sequence;
+                  }
+                }
               }}
             />
           ) : (
@@ -154,8 +195,11 @@ export default function CameraViewport({
                 />
               ))}
           </svg>
-          {showBoxes && !editing && displayed && (
-            <div className="detection-overlay" aria-label="Работники, экипировка и прогноз">
+          {showBoxes && !editing && displayed && !stale && (
+            <div
+              className="detection-overlay"
+              aria-label="Работники, экипировка и прогноз"
+            >
               {/* Safety Radar: zone fill, trajectories, predicted path */}
               <svg
                 className="radar-overlay"
@@ -165,7 +209,9 @@ export default function CameraViewport({
                 {(displayed.radar?.scene?.zones ?? []).map((z) => (
                   <polygon
                     key={z.name}
-                    points={z.points.map(([x, y]) => `${x * 1000},${y * 1000}`).join(" ")}
+                    points={z.points
+                      .map(([x, y]) => `${x * 1000},${y * 1000}`)
+                      .join(" ")}
                     fill="rgba(220,38,38,.10)"
                     stroke="rgba(220,38,38,.55)"
                     strokeWidth="2"
@@ -173,33 +219,68 @@ export default function CameraViewport({
                 ))}
                 {(displayed.radar?.scene?.tracks ?? []).map((t) => {
                   const color =
-                    t.level === "CRITICAL" ? "#ef4444"
-                    : t.level === "WARNING" ? "#f59e0b"
-                    : t.level === "UNKNOWN" ? "#94a3b8"
-                    : "#22c55e";
-                  const path = t.trajectory.map(([x, y]) => `${x * 1000},${y * 1000}`).join(" ");
+                    t.level === "CRITICAL"
+                      ? "#ef4444"
+                      : t.level === "WARNING"
+                        ? "#f59e0b"
+                        : t.level === "UNKNOWN"
+                          ? "#94a3b8"
+                          : "#22c55e";
+                  const path = t.trajectory
+                    .map(([x, y]) => `${x * 1000},${y * 1000}`)
+                    .join(" ");
                   const last = t.trajectory[t.trajectory.length - 1];
                   const end = t.predicted[t.predicted.length - 1];
                   if (!last) return null;
                   return (
                     <g key={t.track_id}>
                       {t.trajectory.length > 1 && (
-                        <polyline points={path} fill="none" stroke={color} strokeWidth="3" opacity="0.75" />
+                        <polyline
+                          points={path}
+                          fill="none"
+                          stroke={color}
+                          strokeWidth="3"
+                          opacity="0.75"
+                        />
                       )}
                       {end && (
                         <>
                           <line
-                            x1={last[0] * 1000} y1={last[1] * 1000}
-                            x2={end[0] * 1000} y2={end[1] * 1000}
-                            stroke={color} strokeWidth="3" strokeDasharray="8 6" opacity="0.9"
+                            x1={last[0] * 1000}
+                            y1={last[1] * 1000}
+                            x2={end[0] * 1000}
+                            y2={end[1] * 1000}
+                            stroke={color}
+                            strokeWidth="3"
+                            strokeDasharray="8 6"
+                            opacity="0.9"
                           />
-                          <circle cx={end[0] * 1000} cy={end[1] * 1000} r="6" fill="none" stroke={color} strokeWidth="3" />
+                          <circle
+                            cx={end[0] * 1000}
+                            cy={end[1] * 1000}
+                            r="6"
+                            fill="none"
+                            stroke={color}
+                            strokeWidth="3"
+                          />
                         </>
                       )}
                       {t.intersection && (
                         <g>
-                          <circle cx={t.intersection[0] * 1000} cy={t.intersection[1] * 1000} r="9" fill="none" stroke="#f59e0b" strokeWidth="4" />
-                          <circle cx={t.intersection[0] * 1000} cy={t.intersection[1] * 1000} r="3" fill="#f59e0b" />
+                          <circle
+                            cx={t.intersection[0] * 1000}
+                            cy={t.intersection[1] * 1000}
+                            r="9"
+                            fill="none"
+                            stroke="#f59e0b"
+                            strokeWidth="4"
+                          />
+                          <circle
+                            cx={t.intersection[0] * 1000}
+                            cy={t.intersection[1] * 1000}
+                            r="3"
+                            fill="#f59e0b"
+                          />
                         </g>
                       )}
                     </g>
@@ -211,14 +292,21 @@ export default function CameraViewport({
               {(displayed.tracks ?? []).map((t) => {
                 const level = displayed.radar?.track_risks?.[t.id] ?? "UNKNOWN";
                 const color =
-                  level === "CRITICAL" ? "critical"
-                  : level === "WARNING" ? "warning"
-                  : level === "UNKNOWN" ? "unknown"
-                  : "normal";
+                  level === "CRITICAL"
+                    ? "critical"
+                    : level === "WARNING"
+                      ? "warning"
+                      : level === "UNKNOWN"
+                        ? "unknown"
+                        : "normal";
                 const helmet = t.ppe?.helmet ?? "unknown";
                 const vest = t.ppe?.vest ?? "unknown";
                 const label = (v: string) =>
-                  v === "present" ? "есть" : v === "missing" ? "НЕТ" : "неизвестно";
+                  v === "present"
+                    ? "есть"
+                    : v === "missing"
+                      ? "НЕТ"
+                      : "неизвестно";
                 return (
                   <div
                     key={t.id}
@@ -233,6 +321,12 @@ export default function CameraViewport({
                     <span className="track-label">
                       <b>#{t.id}</b> · {level}
                       <br />
+                      {(t.ppe_age_seconds ?? 0) > 0 && (
+                        <>
+                          СИЗ: {(t.ppe_age_seconds ?? 0).toFixed(1)} с назад
+                          <br />
+                        </>
+                      )}
                       каска: {label(helmet)}
                       {" · "}жилет: {label(vest)}
                     </span>
@@ -241,29 +335,36 @@ export default function CameraViewport({
               })}
 
               {/* Diagnostics: raw/unassigned detections only in raw mode */}
-              {showRaw && (displayed.detections ?? [])
-                .filter((d) => d.track_hint == null)
-                .map((d, index) => (
-                  <div
-                    key={`raw-${index}`}
-                    className="detection-box raw"
-                    style={{
-                      left: `${d.bbox.x1 * 100}%`,
-                      top: `${d.bbox.y1 * 100}%`,
-                      width: `${(d.bbox.x2 - d.bbox.x1) * 100}%`,
-                      height: `${(d.bbox.y2 - d.bbox.y1) * 100}%`,
-                    }}
-                  >
-                    <span className="detection-label">
-                      {labels[d.class_name] || d.class_name}
-                      {d.weak ? " · слабая" : ""}
-                      <b>{percentage(d.confidence)}</b>
-                    </span>
-                  </div>
-                ))}
+              {showRaw &&
+                (displayed.detections ?? [])
+                  .filter((d) => d.track_hint == null)
+                  .map((d, index) => (
+                    <div
+                      key={`raw-${index}`}
+                      className="detection-box raw"
+                      style={{
+                        left: `${d.bbox.x1 * 100}%`,
+                        top: `${d.bbox.y1 * 100}%`,
+                        width: `${(d.bbox.x2 - d.bbox.x1) * 100}%`,
+                        height: `${(d.bbox.y2 - d.bbox.y1) * 100}%`,
+                      }}
+                    >
+                      <span className="detection-label">
+                        {labels[d.class_name] || d.class_name}
+                        {d.weak ? " · слабая" : ""}
+                        <b>{percentage(d.confidence)}</b>
+                      </span>
+                    </div>
+                  ))}
             </div>
           )}
         </div>
+        {stale && (
+          <div className="zone-hint" role="status">
+            Нет свежих данных · последнее изображение{" "}
+            {((result?.data_age_ms ?? 0) / 1000).toFixed(1)} с назад
+          </div>
+        )}
         <div className="video-topline">
           <span
             className={
@@ -271,7 +372,9 @@ export default function CameraViewport({
             }
           >
             <i />
-            {labels[camera?.status || "stopped"]}
+            {camera?.kind === "video" && camera.status === "running"
+              ? "Анализ файла"
+              : labels[camera?.status || "stopped"]}
           </span>
           {displayed && (
             <span className="frame-counter">
@@ -289,9 +392,23 @@ export default function CameraViewport({
         <div className="telemetry">
           <span>
             <Activity size={14} />
-            {displayed?.fps || "—"} FPS
+            Аналитика {result?.metrics?.rates.analytics?.fps.toFixed(1) ??
+              "—"}{" "}
+            FPS
+          </span>
+          <span title="Захваченные кадры за измеренное окно">
+            Захват {result?.metrics?.rates.capture?.fps.toFixed(1) ?? "—"}
+          </span>
+          <span title="Успешные удалённые TPU-результаты; прочерк для локального режима">
+            TPU {result?.metrics?.rates.tpu?.fps.toFixed(1) ?? "—"}
+          </span>
+          <span title="Уникальные кадры, загруженные в этом окне браузера">
+            UI {uiFps.toFixed(1)}
           </span>
           <span>{displayed?.latency_ms || "—"} мс</span>
+          <span title="Отброшенные кадры при перегрузке">
+            Пропуски {result?.metrics?.rates.dropped?.total ?? 0}
+          </span>
           <span>{displayed?.tracks.length ?? 0} чел.</span>
         </div>
         <button

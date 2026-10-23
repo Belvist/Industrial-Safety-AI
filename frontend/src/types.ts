@@ -14,6 +14,7 @@ export type Track = {
   violations: string[];
   ppe: Record<string, string>;
   ppe_confidence: Record<string, number>;
+  ppe_age_seconds?: number;
 };
 export type Rule = {
   track_id: number;
@@ -66,6 +67,12 @@ export type Result = {
   height: number;
   timestamp: string;
   radar?: Radar | null;
+  metrics?: {
+    window_seconds: number;
+    rates: Record<string, { fps: number; total: number; window_count: number }>;
+    stages: Record<string, { p50: number; p95: number; p99: number }>;
+  };
+  data_age_ms?: number;
 };
 export type Zone = {
   id: string;
@@ -101,6 +108,7 @@ export type CameraState =
   | "ended"
   | "error";
 export type Camera = Config & {
+  frame_capacity?: number;
   id: string;
   status: CameraState;
   session_id: string | null;
