@@ -92,7 +92,14 @@ Environment: Mac client → OpenVPN → RabbitMQ `10.0.114.30:5672` → shared
 TPU worker. The broker round-trip dominates; the worker time excludes queue
 and network transfer.
 
-20-iteration stage breakdown on `coco_000124.jpg`:
+14-frame run (8 val + 6 test images) with `LinqProvider`:
+
+| Metric | p50 | p95 |
+|---|---|---|
+| Total wall (preprocess + RabbitMQ + decode) | 984.8 ms | 1258.6 ms |
+| Worker `inference_time` (reported by TPU worker) | 73.7 ms | 80.2 ms |
+
+Earlier 20-iteration stage breakdown on `coco_000124.jpg`:
 
 | Stage | p50 | p95 |
 |---|---|---|
@@ -102,17 +109,20 @@ and network transfer.
 | Host decode (sigmoid + NMS) | 1.66 ms | 3.52 ms |
 | Worker `inference_time` | 55.63 ms | 86.27 ms |
 
-30-iteration end-to-end run:
+30-iteration end-to-end run (earlier):
 
 | Metric | p50 | p95 |
 |---|---|---|
 | Provider `predict` / wall | 2418.5 ms | 2715.0 ms |
 | Worker `inference_time` | 75.4 ms | 81.6 ms |
 
-A second 20-iteration run measured wall p50 `1362.8 ms`, p95 `1538.4 ms`;
-the broker/VPN path is variable. Wall throughput is therefore ~0.4–0.7 FPS
-in this setup. Worker-only throughput is ~13–18 FPS, but it is **not**
-end-to-end and is not used as the headline number.
+The broker/VPN path is variable (wall p50 0.98–2.42 s across runs).
+Wall throughput ~0.4–1.0 FPS in this setup. Worker-only throughput
+~12–18 FPS (73–80 ms), but **not** end-to-end and not used as headline.
+
+All measurements use the compiled `ppe_nosig_p999.tpu` program
+(SHA-256 `ac9fc87355edf9fb5552537c02f4b1a584370859dc6a7b96a4e6f1ec4b22eabd`)
+over RabbitMQ `tpu.direct`/`input` with protocol `linq-rabbitmq-tpu-v1`.
 
 ## Adapter truth
 
