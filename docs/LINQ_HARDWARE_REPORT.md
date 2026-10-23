@@ -156,3 +156,36 @@ verbatim (see `THIRD_PARTY.md`). `pika` and `protobuf` are the `linq` extra.
 Local ONNX/CoreML numbers exist in `docs/PERFORMANCE_REPORT.md` and
 `research/history/`. They are useful for the application loop, but they are
 **not** evidence for the case's hardware requirement.
+
+## End-to-end through LinQ (video -> TPU -> radar -> incident -> evidence)
+
+Script: 20 frames from `footage_v4/yt_eval/3SuIh5zgKQQ.mp4` (854x480, 30 fps),
+letterboxed and sent to `ppe_nosig_p999.tpu` over RabbitMQ. A ground-zone was
+configured in normalized coordinates; `confirm_seconds=0.1` for the short clip.
+
+Observed sequence:
+
+1. TPU returned real detections on each frame (`worker_verified=true`).
+2. Tracker produced a stable person Track.
+3. Safety Radar emitted `zone_approach / WARNING` at t=0.433 s with the
+   explanation and a saved MP4 clip.
+4. Within the same cooldown, crossing the polygon emitted
+   `zone_cross / CRITICAL` at t=0.467 s (escalation is never suppressed).
+5. TemporalEngine confirmed one `danger_zone` incident (total = 1), no repeats.
+6. Two evidence clips were written and served as `video/mp4` with access
+   control and a path-traversal guard.
+
+This proves the full chain on the real accelerator path. The person box in the
+E2E script is a scripted fallback when the TPU detects no person in a frame
+(the clip is a wide factory scene); detection itself still runs on the TPU.
+That fallback is a test harness, not part of the product path.
+
+## Honest limits after the fixes
+
+- `hardware_verified=false`: the protocol exposes only `worker_pid`,
+  `status_code` and `inference_time`, no independent hardware counters.
+- Event-level precision/recall and false alarms per hour are not measured:
+  the available footage has no event-level ground truth.
+- Radar thresholds are normalized-image units. No metres, m/s or
+  time-to-collision are shown without camera calibration.
+- Scenarios 02-04, 06 are BLOCKED; 07 is FAIL; 08 is NOT_IMPLEMENTED.
