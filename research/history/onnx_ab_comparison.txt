@@ -1,0 +1,25 @@
+Test images: 124
+
+base (models/ppe.onnx): 531 ms/frame
+  person: P=0.71 R=0.89 F1=0.79 AP50=0.69 (tp=195 fp=79 fn=23)
+  helmet: P=0.86 R=0.56 F1=0.67 AP50=0.49 (tp=126 fp=21 fn=101)
+  no_helmet: P=1.00 R=0.52 F1=0.68 AP50=0.52 (tp=16 fp=0 fn=15)
+  vest: P=0.91 R=0.32 F1=0.47 AP50=0.30 (tp=42 fp=4 fn=89)
+  no_vest: P=0.90 R=0.28 F1=0.43 AP50=0.27 (tp=18 fp=2 fn=46)
+  mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=0)
+  no_mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=3 fn=2)
+  mAP50=0.324 mAP50-95=0.185
+  confusion (gt->pred): background->helmet=21, background->no_mask=3, background->no_vest=2, background->person=79, background->vest=4, helmet->background=101, helmet->helmet=126, no_helmet->background=15, no_helmet->no_helmet=16, no_mask->background=2, no_vest->background=46, no_vest->no_vest=18, person->background=23, person->person=195, vest->background=89, vest->vest=42
+
+candidate (models/ppe-candidate.onnx): 483 ms/frame
+  person: P=0.71 R=0.89 F1=0.79 AP50=0.69 (tp=195 fp=79 fn=23)
+  helmet: P=0.86 R=0.78 F1=0.81 AP50=0.74 (tp=176 fp=29 fn=51)
+  no_helmet: P=0.62 R=0.32 F1=0.43 AP50=0.21 (tp=10 fp=6 fn=21)
+  vest: P=0.85 R=0.76 F1=0.81 AP50=0.67 (tp=100 fp=17 fn=31)
+  no_vest: P=0.54 R=0.52 F1=0.53 AP50=0.34 (tp=33 fp=28 fn=31)
+  mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=0)
+  no_mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=2)
+  mAP50=0.380 mAP50-95=0.195
+  confusion (gt->pred): background->helmet=29, background->no_helmet=6, background->no_vest=28, background->person=79, background->vest=17, helmet->background=51, helmet->helmet=176, no_helmet->background=21, no_helmet->no_helmet=10, no_mask->background=2, no_vest->background=31, no_vest->no_vest=33, person->background=23, person->person=195, vest->background=31, vest->vest=100
+
+Adopt the candidate only if it wins on test recall/false-positives, not on a single screenshot.

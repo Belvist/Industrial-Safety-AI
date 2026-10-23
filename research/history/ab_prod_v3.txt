@@ -1,0 +1,26 @@
+Test images: 124
+Production thresholds: {'person': 0.45, 'helmet': 0.5, 'no_helmet': 0.6, 'vest': 0.5, 'no_vest': 0.6, 'mask': 0.5, 'no_mask': 0.6, 'smoking': 0.55}
+
+base (/Users/earflow/Downloads/Industrial-Safety-AI/models/ppe-v3.onnx): 444 ms/frame
+  person: P=0.72 R=0.88 F1=0.79 AP50=0.68 (tp=191 fp=76 fn=27)
+  helmet: P=0.87 R=0.78 F1=0.82 AP50=0.75 (tp=177 fp=27 fn=50)
+  no_helmet: P=0.83 R=0.32 F1=0.47 AP50=0.28 (tp=10 fp=2 fn=21)
+  vest: P=0.82 R=0.71 F1=0.76 AP50=0.62 (tp=93 fp=20 fn=38)
+  no_vest: P=0.68 R=0.41 F1=0.51 AP50=0.34 (tp=25 fp=12 fn=36)
+  mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=0)
+  no_mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=2)
+  mAP50=0.380 mAP50-95=0.202
+  confusion (gt->pred): background->helmet=27, background->no_helmet=2, background->no_vest=12, background->person=76, background->vest=20, helmet->background=50, helmet->helmet=177, no_helmet->background=21, no_helmet->no_helmet=10, no_mask->background=2, no_vest->background=36, no_vest->no_vest=25, person->background=27, person->person=191, vest->background=38, vest->vest=93
+
+candidate (/Users/earflow/Downloads/Industrial-Safety-AI/models/ppe-v3-clean.onnx): 435 ms/frame
+  person: P=0.72 R=0.88 F1=0.79 AP50=0.68 (tp=191 fp=76 fn=27)
+  helmet: P=0.89 R=0.77 F1=0.82 AP50=0.74 (tp=174 fp=22 fn=53)
+  no_helmet: P=0.89 R=0.26 F1=0.40 AP50=0.25 (tp=8 fp=1 fn=23)
+  vest: P=0.84 R=0.66 F1=0.74 AP50=0.61 (tp=86 fp=16 fn=45)
+  no_vest: P=0.72 R=0.30 F1=0.42 AP50=0.25 (tp=18 fp=7 fn=43)
+  mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=0)
+  no_mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=2)
+  mAP50=0.360 mAP50-95=0.189
+  confusion (gt->pred): background->helmet=22, background->no_helmet=1, background->no_vest=7, background->person=76, background->vest=16, helmet->background=53, helmet->helmet=174, no_helmet->background=23, no_helmet->no_helmet=8, no_mask->background=2, no_vest->background=43, no_vest->no_vest=18, person->background=27, person->person=191, vest->background=45, vest->vest=86
+
+Adopt the candidate only if it wins on test recall/false-positives, not on a single screenshot.

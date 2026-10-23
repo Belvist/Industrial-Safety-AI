@@ -1,0 +1,26 @@
+Test images: 124
+Production thresholds: {'person': 0.45, 'helmet': 0.5, 'no_helmet': 0.6, 'vest': 0.5, 'no_vest': 0.6, 'mask': 0.5, 'no_mask': 0.6, 'smoking': 0.55}
+
+base (/Users/earflow/Downloads/Industrial-Safety-AI/models/ppe.onnx): 532 ms/frame
+  person: P=0.72 R=0.88 F1=0.79 AP50=0.68 (tp=191 fp=76 fn=27)
+  helmet: P=0.82 R=0.29 F1=0.43 AP50=0.25 (tp=66 fp=14 fn=161)
+  no_helmet: P=1.00 R=0.23 F1=0.37 AP50=0.23 (tp=7 fp=0 fn=24)
+  vest: P=0.60 R=0.02 F1=0.04 AP50=0.02 (tp=3 fp=2 fn=128)
+  no_vest: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=61)
+  mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=0)
+  no_mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=2)
+  mAP50=0.167 mAP50-95=0.088
+  confusion (gt->pred): background->helmet=14, background->person=76, background->vest=2, helmet->background=161, helmet->helmet=66, no_helmet->background=24, no_helmet->no_helmet=7, no_mask->background=2, no_vest->background=61, person->background=27, person->person=191, vest->background=128, vest->vest=3
+
+candidate (/Users/earflow/Downloads/Industrial-Safety-AI/models/ppe-v3-clean.onnx): 444 ms/frame
+  person: P=0.72 R=0.88 F1=0.79 AP50=0.68 (tp=191 fp=76 fn=27)
+  helmet: P=0.89 R=0.77 F1=0.82 AP50=0.74 (tp=174 fp=22 fn=53)
+  no_helmet: P=0.89 R=0.26 F1=0.40 AP50=0.25 (tp=8 fp=1 fn=23)
+  vest: P=0.84 R=0.66 F1=0.74 AP50=0.61 (tp=86 fp=16 fn=45)
+  no_vest: P=0.72 R=0.30 F1=0.42 AP50=0.25 (tp=18 fp=7 fn=43)
+  mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=0)
+  no_mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=2)
+  mAP50=0.360 mAP50-95=0.189
+  confusion (gt->pred): background->helmet=22, background->no_helmet=1, background->no_vest=7, background->person=76, background->vest=16, helmet->background=53, helmet->helmet=174, no_helmet->background=23, no_helmet->no_helmet=8, no_mask->background=2, no_vest->background=43, no_vest->no_vest=18, person->background=27, person->person=191, vest->background=45, vest->vest=86
+
+Adopt the candidate only if it wins on test recall/false-positives, not on a single screenshot.

@@ -1,0 +1,51 @@
+{
+ "source": "footage_v4/yt_eval_12min.mp4",
+ "wall_seconds": 701.0,
+ "model": {
+  "path": "models/ppe-v4cloud.onnx",
+  "sha256": "f02ceb50ff1c2b4b41351e356c797dab866e5d900f4766b67b7cf542f6a55c46",
+  "person_model": "models/person.onnx",
+  "separate_person": false
+ },
+ "settings": {
+  "thresholds": {
+   "person": 0.45,
+   "helmet": 0.5,
+   "no_helmet": 0.6,
+   "vest": 0.5,
+   "no_vest": 0.6,
+   "mask": 0.5,
+   "no_mask": 0.6,
+   "smoking": 0.55
+  },
+  "roi": "off",
+  "target_fps": 30.0,
+  "confirm_s": 2.0,
+  "clear_s": 2.0,
+  "window": 4,
+  "required": 3
+ },
+ "frames_processed": 20302,
+ "fps_achieved": 28.96,
+ "latency_ms": {
+  "p50": 32.4,
+  "p95": 34.1,
+  "n": 20302
+ },
+ "cpu_pct": {
+  "mean": 112.5,
+  "max": 125.5
+ },
+ "rss_mb": {
+  "mean": 339,
+  "max": 492
+ },
+ "active_providers": [
+  "CoreMLExecutionProvider",
+  "CPUExecutionProvider"
+ ],
+ "incidents": 1,
+ "snapshots": 1,
+ "snapshots_verified": 1,
+ "transport": "video file (decode), not a live camera"
+}

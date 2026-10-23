@@ -1,0 +1,27 @@
+{
+ "source": "footage_v4/yt_eval_12min.mp4",
+ "wall_seconds": 715.9,
+ "frames_processed": 3444,
+ "fps_achieved": 4.81,
+ "latency_ms": {
+  "p50": 38.2,
+  "p95": 48.4,
+  "n": 3444
+ },
+ "cpu_pct": {
+  "mean": 105.8,
+  "max": 226.2
+ },
+ "rss_mb": {
+  "mean": 348,
+  "max": 504
+ },
+ "active_providers": [
+  "CoreMLExecutionProvider",
+  "CPUExecutionProvider"
+ ],
+ "incidents": 2,
+ "snapshots": 1,
+ "transport": "video file (decode), not a live camera",
+ "model": "models/ppe-v4cloud.onnx single-model, prod thresholds, ROI off"
+}

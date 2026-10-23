@@ -1,0 +1,115 @@
+{
+ "commit": "c1a62db154c6144eeec09d59c80b1d88a21b9f34",
+ "thresholds": {
+  "person": 0.45,
+  "helmet": 0.5,
+  "no_helmet": 0.6,
+  "vest": 0.5,
+  "no_vest": 0.6
+ },
+ "iou": 0.5,
+ "gt": {
+  "person": 218,
+  "helmet": 227,
+  "no_helmet": 31,
+  "vest": 131,
+  "no_vest": 61
+ },
+ "n_images": 124,
+ "models": [
+  {
+   "model": "base",
+   "weights": "models/ppe-v3-clean.onnx",
+   "weights_sha256": "b270cd96214105f6cabd7de3fb64a849be4bb18d4cebe2f99af4e6b112445d36",
+   "ms_mean": 458.9,
+   "ms_p95": 529.1,
+   "person": {
+    "tp": 191,
+    "fp": 76,
+    "fn": 27,
+    "p": 0.715,
+    "r": 0.876,
+    "f1": 0.788
+   },
+   "helmet": {
+    "tp": 171,
+    "fp": 20,
+    "fn": 56,
+    "p": 0.895,
+    "r": 0.753,
+    "f1": 0.818
+   },
+   "no_helmet": {
+    "tp": 8,
+    "fp": 1,
+    "fn": 23,
+    "p": 0.889,
+    "r": 0.258,
+    "f1": 0.4
+   },
+   "vest": {
+    "tp": 88,
+    "fp": 18,
+    "fn": 43,
+    "p": 0.83,
+    "r": 0.672,
+    "f1": 0.743
+   },
+   "no_vest": {
+    "tp": 20,
+    "fp": 6,
+    "fn": 41,
+    "p": 0.769,
+    "r": 0.328,
+    "f1": 0.46
+   }
+  },
+  {
+   "model": "candidate",
+   "weights": "models/ppe-v4.onnx",
+   "weights_sha256": "688bbf4d68217d1ff722aac06b2bae0a0296b6e5938d4b29f68623edd2d09f88",
+   "ms_mean": 453.9,
+   "ms_p95": 530.9,
+   "person": {
+    "tp": 191,
+    "fp": 76,
+    "fn": 27,
+    "p": 0.715,
+    "r": 0.876,
+    "f1": 0.788
+   },
+   "helmet": {
+    "tp": 177,
+    "fp": 28,
+    "fn": 50,
+    "p": 0.863,
+    "r": 0.78,
+    "f1": 0.819
+   },
+   "no_helmet": {
+    "tp": 14,
+    "fp": 3,
+    "fn": 17,
+    "p": 0.824,
+    "r": 0.452,
+    "f1": 0.583
+   },
+   "vest": {
+    "tp": 89,
+    "fp": 18,
+    "fn": 42,
+    "p": 0.832,
+    "r": 0.679,
+    "f1": 0.748
+   },
+   "no_vest": {
+    "tp": 19,
+    "fp": 11,
+    "fn": 42,
+    "p": 0.633,
+    "r": 0.311,
+    "f1": 0.418
+   }
+  }
+ ]
+}

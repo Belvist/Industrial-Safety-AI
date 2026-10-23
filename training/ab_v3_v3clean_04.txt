@@ -1,0 +1,26 @@
+Test images: 124
+Flat detector confidence 0.4 for all classes
+
+base (/Users/earflow/Downloads/Industrial-Safety-AI/models/ppe-v3.onnx): 667 ms/frame
+  person: P=0.71 R=0.89 F1=0.79 AP50=0.69 (tp=195 fp=79 fn=23)
+  helmet: P=0.85 R=0.84 F1=0.85 AP50=0.80 (tp=191 fp=33 fn=36)
+  no_helmet: P=0.78 R=0.45 F1=0.57 AP50=0.40 (tp=14 fp=4 fn=17)
+  vest: P=0.82 R=0.79 F1=0.80 AP50=0.69 (tp=103 fp=23 fn=28)
+  no_vest: P=0.67 R=0.66 F1=0.66 AP50=0.51 (tp=40 fp=20 fn=21)
+  mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=0)
+  no_mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=2)
+  mAP50=0.441 mAP50-95=0.225
+  confusion (gt->pred): background->helmet=33, background->no_helmet=4, background->no_vest=20, background->person=79, background->vest=23, helmet->background=36, helmet->helmet=191, no_helmet->background=17, no_helmet->no_helmet=14, no_mask->background=2, no_vest->background=21, no_vest->no_vest=40, person->background=23, person->person=195, vest->background=28, vest->vest=103
+
+candidate (/Users/earflow/Downloads/Industrial-Safety-AI/models/ppe-v3-clean.onnx): 543 ms/frame
+  person: P=0.71 R=0.89 F1=0.79 AP50=0.69 (tp=195 fp=79 fn=23)
+  helmet: P=0.85 R=0.85 F1=0.85 AP50=0.81 (tp=192 fp=35 fn=35)
+  no_helmet: P=0.82 R=0.45 F1=0.58 AP50=0.42 (tp=14 fp=3 fn=17)
+  vest: P=0.83 R=0.76 F1=0.79 AP50=0.70 (tp=100 fp=21 fn=31)
+  no_vest: P=0.69 R=0.66 F1=0.67 AP50=0.51 (tp=40 fp=18 fn=21)
+  mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=0)
+  no_mask: P=0.00 R=0.00 F1=0.00 AP50=0.00 (tp=0 fp=0 fn=2)
+  mAP50=0.446 mAP50-95=0.223
+  confusion (gt->pred): background->helmet=35, background->no_helmet=3, background->no_vest=18, background->person=79, background->vest=21, helmet->background=35, helmet->helmet=192, no_helmet->background=17, no_helmet->no_helmet=14, no_mask->background=2, no_vest->background=21, no_vest->no_vest=40, person->background=23, person->person=195, vest->background=31, vest->vest=100
+
+Adopt the candidate only if it wins on test recall/false-positives, not on a single screenshot.

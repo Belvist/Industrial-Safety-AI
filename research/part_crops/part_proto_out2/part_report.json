@@ -1,0 +1,107 @@
+{
+ "thresholds": {
+  "person": 0.45,
+  "helmet": 0.5,
+  "no_helmet": 0.6,
+  "vest": 0.5,
+  "no_vest": 0.6
+ },
+ "crops": 519,
+ "unknown": {
+  "head": 164,
+  "head_small": 16,
+  "torso": 157,
+  "torso_small": 3,
+  "persons": 269
+ },
+ "models": {
+  "person": {
+   "base": {
+    "tp": 193,
+    "fp": 76,
+    "fn": 25,
+    "p": 0.717,
+    "r": 0.885
+   },
+   "part": {
+    "tp": 193,
+    "fp": 76,
+    "fn": 25,
+    "p": 0.717,
+    "r": 0.885
+   }
+  },
+  "helmet": {
+   "base": {
+    "tp": 192,
+    "fp": 26,
+    "fn": 35,
+    "p": 0.881,
+    "r": 0.846
+   },
+   "part": {
+    "tp": 73,
+    "fp": 15,
+    "fn": 154,
+    "p": 0.83,
+    "r": 0.322
+   }
+  },
+  "no_helmet": {
+   "base": {
+    "tp": 12,
+    "fp": 1,
+    "fn": 19,
+    "p": 0.923,
+    "r": 0.387
+   },
+   "part": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 30,
+    "p": 1.0,
+    "r": 0.032
+   }
+  },
+  "vest": {
+   "base": {
+    "tp": 96,
+    "fp": 20,
+    "fn": 35,
+    "p": 0.828,
+    "r": 0.733
+   },
+   "part": {
+    "tp": 38,
+    "fp": 47,
+    "fn": 93,
+    "p": 0.447,
+    "r": 0.29
+   }
+  },
+  "no_vest": {
+   "base": {
+    "tp": 28,
+    "fp": 13,
+    "fn": 33,
+    "p": 0.683,
+    "r": 0.459
+   },
+   "part": {
+    "tp": 4,
+    "fp": 20,
+    "fn": 57,
+    "p": 0.167,
+    "r": 0.066
+   }
+  }
+ },
+ "latency": {
+  "base_ms_mean": 52.7,
+  "crop_stage_ms_mean": 163.2,
+  "person_only_ms_mean": 7.3,
+  "ppe_full_ms_mean": 44.6,
+  "ppe_crop_ms_mean": 38.867,
+  "crops_total": 519
+ }
+}

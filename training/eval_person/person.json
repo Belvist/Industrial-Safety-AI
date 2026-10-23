@@ -1,0 +1,50 @@
+{
+ "commit": "2f74b43a275649b3370ef456c9a22f0e09525d7c",
+ "mode": "intrinsic-vs-dual person only",
+ "rows": [
+  {
+   "model": "v3-clean",
+   "person_source": "intrinsic",
+   "tp": 193,
+   "fp": 47,
+   "fn": 25,
+   "p": 0.804,
+   "r": 0.885,
+   "f1": 0.843,
+   "ms_mean": 373.0
+  },
+  {
+   "model": "v3-clean",
+   "person_source": "dual",
+   "tp": 191,
+   "fp": 76,
+   "fn": 27,
+   "p": 0.715,
+   "r": 0.876,
+   "f1": 0.788,
+   "ms_mean": 452.3
+  },
+  {
+   "model": "v4",
+   "person_source": "intrinsic",
+   "tp": 191,
+   "fp": 46,
+   "fn": 27,
+   "p": 0.806,
+   "r": 0.876,
+   "f1": 0.84,
+   "ms_mean": 387.5
+  },
+  {
+   "model": "v4cloud",
+   "person_source": "intrinsic",
+   "tp": 188,
+   "fp": 53,
+   "fn": 30,
+   "p": 0.78,
+   "r": 0.862,
+   "f1": 0.819,
+   "ms_mean": 381.6
+  }
+ ]
+}

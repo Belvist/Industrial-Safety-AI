@@ -1,0 +1,8926 @@
+[
+ {
+  "model": "base",
+  "image": "coco_000000.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3173,
+   0.3486,
+   0.6377,
+   0.748
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.8513,
+   "iou": 0.398
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "base",
+  "image": "coco_000001.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3029,
+   0.5457,
+   0.3462,
+   0.5697
+  ],
+  "best_same": {
+   "conf": 0.4155,
+   "iou": 0.06,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5354,
+   "iou": 0.03
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "coco_000001.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.0793,
+   0.5313,
+   0.1707,
+   0.5889
+  ],
+  "best_same": {
+   "conf": 0.4573,
+   "iou": 0.646,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.848,
+   "iou": 0.038
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000001.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2596,
+   0.5433,
+   0.3173,
+   0.5913
+  ],
+  "best_same": {
+   "conf": 0.4155,
+   "iou": 0.439,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5354,
+   "iou": 0.079
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "coco_000002.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3438,
+   0.4843,
+   0.4231,
+   0.5639
+  ],
+  "best_same": {
+   "conf": 0.4989,
+   "iou": 0.738,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7203,
+   "iou": 0.074
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000003.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5687,
+   0.5409,
+   0.6361,
+   0.5986
+  ],
+  "best_same": {
+   "conf": 0.2548,
+   "iou": 0.6,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8954,
+   "iou": 0.06
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000004.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1731,
+   0.238,
+   0.262,
+   0.3317
+  ],
+  "best_same": {
+   "conf": 0.3091,
+   "iou": 0.7,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7765,
+   "iou": 0.097
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000004.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4207,
+   0.6514,
+   0.4832,
+   0.7284
+  ],
+  "best_same": {
+   "conf": 0.405,
+   "iou": 0.68,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7272,
+   "iou": 0.066
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000005.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3942,
+   0.2771,
+   0.7043,
+   0.5205
+  ],
+  "best_same": {
+   "conf": 0.7509,
+   "iou": 0.437,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8761,
+   "iou": 0.154
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "coco_000006.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5625,
+   0.3606,
+   0.6611,
+   0.4231
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7109,
+   "iou": 0.031
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "base",
+  "image": "coco_000007.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5024,
+   0.5745,
+   0.5457,
+   0.6106
+  ],
+  "best_same": null,
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "no_person"
+ },
+ {
+  "model": "base",
+  "image": "coco_000008.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4591,
+   0.2764,
+   0.6034,
+   0.4038
+  ],
+  "best_same": {
+   "conf": 0.422,
+   "iou": 0.742,
+   "weak": true
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000009.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.63,
+   0.3088,
+   0.7925,
+   0.5809
+  ],
+  "best_same": {
+   "conf": 0.765,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "coco_000012.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.7556,
+   0.4111,
+   1.0,
+   0.5527
+  ],
+  "best_same": {
+   "conf": 0.5555,
+   "iou": 0.449,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.829,
+   "iou": 0.223
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "coco_000012.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.7259,
+   0.6639,
+   1.0,
+   1.0
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.829,
+   "iou": 0.552
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "base",
+  "image": "coco_000013.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.448,
+   0.6697,
+   0.478,
+   0.7237
+  ],
+  "best_same": {
+   "conf": 0.4091,
+   "iou": 0.72,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8466,
+   "iou": 0.1
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000013.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.796,
+   0.6697,
+   0.832,
+   0.7207
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.8074,
+   "iou": 0.092
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "base",
+  "image": "coco_000015.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.188,
+   0.5766,
+   0.256,
+   0.6697
+  ],
+  "best_same": {
+   "conf": 0.4328,
+   "iou": 0.591,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7569,
+   "iou": 0.141
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000015.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.372,
+   0.5796,
+   0.41,
+   0.6577
+  ],
+  "best_same": {
+   "conf": 0.3439,
+   "iou": 0.583,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8382,
+   "iou": 0.071
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000015.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.654,
+   0.5586,
+   0.728,
+   0.6667
+  ],
+  "best_same": {
+   "conf": 0.386,
+   "iou": 0.541,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8968,
+   "iou": 0.137
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000016.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.0352,
+   0.6286,
+   0.9873,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.3934,
+   "iou": 0.86,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9449,
+   "iou": 0.433
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "coco_000016.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.3259,
+   0.1979,
+   0.7739,
+   0.3257
+  ],
+  "best_same": {
+   "conf": 0.8333,
+   "iou": 0.214,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9449,
+   "iou": 0.071
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "coco_000017.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.0,
+   0.8438,
+   1.0,
+   1.0
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.9122,
+   "iou": 0.246
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": false,
+  "cause": "no_assign"
+ },
+ {
+  "model": "base",
+  "image": "coco_000017.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.3102,
+   0.3714,
+   0.7117,
+   0.4674
+  ],
+  "best_same": {
+   "conf": 0.8118,
+   "iou": 0.206,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9122,
+   "iou": 0.062
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "coco_000031.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4656,
+   0.0979,
+   0.5535,
+   0.173
+  ],
+  "best_same": {
+   "conf": 0.4847,
+   "iou": 0.666,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9402,
+   "iou": 0.018
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000034.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.2922,
+   0.2664,
+   0.4109,
+   0.4992
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "vest",
+   "conf": 0.6011,
+   "iou": 0.685
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000035.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.6766,
+   0.7582,
+   0.9969,
+   0.9918
+  ],
+  "best_same": {
+   "conf": 0.3271,
+   "iou": 0.742,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7463,
+   "iou": 0.327
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000035.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4871,
+   0.2559,
+   0.5598,
+   0.3191
+  ],
+  "best_same": {
+   "conf": 0.4427,
+   "iou": 0.716,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9033,
+   "iou": 0.034
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000036.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7785,
+   0.1625,
+   0.8637,
+   0.3063
+  ],
+  "best_same": {
+   "conf": 0.4851,
+   "iou": 0.564,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7637,
+   "iou": 0.388
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000036.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.482,
+   0.0125,
+   0.5758,
+   0.1062
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7255,
+   "iou": 0.027
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000036.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.7883,
+   0.1,
+   0.832,
+   0.1406
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7637,
+   "iou": 0.053
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000036.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.8695,
+   0.1187,
+   0.9008,
+   0.1656
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7676,
+   "iou": 0.059
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000037.jpg",
+  "class": "person",
+  "gt_box": [
+   0.032,
+   0.0391,
+   0.3133,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.4479,
+   "iou": 0.672,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.7556,
+   "iou": 0.469
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000038.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2363,
+   0.7953,
+   0.9996,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.618,
+   "iou": 0.338,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8485,
+   "iou": 0.197
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000039.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.0488,
+   0.325,
+   0.1574,
+   0.45
+  ],
+  "best_same": {
+   "conf": 0.6978,
+   "iou": 0.062,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6959,
+   "iou": 0.276
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000039.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.5469,
+   0.3164,
+   0.8453,
+   0.6914
+  ],
+  "best_same": {
+   "conf": 0.6978,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6161,
+   "iou": 0.187
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000039.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5449,
+   0.3254,
+   0.9863,
+   0.9777
+  ],
+  "best_same": {
+   "conf": 0.6161,
+   "iou": 0.481,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000039.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.2746,
+   0.025,
+   0.341,
+   0.125
+  ],
+  "best_same": {
+   "conf": 0.404,
+   "iou": 0.631,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7177,
+   "iou": 0.07
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000040.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3516,
+   0.2555,
+   0.5078,
+   0.5211
+  ],
+  "best_same": {
+   "conf": 0.4194,
+   "iou": 0.727,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8536,
+   "iou": 0.553
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000040.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.784,
+   0.2535,
+   0.966,
+   0.7012
+  ],
+  "best_same": {
+   "conf": 0.4572,
+   "iou": 0.726,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6713,
+   "iou": 0.375
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000040.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.584,
+   0.1035,
+   0.6879,
+   0.1949
+  ],
+  "best_same": {
+   "conf": 0.3899,
+   "iou": 0.79,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8804,
+   "iou": 0.12
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000041.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.1086,
+   0.1152,
+   0.2398,
+   0.3363
+  ],
+  "best_same": {
+   "conf": 0.4698,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6491,
+   "iou": 0.415
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000041.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1742,
+   0.0,
+   0.2883,
+   0.0875
+  ],
+  "best_same": {
+   "conf": 0.8059,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6491,
+   "iou": 0.148
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000041.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.4953,
+   0.5062,
+   1.0,
+   0.8766
+  ],
+  "best_same": {
+   "conf": 0.4698,
+   "iou": 0.585,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6698,
+   "iou": 0.391
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000044.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2984,
+   0.2867,
+   0.4766,
+   0.4914
+  ],
+  "best_same": {
+   "conf": 0.6955,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7466,
+   "iou": 0.018
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000046.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6289,
+   0.2402,
+   0.8867,
+   0.7145
+  ],
+  "best_same": {
+   "conf": 0.4657,
+   "iou": 0.872,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6355,
+   "iou": 0.233
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000048.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.0828,
+   0.2164,
+   0.1953,
+   0.3102
+  ],
+  "best_same": {
+   "conf": 0.6524,
+   "iou": 0.486,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.4785,
+   "iou": 0.129
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000048.jpg",
+  "class": "person",
+  "gt_box": [
+   0.4492,
+   0.1562,
+   0.6727,
+   0.6375
+  ],
+  "best_same": {
+   "conf": 0.6756,
+   "iou": 0.353,
+   "weak": false
+  },
+  "best_other": {
+   "class": "no_helmet",
+   "conf": 0.6817,
+   "iou": 0.243
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000048.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.6574,
+   0.0496,
+   0.816,
+   0.141
+  ],
+  "best_same": {
+   "conf": 0.416,
+   "iou": 0.426,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.86,
+   "iou": 0.063
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000051.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1023,
+   0.3102,
+   0.2383,
+   0.4102
+  ],
+  "best_same": {
+   "conf": 0.779,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8866,
+   "iou": 0.117
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000051.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3785,
+   0.2512,
+   0.8559,
+   0.6254
+  ],
+  "best_same": {
+   "conf": 0.4458,
+   "iou": 0.773,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8443,
+   "iou": 0.363
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000051.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.075,
+   0.3824,
+   0.3156,
+   0.5254
+  ],
+  "best_same": {
+   "conf": 0.4458,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8866,
+   "iou": 0.319
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000052.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.2473,
+   0.457,
+   0.4605,
+   0.7852
+  ],
+  "best_same": {
+   "conf": 0.3533,
+   "iou": 0.47,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8772,
+   "iou": 0.298
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000054.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.0219,
+   0.2457,
+   0.3562,
+   0.7855
+  ],
+  "best_same": {
+   "conf": 0.4693,
+   "iou": 0.736,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7299,
+   "iou": 0.433
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000054.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.4441,
+   0.3059,
+   0.748,
+   0.7457
+  ],
+  "best_same": {
+   "conf": 0.4693,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.709,
+   "iou": 0.289
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000055.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2664,
+   0.1437,
+   0.6008,
+   0.3078
+  ],
+  "best_same": {
+   "conf": 0.4666,
+   "iou": 0.784,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.87,
+   "iou": 0.079
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000059.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.7836,
+   0.275,
+   0.9805,
+   0.7969
+  ],
+  "best_same": {
+   "conf": 0.5424,
+   "iou": 0.879,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7718,
+   "iou": 0.432
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000059.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.5094,
+   0.2625,
+   0.7562,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.5498,
+   "iou": 0.78,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6894,
+   "iou": 0.382
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000063.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.8051,
+   0.3176,
+   0.8824,
+   0.3793
+  ],
+  "best_same": {
+   "conf": 0.4004,
+   "iou": 0.683,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5871,
+   "iou": 0.068
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000064.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2297,
+   0.1645,
+   0.6969,
+   0.6246
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.6167,
+   "iou": 0.6
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000066.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.7762,
+   0.482,
+   0.8051,
+   0.5164
+  ],
+  "best_same": {
+   "conf": 0.2632,
+   "iou": 0.898,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6508,
+   "iou": 0.041
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000066.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5391,
+   0.5062,
+   0.5688,
+   0.5453
+  ],
+  "best_same": {
+   "conf": 0.4059,
+   "iou": 0.629,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7071,
+   "iou": 0.063
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000066.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3672,
+   0.5137,
+   0.4,
+   0.5473
+  ],
+  "best_same": {
+   "conf": 0.2724,
+   "iou": 0.619,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8169,
+   "iou": 0.044
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000066.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.5102,
+   0.5438,
+   0.5633,
+   0.6359
+  ],
+  "best_same": {
+   "conf": 0.3127,
+   "iou": 0.914,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7071,
+   "iou": 0.267
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000066.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2406,
+   0.5621,
+   0.2969,
+   0.6254
+  ],
+  "best_same": {
+   "conf": 0.5932,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7352,
+   "iou": 0.252
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000067.jpg",
+  "class": "person",
+  "gt_box": [
+   0.2344,
+   0.0953,
+   0.5437,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.4224,
+   "iou": 0.678,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.5946,
+   "iou": 0.498
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000068.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.6227,
+   0.2801,
+   0.6898,
+   0.3402
+  ],
+  "best_same": {
+   "conf": 0.4312,
+   "iou": 0.625,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8165,
+   "iou": 0.021
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000069.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3375,
+   0.7914,
+   0.4297,
+   0.9117
+  ],
+  "best_same": {
+   "conf": 0.7272,
+   "iou": 0.343,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6863,
+   "iou": 0.051
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000069.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4594,
+   0.9516,
+   0.5906,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.8524,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000069.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.6906,
+   0.268,
+   0.7859,
+   0.4227
+  ],
+  "best_same": {
+   "conf": 0.5133,
+   "iou": 0.608,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8028,
+   "iou": 0.103
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000069.jpg",
+  "class": "person",
+  "gt_box": [
+   0.4418,
+   0.3043,
+   0.4707,
+   0.3879
+  ],
+  "best_same": {
+   "conf": 0.6227,
+   "iou": 0.022,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.8193,
+   "iou": 0.039
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000069.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.6578,
+   0.3,
+   0.7062,
+   0.4469
+  ],
+  "best_same": {
+   "conf": 0.5133,
+   "iou": 0.096,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8028,
+   "iou": 0.053
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000069.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5363,
+   0.3195,
+   0.6527,
+   0.543
+  ],
+  "best_same": {
+   "conf": 0.593,
+   "iou": 0.439,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.8193,
+   "iou": 0.065
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000069.jpg",
+  "class": "person",
+  "gt_box": [
+   0.6453,
+   0.2785,
+   0.7109,
+   0.6027
+  ],
+  "best_same": {
+   "conf": 0.3271,
+   "iou": 0.33,
+   "weak": true
+  },
+  "best_other": {
+   "class": "no_vest",
+   "conf": 0.6057,
+   "iou": 0.038
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000069.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.9035,
+   0.4746,
+   0.9996,
+   0.641
+  ],
+  "best_same": {
+   "conf": 0.4681,
+   "iou": 0.506,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8226,
+   "iou": 0.16
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000069.jpg",
+  "class": "person",
+  "gt_box": [
+   0.0,
+   0.3609,
+   0.0531,
+   0.9891
+  ],
+  "best_same": {
+   "conf": 0.8394,
+   "iou": 0.453,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.5348,
+   "iou": 0.061
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000071.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5426,
+   0.3426,
+   0.6574,
+   0.6309
+  ],
+  "best_same": {
+   "conf": 0.833,
+   "iou": 0.146,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.728,
+   "iou": 0.004
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000071.jpg",
+  "class": "person",
+  "gt_box": [
+   0.0078,
+   0.3148,
+   0.1703,
+   0.6883
+  ],
+  "best_same": {
+   "conf": 0.4162,
+   "iou": 0.822,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.6878,
+   "iou": 0.478
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000071.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7195,
+   0.0816,
+   0.9398,
+   0.4277
+  ],
+  "best_same": {
+   "conf": 0.3517,
+   "iou": 0.552,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7442,
+   "iou": 0.203
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000071.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1176,
+   0.3383,
+   0.1777,
+   0.393
+  ],
+  "best_same": {
+   "conf": 0.4762,
+   "iou": 0.456,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.6878,
+   "iou": 0.006
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000071.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5699,
+   0.3387,
+   0.6301,
+   0.4051
+  ],
+  "best_same": {
+   "conf": 0.4532,
+   "iou": 0.729,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.833,
+   "iou": 0.018
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000073.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1898,
+   0.1234,
+   0.657,
+   0.5859
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "vest",
+   "conf": 0.5194,
+   "iou": 0.707
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000074.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.0055,
+   0.1969,
+   0.2336,
+   0.4766
+  ],
+  "best_same": {
+   "conf": 0.4942,
+   "iou": 0.924,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9016,
+   "iou": 0.217
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000077.jpg",
+  "class": "person",
+  "gt_box": [
+   0.6871,
+   0.2445,
+   0.9223,
+   0.5836
+  ],
+  "best_same": {
+   "conf": 0.5636,
+   "iou": 0.328,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000081.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7828,
+   0.5598,
+   1.0,
+   0.9996
+  ],
+  "best_same": {
+   "conf": 0.4775,
+   "iou": 0.835,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7834,
+   "iou": 0.28
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000081.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.775,
+   0.0047,
+   1.0,
+   0.2094
+  ],
+  "best_same": {
+   "conf": 0.8577,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7834,
+   "iou": 0.118
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000082.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1543,
+   0.2863,
+   0.2113,
+   0.3449
+  ],
+  "best_same": {
+   "conf": 0.3811,
+   "iou": 0.754,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8647,
+   "iou": 0.065
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000082.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1215,
+   0.3469,
+   0.2191,
+   0.5234
+  ],
+  "best_same": {
+   "conf": 0.6785,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8647,
+   "iou": 0.334
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000082.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.4422,
+   0.3531,
+   0.5391,
+   0.5578
+  ],
+  "best_same": {
+   "conf": 0.5457,
+   "iou": 0.762,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8041,
+   "iou": 0.369
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000082.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.3363,
+   0.3703,
+   0.4418,
+   0.5688
+  ],
+  "best_same": {
+   "conf": 0.5997,
+   "iou": 0.87,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8041,
+   "iou": 0.316
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000084.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7242,
+   0.1273,
+   0.9273,
+   0.718
+  ],
+  "best_same": {
+   "conf": 0.4143,
+   "iou": 0.753,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6941,
+   "iou": 0.694
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000084.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2242,
+   0.2758,
+   0.5305,
+   0.6852
+  ],
+  "best_same": {
+   "conf": 0.7819,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7806,
+   "iou": 0.41
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000085.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.4258,
+   0.2937,
+   0.6898,
+   0.4375
+  ],
+  "best_same": {
+   "conf": 0.3845,
+   "iou": 0.452,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7423,
+   "iou": 0.353
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000086.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.2734,
+   0.5609,
+   1.0,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.5014,
+   "iou": 0.714,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8592,
+   "iou": 0.363
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000087.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5906,
+   0.0539,
+   0.8172,
+   0.3758
+  ],
+  "best_same": {
+   "conf": 0.6001,
+   "iou": 0.274,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.8014,
+   "iou": 0.174
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000087.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6215,
+   0.2172,
+   0.8129,
+   0.3594
+  ],
+  "best_same": {
+   "conf": 0.5437,
+   "iou": 0.114,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6001,
+   "iou": 0.114
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000087.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.3195,
+   0.1641,
+   0.4617,
+   0.4469
+  ],
+  "best_same": {
+   "conf": 0.5326,
+   "iou": 0.839,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.4629,
+   "iou": 0.315
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000087.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.482,
+   0.2637,
+   0.6992,
+   0.5676
+  ],
+  "best_same": {
+   "conf": 0.5437,
+   "iou": 0.844,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6808,
+   "iou": 0.388
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000088.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.6457,
+   0.4695,
+   0.7012,
+   0.5477
+  ],
+  "best_same": {
+   "conf": 0.3681,
+   "iou": 0.783,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8813,
+   "iou": 0.038
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000089.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5062,
+   0.2953,
+   0.5375,
+   0.3328
+  ],
+  "best_same": {
+   "conf": 0.3752,
+   "iou": 0.676,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.4698,
+   "iou": 0.05
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000089.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4086,
+   0.3137,
+   0.4508,
+   0.3691
+  ],
+  "best_same": {
+   "conf": 0.3305,
+   "iou": 0.789,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5419,
+   "iou": 0.007
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000089.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3238,
+   0.327,
+   0.3652,
+   0.3777
+  ],
+  "best_same": {
+   "conf": 0.4155,
+   "iou": 0.684,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5419,
+   "iou": 0.047
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000089.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3277,
+   0.4,
+   0.3863,
+   0.5375
+  ],
+  "best_same": {
+   "conf": 0.4537,
+   "iou": 0.834,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5419,
+   "iou": 0.191
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000090.jpg",
+  "class": "person",
+  "gt_box": [
+   0.2141,
+   0.6195,
+   0.2563,
+   0.8086
+  ],
+  "best_same": {
+   "conf": 0.8293,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000091.jpg",
+  "class": "person",
+  "gt_box": [
+   0.1695,
+   0.3152,
+   0.2742,
+   0.3895
+  ],
+  "best_same": {
+   "conf": 0.8429,
+   "iou": 0.035,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.7625,
+   "iou": 0.766
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": false,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000091.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.618,
+   0.3113,
+   0.7086,
+   0.4496
+  ],
+  "best_same": {
+   "conf": 0.5822,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7868,
+   "iou": 0.348
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000091.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.3449,
+   0.3961,
+   0.4191,
+   0.6148
+  ],
+  "best_same": {
+   "conf": 0.5665,
+   "iou": 0.599,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7894,
+   "iou": 0.095
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000091.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1277,
+   0.4352,
+   0.2566,
+   0.6773
+  ],
+  "best_same": {
+   "conf": 0.5822,
+   "iou": 0.617,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8429,
+   "iou": 0.141
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000092.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.1211,
+   0.2812,
+   0.4445,
+   0.7437
+  ],
+  "best_same": {
+   "conf": 0.438,
+   "iou": 0.737,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8651,
+   "iou": 0.486
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000093.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.4738,
+   0.6195,
+   0.573,
+   0.8477
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.8313,
+   "iou": 0.441
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000095.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1242,
+   0.2332,
+   0.4289,
+   0.6121
+  ],
+  "best_same": {
+   "conf": 0.4876,
+   "iou": 0.791,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7435,
+   "iou": 0.43
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000095.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.5539,
+   0.227,
+   0.8523,
+   0.6496
+  ],
+  "best_same": {
+   "conf": 0.4134,
+   "iou": 0.662,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8653,
+   "iou": 0.312
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000096.jpg",
+  "class": "person",
+  "gt_box": [
+   0.0547,
+   0.2281,
+   0.2875,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.3913,
+   "iou": 0.966,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.7422,
+   "iou": 0.119
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000096.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.0941,
+   0.4793,
+   0.2746,
+   0.9832
+  ],
+  "best_same": {
+   "conf": 0.4734,
+   "iou": 0.812,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5041,
+   "iou": 0.112
+  },
+  "thr": 0.6,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000096.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.0945,
+   0.2125,
+   0.2227,
+   0.325
+  ],
+  "best_same": {
+   "conf": 0.4939,
+   "iou": 0.694,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5041,
+   "iou": 0.004
+  },
+  "thr": 0.6,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000097.jpg",
+  "class": "person",
+  "gt_box": [
+   0.6578,
+   0.1531,
+   0.8203,
+   0.5594
+  ],
+  "best_same": {
+   "conf": 0.8526,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.7139,
+   "iou": 0.066
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000097.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.0801,
+   0.3062,
+   0.2402,
+   0.55
+  ],
+  "best_same": {
+   "conf": 0.5411,
+   "iou": 0.796,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8526,
+   "iou": 0.394
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000097.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.4574,
+   0.45,
+   0.5066,
+   0.5687
+  ],
+  "best_same": null,
+  "best_other": null,
+  "thr": 0.6,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "no_person"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000097.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.3645,
+   0.5531,
+   0.4137,
+   0.7
+  ],
+  "best_same": {
+   "conf": 0.5411,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5897,
+   "iou": 0.135
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000097.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6711,
+   0.225,
+   0.7664,
+   0.3875
+  ],
+  "best_same": {
+   "conf": 0.5411,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": null,
+  "thr": 0.6,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000098.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.5215,
+   0.5438,
+   0.7098,
+   0.775
+  ],
+  "best_same": {
+   "conf": 0.8745,
+   "iou": 0.073,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5938,
+   "iou": 0.344
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000099.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.6648,
+   0.2074,
+   0.7336,
+   0.2676
+  ],
+  "best_same": {
+   "conf": 0.4369,
+   "iou": 0.729,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8545,
+   "iou": 0.033
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000100.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.5652,
+   0.2832,
+   0.6316,
+   0.4184
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7636,
+   "iou": 0.258
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6879,
+   0.4332,
+   0.759,
+   0.6152
+  ],
+  "best_same": {
+   "conf": 0.3625,
+   "iou": 0.824,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7798,
+   "iou": 0.319
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.7816,
+   0.4504,
+   0.8277,
+   0.6137
+  ],
+  "best_same": {
+   "conf": 0.4943,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7299,
+   "iou": 0.192
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.3773,
+   0.5895,
+   0.4398,
+   0.848
+  ],
+  "best_same": {
+   "conf": 0.4943,
+   "iou": 0.027,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5677,
+   "iou": 0.383
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.5945,
+   0.6754,
+   0.6961,
+   0.8668
+  ],
+  "best_same": {
+   "conf": 0.4943,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8758,
+   "iou": 0.298
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1852,
+   0.6699,
+   0.2789,
+   0.9098
+  ],
+  "best_same": {
+   "conf": 0.4292,
+   "iou": 0.718,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8606,
+   "iou": 0.387
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.4453,
+   0.6961,
+   0.5453,
+   0.9117
+  ],
+  "best_same": {
+   "conf": 0.4943,
+   "iou": 0.779,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8685,
+   "iou": 0.381
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.7691,
+   0.8289,
+   0.8715,
+   0.9961
+  ],
+  "best_same": {
+   "conf": 0.4297,
+   "iou": 0.563,
+   "weak": true
+  },
+  "best_other": null,
+  "thr": 0.6,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000101.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1371,
+   0.2992,
+   0.3082,
+   0.6492
+  ],
+  "best_same": {
+   "conf": 0.4869,
+   "iou": 0.694,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8276,
+   "iou": 0.164
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000102.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.4703,
+   0.2355,
+   0.5625,
+   0.3348
+  ],
+  "best_same": {
+   "conf": 0.3795,
+   "iou": 0.572,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7089,
+   "iou": 0.092
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000102.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.1277,
+   0.2441,
+   0.2082,
+   0.3434
+  ],
+  "best_same": {
+   "conf": 0.5699,
+   "iou": 0.768,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6097,
+   "iou": 0.086
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000102.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.3285,
+   0.2703,
+   0.4152,
+   0.3328
+  ],
+  "best_same": {
+   "conf": 0.4255,
+   "iou": 0.649,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9018,
+   "iou": 0.046
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000102.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.1047,
+   0.3641,
+   0.1906,
+   0.4656
+  ],
+  "best_same": {
+   "conf": 0.5699,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6097,
+   "iou": 0.084
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000102.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.1566,
+   0.4137,
+   0.2527,
+   0.6926
+  ],
+  "best_same": {
+   "conf": 0.6968,
+   "iou": 0.064,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6097,
+   "iou": 0.356
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000103.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.468,
+   0.1922,
+   0.543,
+   0.2547
+  ],
+  "best_same": {
+   "conf": 0.4339,
+   "iou": 0.7,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8296,
+   "iou": 0.022
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000104.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.6727,
+   0.2066,
+   0.7664,
+   0.2934
+  ],
+  "best_same": {
+   "conf": 0.7649,
+   "iou": 0.475,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8923,
+   "iou": 0.03
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2547,
+   0.257,
+   0.3062,
+   0.3273
+  ],
+  "best_same": {
+   "conf": 0.467,
+   "iou": 0.861,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5793,
+   "iou": 0.012
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3141,
+   0.3207,
+   0.4016,
+   0.5918
+  ],
+  "best_same": {
+   "conf": 0.698,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.4812,
+   0.325,
+   0.5594,
+   0.5984
+  ],
+  "best_same": {
+   "conf": 0.287,
+   "iou": 0.801,
+   "weak": true
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.5648,
+   0.3605,
+   0.6523,
+   0.6129
+  ],
+  "best_same": {
+   "conf": 0.3834,
+   "iou": 0.926,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5132,
+   "iou": 0.022
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.843,
+   0.3336,
+   0.8898,
+   0.6523
+  ],
+  "best_same": {
+   "conf": 0.481,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6736,
+   "iou": 0.103
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.9031,
+   0.3109,
+   1.0,
+   0.6813
+  ],
+  "best_same": {
+   "conf": 0.481,
+   "iou": 0.803,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6736,
+   "iou": 0.247
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2492,
+   0.375,
+   0.3133,
+   0.6234
+  ],
+  "best_same": {
+   "conf": 0.3586,
+   "iou": 0.848,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5793,
+   "iou": 0.054
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.0031,
+   0.3539,
+   0.0719,
+   0.6648
+  ],
+  "best_same": {
+   "conf": 0.4684,
+   "iou": 0.789,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5248,
+   "iou": 0.35
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.084,
+   0.402,
+   0.1691,
+   0.6668
+  ],
+  "best_same": {
+   "conf": 0.271,
+   "iou": 0.712,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5793,
+   "iou": 0.023
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.7367,
+   0.1035,
+   0.8445,
+   0.9996
+  ],
+  "best_same": {
+   "conf": 0.3817,
+   "iou": 0.885,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.6833,
+   "iou": 0.259
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.3078,
+   0.1805,
+   0.4094,
+   0.9898
+  ],
+  "best_same": {
+   "conf": 0.3175,
+   "iou": 0.778,
+   "weak": true
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.5461,
+   "iou": 0.046
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.4051,
+   0.1969,
+   0.4949,
+   0.9984
+  ],
+  "best_same": {
+   "conf": 0.3182,
+   "iou": 0.127,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.633,
+   "iou": 0.305
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.4805,
+   0.2094,
+   0.568,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.3182,
+   "iou": 0.861,
+   "weak": true
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.6834,
+   "iou": 0.054
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5656,
+   0.2297,
+   0.6672,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.4461,
+   "iou": 0.909,
+   "weak": true
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.6185,
+   "iou": 0.059
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.2437,
+   0.2566,
+   0.3156,
+   0.9996
+  ],
+  "best_same": {
+   "conf": 0.5793,
+   "iou": 0.157,
+   "weak": false
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.698,
+   "iou": 0.021
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.0828,
+   0.2766,
+   0.1656,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.5793,
+   "iou": 0.025,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.6916,
+   "iou": 0.07
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.7445,
+   0.1035,
+   0.8055,
+   0.1824
+  ],
+  "best_same": {
+   "conf": 0.4632,
+   "iou": 0.686,
+   "weak": true
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000105.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.8059,
+   0.159,
+   0.8566,
+   0.2254
+  ],
+  "best_same": {
+   "conf": 0.5095,
+   "iou": 0.118,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6736,
+   "iou": 0.012
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000106.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4176,
+   0.0641,
+   0.5215,
+   0.1234
+  ],
+  "best_same": {
+   "conf": 0.3071,
+   "iou": 0.403,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.91,
+   "iou": 0.111
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000106.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3898,
+   0.1227,
+   0.5195,
+   0.2492
+  ],
+  "best_same": {
+   "conf": 0.4412,
+   "iou": 0.705,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.91,
+   "iou": 0.309
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000107.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2871,
+   0.1035,
+   0.4395,
+   0.2137
+  ],
+  "best_same": {
+   "conf": 0.475,
+   "iou": 0.601,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7301,
+   "iou": 0.043
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000107.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.5746,
+   0.1199,
+   0.7816,
+   0.5535
+  ],
+  "best_same": {
+   "conf": 0.3481,
+   "iou": 0.709,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.4551,
+   "iou": 0.468
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000107.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.5813,
+   0.0086,
+   0.6922,
+   0.1023
+  ],
+  "best_same": {
+   "conf": 0.5818,
+   "iou": 0.777,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.4551,
+   "iou": 0.065
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000108.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3391,
+   0.3953,
+   0.5031,
+   0.7859
+  ],
+  "best_same": {
+   "conf": 0.3813,
+   "iou": 0.856,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6104,
+   "iou": 0.376
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000108.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.5098,
+   0.423,
+   0.6824,
+   0.8738
+  ],
+  "best_same": {
+   "conf": 0.5186,
+   "iou": 0.699,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7096,
+   "iou": 0.384
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000111.jpg",
+  "class": "person",
+  "gt_box": [
+   0.1402,
+   0.1328,
+   0.7863,
+   0.9578
+  ],
+  "best_same": {
+   "conf": 0.2517,
+   "iou": 0.665,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.7628,
+   "iou": 0.291
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000113.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.6063,
+   0.2793,
+   0.6422,
+   0.3113
+  ],
+  "best_same": {
+   "conf": 0.4913,
+   "iou": 0.441,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8766,
+   "iou": 0.017
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000114.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.7738,
+   0.2914,
+   0.8027,
+   0.3273
+  ],
+  "best_same": {
+   "conf": 0.4118,
+   "iou": 0.456,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.4651,
+   "iou": 0.042
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000114.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.8117,
+   0.2914,
+   0.857,
+   0.3352
+  ],
+  "best_same": {
+   "conf": 0.4468,
+   "iou": 0.504,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8163,
+   "iou": 0.035
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000114.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6344,
+   0.4219,
+   0.7047,
+   0.6062
+  ],
+  "best_same": {
+   "conf": 0.3018,
+   "iou": 0.536,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7645,
+   "iou": 0.21
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000115.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5934,
+   0.4086,
+   0.8301,
+   0.9961
+  ],
+  "best_same": {
+   "conf": 0.3978,
+   "iou": 0.794,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.8156,
+   "iou": 0.57
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000115.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.543,
+   0.0918,
+   0.6133,
+   0.1754
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.8334,
+   "iou": 0.054
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000115.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.4902,
+   0.1621,
+   0.6004,
+   0.3957
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "vest",
+   "conf": 0.7566,
+   "iou": 0.69
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000115.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.0668,
+   0.2543,
+   0.2598,
+   0.5082
+  ],
+  "best_same": {
+   "conf": 0.2768,
+   "iou": 0.748,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8704,
+   "iou": 0.198
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000116.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3766,
+   0.2656,
+   0.4234,
+   0.3109
+  ],
+  "best_same": {
+   "conf": 0.3269,
+   "iou": 0.757,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.76,
+   "iou": 0.04
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000116.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4555,
+   0.2859,
+   0.4852,
+   0.3156
+  ],
+  "best_same": {
+   "conf": 0.5893,
+   "iou": 0.482,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.695,
+   "iou": 0.024
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000116.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5281,
+   0.2984,
+   0.5578,
+   0.3312
+  ],
+  "best_same": {
+   "conf": 0.3243,
+   "iou": 0.579,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7863,
+   "iou": 0.03
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000116.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.575,
+   0.323,
+   0.6016,
+   0.3504
+  ],
+  "best_same": {
+   "conf": 0.4703,
+   "iou": 0.555,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7272,
+   "iou": 0.036
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000116.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6281,
+   0.398,
+   0.6734,
+   0.5035
+  ],
+  "best_same": {
+   "conf": 0.463,
+   "iou": 0.726,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.776,
+   "iou": 0.222
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000118.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.1512,
+   0.2273,
+   0.3004,
+   0.5008
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7751,
+   "iou": 0.351
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000119.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.0703,
+   0.4238,
+   0.3547,
+   0.734
+  ],
+  "best_same": {
+   "conf": 0.4734,
+   "iou": 0.638,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6012,
+   "iou": 0.192
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000119.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.6051,
+   0.5777,
+   0.9293,
+   0.8395
+  ],
+  "best_same": {
+   "conf": 0.4422,
+   "iou": 0.511,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6012,
+   "iou": 0.04
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000120.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.5262,
+   0.5605,
+   0.566,
+   0.677
+  ],
+  "best_same": {
+   "conf": 0.6213,
+   "iou": 0.478,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7921,
+   "iou": 0.119
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000121.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5355,
+   0.3598,
+   0.5645,
+   0.7684
+  ],
+  "best_same": null,
+  "best_other": null,
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "no_person"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000121.jpg",
+  "class": "person",
+  "gt_box": [
+   0.4512,
+   0.3863,
+   0.5145,
+   0.7746
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.6081,
+   "iou": 0.056
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "no_person"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000122.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.6832,
+   0.423,
+   0.7418,
+   0.4863
+  ],
+  "best_same": {
+   "conf": 0.4356,
+   "iou": 0.811,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8553,
+   "iou": 0.041
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000122.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1797,
+   0.4457,
+   0.275,
+   0.4887
+  ],
+  "best_same": {
+   "conf": 0.5405,
+   "iou": 0.405,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8965,
+   "iou": 0.034
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000122.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.298,
+   0.4687,
+   0.4098,
+   0.5391
+  ],
+  "best_same": {
+   "conf": 0.6091,
+   "iou": 0.459,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8024,
+   "iou": 0.074
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000122.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1668,
+   0.5664,
+   0.2816,
+   0.8008
+  ],
+  "best_same": {
+   "conf": 0.5617,
+   "iou": 0.688,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8965,
+   "iou": 0.226
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000122.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.2781,
+   0.6125,
+   0.4562,
+   0.8641
+  ],
+  "best_same": {
+   "conf": 0.5983,
+   "iou": 0.479,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8024,
+   "iou": 0.363
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000123.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.8012,
+   0.2207,
+   0.977,
+   0.5074
+  ],
+  "best_same": {
+   "conf": 0.4691,
+   "iou": 0.656,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5725,
+   "iou": 0.166
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "base",
+  "image": "rf100_000123.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7047,
+   0.2691,
+   0.8047,
+   0.4855
+  ],
+  "best_same": {
+   "conf": 0.2711,
+   "iou": 0.856,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5725,
+   "iou": 0.071
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000000.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3173,
+   0.3486,
+   0.6377,
+   0.748
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.8513,
+   "iou": 0.398
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000001.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3029,
+   0.5457,
+   0.3462,
+   0.5697
+  ],
+  "best_same": {
+   "conf": 0.728,
+   "iou": 0.059,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5354,
+   "iou": 0.03
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000001.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2596,
+   0.5433,
+   0.3173,
+   0.5913
+  ],
+  "best_same": {
+   "conf": 0.728,
+   "iou": 0.482,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5354,
+   "iou": 0.079
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000003.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5687,
+   0.5409,
+   0.6361,
+   0.5986
+  ],
+  "best_same": {
+   "conf": 0.4598,
+   "iou": 0.477,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8954,
+   "iou": 0.06
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000004.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1731,
+   0.238,
+   0.262,
+   0.3317
+  ],
+  "best_same": {
+   "conf": 0.3927,
+   "iou": 0.845,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7765,
+   "iou": 0.097
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000004.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4207,
+   0.6514,
+   0.4832,
+   0.7284
+  ],
+  "best_same": {
+   "conf": 0.436,
+   "iou": 0.628,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7272,
+   "iou": 0.066
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000005.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3942,
+   0.2771,
+   0.7043,
+   0.5205
+  ],
+  "best_same": {
+   "conf": 0.3563,
+   "iou": 0.783,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8761,
+   "iou": 0.154
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000006.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5625,
+   0.3606,
+   0.6611,
+   0.4231
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7109,
+   "iou": 0.031
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000007.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5024,
+   0.5745,
+   0.5457,
+   0.6106
+  ],
+  "best_same": null,
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "no_person"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000008.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4591,
+   0.2764,
+   0.6034,
+   0.4038
+  ],
+  "best_same": {
+   "conf": 0.9052,
+   "iou": 0.058,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000009.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.63,
+   0.3088,
+   0.7925,
+   0.5809
+  ],
+  "best_same": {
+   "conf": 0.5817,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000010.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.553,
+   0.1226,
+   0.7185,
+   0.2646
+  ],
+  "best_same": {
+   "conf": 0.452,
+   "iou": 0.605,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8089,
+   "iou": 0.057
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000012.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.7259,
+   0.6639,
+   1.0,
+   1.0
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.829,
+   "iou": 0.552
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000013.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.448,
+   0.6697,
+   0.478,
+   0.7237
+  ],
+  "best_same": {
+   "conf": 0.4518,
+   "iou": 0.784,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8466,
+   "iou": 0.1
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000013.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.796,
+   0.6697,
+   0.832,
+   0.7207
+  ],
+  "best_same": {
+   "conf": 0.3242,
+   "iou": 0.757,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8074,
+   "iou": 0.092
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000014.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.286,
+   0.1888,
+   0.438,
+   0.5699
+  ],
+  "best_same": {
+   "conf": 0.6178,
+   "iou": 0.443,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8637,
+   "iou": 0.358
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000014.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.538,
+   0.1224,
+   0.7,
+   0.4755
+  ],
+  "best_same": {
+   "conf": 0.3937,
+   "iou": 0.871,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9424,
+   "iou": 0.192
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000016.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.0352,
+   0.6286,
+   0.9873,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.2671,
+   "iou": 0.838,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9449,
+   "iou": 0.433
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000016.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.3259,
+   0.1979,
+   0.7739,
+   0.3257
+  ],
+  "best_same": {
+   "conf": 0.7398,
+   "iou": 0.249,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9449,
+   "iou": 0.071
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000017.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.0,
+   0.8438,
+   1.0,
+   1.0
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.9122,
+   "iou": 0.246
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": false,
+  "cause": "no_assign"
+ },
+ {
+  "model": "candidate",
+  "image": "coco_000017.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.3102,
+   0.3714,
+   0.7117,
+   0.4674
+  ],
+  "best_same": {
+   "conf": 0.7617,
+   "iou": 0.193,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9122,
+   "iou": 0.062
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000034.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.2922,
+   0.2664,
+   0.4109,
+   0.4992
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "vest",
+   "conf": 0.5891,
+   "iou": 0.788
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000035.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.6766,
+   0.7582,
+   0.9969,
+   0.9918
+  ],
+  "best_same": {
+   "conf": 0.3092,
+   "iou": 0.742,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7463,
+   "iou": 0.327
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000036.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7785,
+   0.1625,
+   0.8637,
+   0.3063
+  ],
+  "best_same": {
+   "conf": 0.3158,
+   "iou": 0.562,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7637,
+   "iou": 0.388
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000036.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.482,
+   0.0125,
+   0.5758,
+   0.1062
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7255,
+   "iou": 0.027
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000036.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.7883,
+   0.1,
+   0.832,
+   0.1406
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7637,
+   "iou": 0.053
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000036.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.8695,
+   0.1187,
+   0.9008,
+   0.1656
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7676,
+   "iou": 0.059
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000037.jpg",
+  "class": "person",
+  "gt_box": [
+   0.032,
+   0.0391,
+   0.3133,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.4479,
+   "iou": 0.672,
+   "weak": true
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.832,
+   "iou": 0.255
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000037.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.0117,
+   0.4695,
+   0.3664,
+   0.9836
+  ],
+  "best_same": {
+   "conf": 0.2514,
+   "iou": 0.632,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.673,
+   "iou": 0.142
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000038.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2363,
+   0.7953,
+   0.9996,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.5308,
+   "iou": 0.374,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8485,
+   "iou": 0.197
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000039.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5449,
+   0.3254,
+   0.9863,
+   0.9777
+  ],
+  "best_same": {
+   "conf": 0.6161,
+   "iou": 0.481,
+   "weak": false
+  },
+  "best_other": {
+   "class": "no_helmet",
+   "conf": 0.6129,
+   "iou": 0.426
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000040.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3516,
+   0.2555,
+   0.5078,
+   0.5211
+  ],
+  "best_same": {
+   "conf": 0.2798,
+   "iou": 0.803,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8536,
+   "iou": 0.553
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000040.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.5687,
+   0.2711,
+   0.7,
+   0.5367
+  ],
+  "best_same": {
+   "conf": 0.4802,
+   "iou": 0.765,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8804,
+   "iou": 0.454
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000040.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.584,
+   0.1035,
+   0.6879,
+   0.1949
+  ],
+  "best_same": {
+   "conf": 0.4363,
+   "iou": 0.805,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8804,
+   "iou": 0.12
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000041.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.1086,
+   0.1152,
+   0.2398,
+   0.3363
+  ],
+  "best_same": {
+   "conf": 0.4243,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6491,
+   "iou": 0.415
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000041.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1742,
+   0.0,
+   0.2883,
+   0.0875
+  ],
+  "best_same": {
+   "conf": 0.8428,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6491,
+   "iou": 0.148
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000041.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.4953,
+   0.5062,
+   1.0,
+   0.8766
+  ],
+  "best_same": {
+   "conf": 0.4243,
+   "iou": 0.484,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6698,
+   "iou": 0.391
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000044.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2984,
+   0.2867,
+   0.4766,
+   0.4914
+  ],
+  "best_same": {
+   "conf": 0.5994,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7466,
+   "iou": 0.018
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000046.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6289,
+   0.2402,
+   0.8867,
+   0.7145
+  ],
+  "best_same": {
+   "conf": 0.4337,
+   "iou": 0.708,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6355,
+   "iou": 0.233
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000048.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.4922,
+   0.15,
+   0.6531,
+   0.3063
+  ],
+  "best_same": {
+   "conf": 0.7297,
+   "iou": 0.333,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6756,
+   "iou": 0.069
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000048.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.0828,
+   0.2164,
+   0.1953,
+   0.3102
+  ],
+  "best_same": {
+   "conf": 0.7205,
+   "iou": 0.366,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.4785,
+   "iou": 0.129
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000048.jpg",
+  "class": "person",
+  "gt_box": [
+   0.4492,
+   0.1562,
+   0.6727,
+   0.6375
+  ],
+  "best_same": {
+   "conf": 0.6756,
+   "iou": 0.353,
+   "weak": false
+  },
+  "best_other": {
+   "class": "no_helmet",
+   "conf": 0.7297,
+   "iou": 0.551
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000048.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.6574,
+   0.0496,
+   0.816,
+   0.141
+  ],
+  "best_same": {
+   "conf": 0.634,
+   "iou": 0.244,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.594,
+   "iou": 0.247
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000050.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.7023,
+   0.3004,
+   0.8742,
+   0.7918
+  ],
+  "best_same": {
+   "conf": 0.5387,
+   "iou": 0.757,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8514,
+   "iou": 0.353
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000051.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1023,
+   0.3102,
+   0.2383,
+   0.4102
+  ],
+  "best_same": {
+   "conf": 0.7667,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8866,
+   "iou": 0.117
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000051.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3785,
+   0.2512,
+   0.8559,
+   0.6254
+  ],
+  "best_same": {
+   "conf": 0.2949,
+   "iou": 0.784,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8443,
+   "iou": 0.363
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000051.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.075,
+   0.3824,
+   0.3156,
+   0.5254
+  ],
+  "best_same": {
+   "conf": 0.2949,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8866,
+   "iou": 0.319
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000052.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.2473,
+   0.457,
+   0.4605,
+   0.7852
+  ],
+  "best_same": {
+   "conf": 0.4747,
+   "iou": 0.768,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8772,
+   "iou": 0.298
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000052.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.0,
+   0.3906,
+   0.2062,
+   0.9078
+  ],
+  "best_same": {
+   "conf": 0.5812,
+   "iou": 0.744,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8825,
+   "iou": 0.457
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000054.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.0219,
+   0.2457,
+   0.3562,
+   0.7855
+  ],
+  "best_same": {
+   "conf": 0.3186,
+   "iou": 0.876,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7299,
+   "iou": 0.433
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000054.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.4441,
+   0.3059,
+   0.748,
+   0.7457
+  ],
+  "best_same": {
+   "conf": 0.3186,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.709,
+   "iou": 0.289
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000059.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1289,
+   0.2492,
+   0.3273,
+   0.8883
+  ],
+  "best_same": {
+   "conf": 0.4651,
+   "iou": 0.844,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6728,
+   "iou": 0.453
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000059.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.5094,
+   0.2625,
+   0.7562,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.389,
+   "iou": 0.688,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6894,
+   "iou": 0.382
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000063.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.8051,
+   0.3176,
+   0.8824,
+   0.3793
+  ],
+  "best_same": {
+   "conf": 0.457,
+   "iou": 0.712,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5871,
+   "iou": 0.068
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000064.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2297,
+   0.1645,
+   0.6969,
+   0.6246
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.6167,
+   "iou": 0.6
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000066.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.7762,
+   0.482,
+   0.8051,
+   0.5164
+  ],
+  "best_same": {
+   "conf": 0.4759,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6508,
+   "iou": 0.041
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000066.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5391,
+   0.5062,
+   0.5688,
+   0.5453
+  ],
+  "best_same": {
+   "conf": 0.4053,
+   "iou": 0.567,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7071,
+   "iou": 0.063
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000066.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3672,
+   0.5137,
+   0.4,
+   0.5473
+  ],
+  "best_same": {
+   "conf": 0.4705,
+   "iou": 0.676,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8169,
+   "iou": 0.044
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000066.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2398,
+   0.5164,
+   0.2648,
+   0.5602
+  ],
+  "best_same": {
+   "conf": 0.4759,
+   "iou": 0.672,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7352,
+   "iou": 0.062
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000066.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.5102,
+   0.5438,
+   0.5633,
+   0.6359
+  ],
+  "best_same": {
+   "conf": 0.4807,
+   "iou": 0.55,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7071,
+   "iou": 0.267
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000066.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2406,
+   0.5621,
+   0.2969,
+   0.6254
+  ],
+  "best_same": {
+   "conf": 0.732,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7352,
+   "iou": 0.252
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000067.jpg",
+  "class": "person",
+  "gt_box": [
+   0.2344,
+   0.0953,
+   0.5437,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.4224,
+   "iou": 0.678,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.704,
+   "iou": 0.473
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000069.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3375,
+   0.7914,
+   0.4297,
+   0.9117
+  ],
+  "best_same": {
+   "conf": 0.8271,
+   "iou": 0.265,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6863,
+   "iou": 0.051
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000069.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4594,
+   0.9516,
+   0.5906,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.8271,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000069.jpg",
+  "class": "person",
+  "gt_box": [
+   0.4418,
+   0.3043,
+   0.4707,
+   0.3879
+  ],
+  "best_same": {
+   "conf": 0.6227,
+   "iou": 0.022,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.8232,
+   "iou": 0.064
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000069.jpg",
+  "class": "helmet",
+  "gt_box": [
+   -0.0,
+   0.3758,
+   0.0359,
+   0.4445
+  ],
+  "best_same": {
+   "conf": 0.487,
+   "iou": 0.631,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8394,
+   "iou": 0.028
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000069.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5363,
+   0.3195,
+   0.6527,
+   0.543
+  ],
+  "best_same": {
+   "conf": 0.593,
+   "iou": 0.439,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.8232,
+   "iou": 0.066
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000069.jpg",
+  "class": "person",
+  "gt_box": [
+   0.6453,
+   0.2785,
+   0.7109,
+   0.6027
+  ],
+  "best_same": {
+   "conf": 0.3271,
+   "iou": 0.33,
+   "weak": true
+  },
+  "best_other": {
+   "class": "no_helmet",
+   "conf": 0.6548,
+   "iou": 0.325
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000069.jpg",
+  "class": "person",
+  "gt_box": [
+   0.0,
+   0.3609,
+   0.0531,
+   0.9891
+  ],
+  "best_same": {
+   "conf": 0.8394,
+   "iou": 0.453,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.738,
+   "iou": 0.012
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000071.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5426,
+   0.3426,
+   0.6574,
+   0.6309
+  ],
+  "best_same": {
+   "conf": 0.833,
+   "iou": 0.146,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000071.jpg",
+  "class": "person",
+  "gt_box": [
+   0.0078,
+   0.3148,
+   0.1703,
+   0.6883
+  ],
+  "best_same": {
+   "conf": 0.4162,
+   "iou": 0.822,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.7121,
+   "iou": 0.479
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000071.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7195,
+   0.0816,
+   0.9398,
+   0.4277
+  ],
+  "best_same": {
+   "conf": 0.2707,
+   "iou": 0.635,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7442,
+   "iou": 0.203
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000071.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1176,
+   0.3383,
+   0.1777,
+   0.393
+  ],
+  "best_same": {
+   "conf": 0.3698,
+   "iou": 0.378,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.7121,
+   "iou": 0.012
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000071.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5699,
+   0.3387,
+   0.6301,
+   0.4051
+  ],
+  "best_same": {
+   "conf": 0.8063,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.833,
+   "iou": 0.018
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000073.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1898,
+   0.1234,
+   0.657,
+   0.5859
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.8111,
+   "iou": 0.448
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000074.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2785,
+   0.2105,
+   0.3652,
+   0.4051
+  ],
+  "best_same": {
+   "conf": 0.3335,
+   "iou": 0.73,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9016,
+   "iou": 0.057
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000074.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2363,
+   0.5203,
+   0.423,
+   0.7766
+  ],
+  "best_same": {
+   "conf": 0.409,
+   "iou": 0.62,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8746,
+   "iou": 0.363
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000077.jpg",
+  "class": "person",
+  "gt_box": [
+   0.6871,
+   0.2445,
+   0.9223,
+   0.5836
+  ],
+  "best_same": {
+   "conf": 0.5636,
+   "iou": 0.328,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.7822,
+   "iou": 0.006
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000081.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7828,
+   0.5598,
+   1.0,
+   0.9996
+  ],
+  "best_same": {
+   "conf": 0.7875,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7834,
+   "iou": 0.28
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000081.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.775,
+   0.0047,
+   1.0,
+   0.2094
+  ],
+  "best_same": {
+   "conf": 0.8807,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7834,
+   "iou": 0.118
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000082.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1215,
+   0.3469,
+   0.2191,
+   0.5234
+  ],
+  "best_same": {
+   "conf": 0.7596,
+   "iou": 0.294,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8647,
+   "iou": 0.334
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000082.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.4422,
+   0.3531,
+   0.5391,
+   0.5578
+  ],
+  "best_same": {
+   "conf": 0.6414,
+   "iou": 0.354,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8041,
+   "iou": 0.369
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000082.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.5453,
+   0.375,
+   0.6063,
+   0.5469
+  ],
+  "best_same": {
+   "conf": 0.5773,
+   "iou": 0.318,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8255,
+   "iou": 0.166
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000082.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.3363,
+   0.3703,
+   0.4418,
+   0.5688
+  ],
+  "best_same": {
+   "conf": 0.7229,
+   "iou": 0.354,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8041,
+   "iou": 0.316
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000084.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7242,
+   0.1273,
+   0.9273,
+   0.718
+  ],
+  "best_same": {
+   "conf": 0.4663,
+   "iou": 0.657,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6941,
+   "iou": 0.694
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000084.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2242,
+   0.2758,
+   0.5305,
+   0.6852
+  ],
+  "best_same": {
+   "conf": 0.7797,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7806,
+   "iou": 0.41
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000085.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.4258,
+   0.2937,
+   0.6898,
+   0.4375
+  ],
+  "best_same": {
+   "conf": 0.5543,
+   "iou": 0.466,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7423,
+   "iou": 0.353
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000086.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.2734,
+   0.5609,
+   1.0,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.5905,
+   "iou": 0.754,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8592,
+   "iou": 0.363
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000087.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5906,
+   0.0539,
+   0.8172,
+   0.3758
+  ],
+  "best_same": {
+   "conf": 0.6001,
+   "iou": 0.274,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.7034,
+   "iou": 0.171
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000087.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6215,
+   0.2172,
+   0.8129,
+   0.3594
+  ],
+  "best_same": {
+   "conf": 0.6874,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6001,
+   "iou": 0.114
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000087.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.3195,
+   0.1641,
+   0.4617,
+   0.4469
+  ],
+  "best_same": {
+   "conf": 0.3818,
+   "iou": 0.799,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.4629,
+   "iou": 0.315
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000087.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.482,
+   0.2637,
+   0.6992,
+   0.5676
+  ],
+  "best_same": {
+   "conf": 0.6874,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6808,
+   "iou": 0.388
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000088.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.6457,
+   0.4695,
+   0.7012,
+   0.5477
+  ],
+  "best_same": {
+   "conf": 0.5383,
+   "iou": 0.728,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8813,
+   "iou": 0.038
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000089.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4086,
+   0.3137,
+   0.4508,
+   0.3691
+  ],
+  "best_same": {
+   "conf": 0.3593,
+   "iou": 0.715,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5419,
+   "iou": 0.007
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000089.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3277,
+   0.4,
+   0.3863,
+   0.5375
+  ],
+  "best_same": {
+   "conf": 0.7195,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5419,
+   "iou": 0.191
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000089.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.1172,
+   0.4379,
+   0.2047,
+   0.7043
+  ],
+  "best_same": {
+   "conf": 0.2552,
+   "iou": 0.824,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8509,
+   "iou": 0.275
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000090.jpg",
+  "class": "person",
+  "gt_box": [
+   0.2141,
+   0.6195,
+   0.2563,
+   0.8086
+  ],
+  "best_same": {
+   "conf": 0.8293,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": null,
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000091.jpg",
+  "class": "person",
+  "gt_box": [
+   0.1695,
+   0.3152,
+   0.2742,
+   0.3895
+  ],
+  "best_same": {
+   "conf": 0.8429,
+   "iou": 0.035,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.6058,
+   "iou": 0.746
+  },
+  "thr": 0.45,
+  "person_cover": true,
+  "assignable": false,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000091.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.618,
+   0.3113,
+   0.7086,
+   0.4496
+  ],
+  "best_same": {
+   "conf": 0.7182,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7868,
+   "iou": 0.348
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000091.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.3449,
+   0.3961,
+   0.4191,
+   0.6148
+  ],
+  "best_same": {
+   "conf": 0.5909,
+   "iou": 0.479,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7894,
+   "iou": 0.095
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000092.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.1211,
+   0.2812,
+   0.4445,
+   0.7437
+  ],
+  "best_same": {
+   "conf": 0.4903,
+   "iou": 0.755,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8651,
+   "iou": 0.486
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000093.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.4738,
+   0.6195,
+   0.573,
+   0.8477
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.8313,
+   "iou": 0.441
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000095.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1242,
+   0.2332,
+   0.4289,
+   0.6121
+  ],
+  "best_same": {
+   "conf": 0.6118,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7435,
+   "iou": 0.43
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000096.jpg",
+  "class": "person",
+  "gt_box": [
+   0.0547,
+   0.2281,
+   0.2875,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.3913,
+   "iou": 0.966,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.7501,
+   "iou": 0.122
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000096.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.0941,
+   0.4793,
+   0.2746,
+   0.9832
+  ],
+  "best_same": {
+   "conf": 0.5635,
+   "iou": 0.822,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5041,
+   "iou": 0.112
+  },
+  "thr": 0.6,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000096.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.0945,
+   0.2125,
+   0.2227,
+   0.325
+  ],
+  "best_same": {
+   "conf": 0.5354,
+   "iou": 0.439,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5041,
+   "iou": 0.004
+  },
+  "thr": 0.6,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000097.jpg",
+  "class": "person",
+  "gt_box": [
+   0.6578,
+   0.1531,
+   0.8203,
+   0.5594
+  ],
+  "best_same": {
+   "conf": 0.8526,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.5649,
+   "iou": 0.062
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000097.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.0801,
+   0.3062,
+   0.2402,
+   0.55
+  ],
+  "best_same": {
+   "conf": 0.5669,
+   "iou": 0.772,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8526,
+   "iou": 0.394
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000097.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.4574,
+   0.45,
+   0.5066,
+   0.5687
+  ],
+  "best_same": null,
+  "best_other": null,
+  "thr": 0.6,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "no_person"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000097.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.3645,
+   0.5531,
+   0.4137,
+   0.7
+  ],
+  "best_same": {
+   "conf": 0.5669,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5897,
+   "iou": 0.135
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000097.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6711,
+   0.225,
+   0.7664,
+   0.3875
+  ],
+  "best_same": {
+   "conf": 0.5669,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": null,
+  "thr": 0.6,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000098.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.5215,
+   0.5438,
+   0.7098,
+   0.775
+  ],
+  "best_same": {
+   "conf": 0.8206,
+   "iou": 0.079,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5938,
+   "iou": 0.344
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000100.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.5652,
+   0.2832,
+   0.6316,
+   0.4184
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7636,
+   "iou": 0.258
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6879,
+   0.4332,
+   0.759,
+   0.6152
+  ],
+  "best_same": {
+   "conf": 0.3243,
+   "iou": 0.85,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7798,
+   "iou": 0.319
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.7816,
+   0.4504,
+   0.8277,
+   0.6137
+  ],
+  "best_same": {
+   "conf": 0.4602,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7299,
+   "iou": 0.192
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.3773,
+   0.5895,
+   0.4398,
+   0.848
+  ],
+  "best_same": {
+   "conf": 0.415,
+   "iou": 0.006,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5677,
+   "iou": 0.383
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.5945,
+   0.6754,
+   0.6961,
+   0.8668
+  ],
+  "best_same": {
+   "conf": 0.4602,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8758,
+   "iou": 0.298
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1852,
+   0.6699,
+   0.2789,
+   0.9098
+  ],
+  "best_same": {
+   "conf": 0.4602,
+   "iou": 0.705,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8606,
+   "iou": 0.387
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.4453,
+   0.6961,
+   0.5453,
+   0.9117
+  ],
+  "best_same": {
+   "conf": 0.415,
+   "iou": 0.72,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8685,
+   "iou": 0.381
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000100.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.7691,
+   0.8289,
+   0.8715,
+   0.9961
+  ],
+  "best_same": {
+   "conf": 0.4602,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": null,
+  "thr": 0.6,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000100.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.3203,
+   0.8828,
+   0.4016,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.4102,
+   "iou": 0.855,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5677,
+   "iou": 0.075
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000102.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.4703,
+   0.2355,
+   0.5625,
+   0.3348
+  ],
+  "best_same": {
+   "conf": 0.4737,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7089,
+   "iou": 0.092
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000102.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.1277,
+   0.2441,
+   0.2082,
+   0.3434
+  ],
+  "best_same": {
+   "conf": 0.4737,
+   "iou": 0.677,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6097,
+   "iou": 0.086
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000102.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.3285,
+   0.2703,
+   0.4152,
+   0.3328
+  ],
+  "best_same": {
+   "conf": 0.4201,
+   "iou": 0.679,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.9018,
+   "iou": 0.046
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000102.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.1047,
+   0.3641,
+   0.1906,
+   0.4656
+  ],
+  "best_same": {
+   "conf": 0.4737,
+   "iou": 0.0,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6097,
+   "iou": 0.084
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000102.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.1566,
+   0.4137,
+   0.2527,
+   0.6926
+  ],
+  "best_same": {
+   "conf": 0.2757,
+   "iou": 0.702,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6097,
+   "iou": 0.356
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000103.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6484,
+   0.4082,
+   0.7969,
+   0.7902
+  ],
+  "best_same": {
+   "conf": 0.4971,
+   "iou": 0.743,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8779,
+   "iou": 0.352
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000103.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.468,
+   0.1922,
+   0.543,
+   0.2547
+  ],
+  "best_same": {
+   "conf": 0.4891,
+   "iou": 0.798,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8296,
+   "iou": 0.022
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000104.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.6727,
+   0.2066,
+   0.7664,
+   0.2934
+  ],
+  "best_same": {
+   "conf": 0.7384,
+   "iou": 0.492,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8923,
+   "iou": 0.03
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.8461,
+   0.1758,
+   0.8977,
+   0.2398
+  ],
+  "best_same": {
+   "conf": 0.4959,
+   "iou": 0.551,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6736,
+   "iou": 0.023
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.416,
+   0.2086,
+   0.4715,
+   0.2648
+  ],
+  "best_same": {
+   "conf": 0.4435,
+   "iou": 0.615,
+   "weak": true
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2547,
+   0.257,
+   0.3062,
+   0.3273
+  ],
+  "best_same": {
+   "conf": 0.4206,
+   "iou": 0.688,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5793,
+   "iou": 0.012
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7453,
+   0.2691,
+   0.8266,
+   0.5902
+  ],
+  "best_same": {
+   "conf": 0.4262,
+   "iou": 0.801,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5132,
+   "iou": 0.01
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3141,
+   0.3207,
+   0.4016,
+   0.5918
+  ],
+  "best_same": {
+   "conf": 0.4291,
+   "iou": 0.007,
+   "weak": true
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.6629,
+   0.3398,
+   0.7418,
+   0.6148
+  ],
+  "best_same": {
+   "conf": 0.2693,
+   "iou": 0.857,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5132,
+   "iou": 0.283
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.4055,
+   0.3066,
+   0.4867,
+   0.6543
+  ],
+  "best_same": {
+   "conf": 0.4094,
+   "iou": 0.79,
+   "weak": true
+  },
+  "best_other": null,
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.5648,
+   0.3605,
+   0.6523,
+   0.6129
+  ],
+  "best_same": {
+   "conf": 0.2552,
+   "iou": 0.885,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5132,
+   "iou": 0.022
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.843,
+   0.3336,
+   0.8898,
+   0.6523
+  ],
+  "best_same": {
+   "conf": 0.5832,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6736,
+   "iou": 0.103
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.9031,
+   0.3109,
+   1.0,
+   0.6813
+  ],
+  "best_same": {
+   "conf": 0.5832,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6736,
+   "iou": 0.247
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.2492,
+   0.375,
+   0.3133,
+   0.6234
+  ],
+  "best_same": {
+   "conf": 0.4291,
+   "iou": 0.915,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5793,
+   "iou": 0.054
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.084,
+   0.402,
+   0.1691,
+   0.6668
+  ],
+  "best_same": {
+   "conf": 0.5832,
+   "iou": 0.009,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5793,
+   "iou": 0.023
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.7367,
+   0.1035,
+   0.8445,
+   0.9996
+  ],
+  "best_same": {
+   "conf": 0.3817,
+   "iou": 0.885,
+   "weak": true
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.6033,
+   "iou": 0.055
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.3078,
+   0.1805,
+   0.4094,
+   0.9898
+  ],
+  "best_same": {
+   "conf": 0.3175,
+   "iou": 0.778,
+   "weak": true
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.5285,
+   "iou": 0.041
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.4051,
+   0.1969,
+   0.4949,
+   0.9984
+  ],
+  "best_same": {
+   "conf": 0.3182,
+   "iou": 0.127,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.5676,
+   "iou": 0.037
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.4805,
+   0.2094,
+   0.568,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.3182,
+   "iou": 0.861,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.5676,
+   "iou": 0.322
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5656,
+   0.2297,
+   0.6672,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.4461,
+   "iou": 0.909,
+   "weak": true
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.557,
+   "iou": 0.05
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.2437,
+   0.2566,
+   0.3156,
+   0.9996
+  ],
+  "best_same": {
+   "conf": 0.5793,
+   "iou": 0.157,
+   "weak": false
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.5832,
+   "iou": 0.023
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "person",
+  "gt_box": [
+   0.0828,
+   0.2766,
+   0.1656,
+   1.0
+  ],
+  "best_same": {
+   "conf": 0.5793,
+   "iou": 0.025,
+   "weak": false
+  },
+  "best_other": {
+   "class": "helmet",
+   "conf": 0.5861,
+   "iou": 0.083
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000105.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.8059,
+   0.159,
+   0.8566,
+   0.2254
+  ],
+  "best_same": {
+   "conf": 0.4959,
+   "iou": 0.122,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6736,
+   "iou": 0.012
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000107.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2871,
+   0.1035,
+   0.4395,
+   0.2137
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.7301,
+   "iou": 0.043
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000107.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.5746,
+   0.1199,
+   0.7816,
+   0.5535
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.4551,
+   "iou": 0.468
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000108.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.3391,
+   0.3953,
+   0.5031,
+   0.7859
+  ],
+  "best_same": {
+   "conf": 0.284,
+   "iou": 0.844,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6104,
+   "iou": 0.376
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000108.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.5098,
+   0.423,
+   0.6824,
+   0.8738
+  ],
+  "best_same": {
+   "conf": 0.2838,
+   "iou": 0.706,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7096,
+   "iou": 0.384
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000111.jpg",
+  "class": "person",
+  "gt_box": [
+   0.1402,
+   0.1328,
+   0.7863,
+   0.9578
+  ],
+  "best_same": {
+   "conf": 0.2517,
+   "iou": 0.665,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.6662,
+   "iou": 0.306
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000114.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.7738,
+   0.2914,
+   0.8027,
+   0.3273
+  ],
+  "best_same": {
+   "conf": 0.3174,
+   "iou": 0.347,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.4651,
+   "iou": 0.042
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000114.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.8117,
+   0.2914,
+   0.857,
+   0.3352
+  ],
+  "best_same": {
+   "conf": 0.6087,
+   "iou": 0.35,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8163,
+   "iou": 0.035
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000114.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.802,
+   0.3957,
+   0.8715,
+   0.5637
+  ],
+  "best_same": {
+   "conf": 0.5106,
+   "iou": 0.495,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8163,
+   "iou": 0.224
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000114.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.6344,
+   0.4219,
+   0.7047,
+   0.6062
+  ],
+  "best_same": {
+   "conf": 0.401,
+   "iou": 0.512,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7645,
+   "iou": 0.21
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000115.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.6332,
+   0.4129,
+   0.7168,
+   0.5168
+  ],
+  "best_same": {
+   "conf": 0.4752,
+   "iou": 0.561,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8334,
+   "iou": 0.005
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000115.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5934,
+   0.4086,
+   0.8301,
+   0.9961
+  ],
+  "best_same": {
+   "conf": 0.3978,
+   "iou": 0.794,
+   "weak": true
+  },
+  "best_other": {
+   "class": "vest",
+   "conf": 0.8094,
+   "iou": 0.536
+  },
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000115.jpg",
+  "class": "no_helmet",
+  "gt_box": [
+   0.543,
+   0.0918,
+   0.6133,
+   0.1754
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "person",
+   "conf": 0.8334,
+   "iou": 0.054
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "no_detection"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000115.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.4902,
+   0.1621,
+   0.6004,
+   0.3957
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "vest",
+   "conf": 0.7215,
+   "iou": 0.702
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000116.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.2969,
+   0.2758,
+   0.3422,
+   0.3133
+  ],
+  "best_same": {
+   "conf": 0.5423,
+   "iou": 0.488,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.83,
+   "iou": 0.036
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000116.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4555,
+   0.2859,
+   0.4852,
+   0.3156
+  ],
+  "best_same": {
+   "conf": 0.6425,
+   "iou": 0.425,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.695,
+   "iou": 0.024
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000116.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.5281,
+   0.2984,
+   0.5578,
+   0.3312
+  ],
+  "best_same": {
+   "conf": 0.4595,
+   "iou": 0.664,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7863,
+   "iou": 0.03
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000116.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.575,
+   0.323,
+   0.6016,
+   0.3504
+  ],
+  "best_same": {
+   "conf": 0.4365,
+   "iou": 0.543,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7272,
+   "iou": 0.036
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000116.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.6434,
+   0.3484,
+   0.6754,
+   0.3734
+  ],
+  "best_same": {
+   "conf": 0.403,
+   "iou": 0.551,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.776,
+   "iou": 0.037
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000118.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.1512,
+   0.2273,
+   0.3004,
+   0.5008
+  ],
+  "best_same": null,
+  "best_other": {
+   "class": "no_vest",
+   "conf": 0.6581,
+   "iou": 0.81
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "wrong_class"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000119.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.6051,
+   0.5777,
+   0.9293,
+   0.8395
+  ],
+  "best_same": {
+   "conf": 0.5469,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.6012,
+   "iou": 0.04
+  },
+  "thr": 0.5,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000121.jpg",
+  "class": "person",
+  "gt_box": [
+   0.5355,
+   0.3598,
+   0.5645,
+   0.7684
+  ],
+  "best_same": null,
+  "best_other": null,
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "no_person"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000121.jpg",
+  "class": "person",
+  "gt_box": [
+   0.4512,
+   0.3863,
+   0.5145,
+   0.7746
+  ],
+  "best_same": null,
+  "best_other": null,
+  "thr": 0.45,
+  "person_cover": false,
+  "assignable": false,
+  "cause": "no_person"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000122.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.1797,
+   0.4457,
+   0.275,
+   0.4887
+  ],
+  "best_same": {
+   "conf": 0.5005,
+   "iou": 0.394,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8965,
+   "iou": 0.034
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000122.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.4797,
+   0.4605,
+   0.525,
+   0.5238
+  ],
+  "best_same": {
+   "conf": 0.6754,
+   "iou": 0.491,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8586,
+   "iou": 0.034
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000122.jpg",
+  "class": "helmet",
+  "gt_box": [
+   0.298,
+   0.4687,
+   0.4098,
+   0.5391
+  ],
+  "best_same": {
+   "conf": 0.6641,
+   "iou": 0.406,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8024,
+   "iou": 0.074
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000122.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.1668,
+   0.5664,
+   0.2816,
+   0.8008
+  ],
+  "best_same": {
+   "conf": 0.6222,
+   "iou": 0.0,
+   "weak": false
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8965,
+   "iou": 0.226
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "bad_iou"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000122.jpg",
+  "class": "no_vest",
+  "gt_box": [
+   0.2781,
+   0.6125,
+   0.4562,
+   0.8641
+  ],
+  "best_same": {
+   "conf": 0.567,
+   "iou": 0.434,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.8024,
+   "iou": 0.363
+  },
+  "thr": 0.6,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "below_threshold"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000123.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.4074,
+   0.2035,
+   0.5223,
+   0.5168
+  ],
+  "best_same": {
+   "conf": 0.4026,
+   "iou": 0.701,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.7785,
+   "iou": 0.179
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ },
+ {
+  "model": "candidate",
+  "image": "rf100_000123.jpg",
+  "class": "vest",
+  "gt_box": [
+   0.7047,
+   0.2691,
+   0.8047,
+   0.4855
+  ],
+  "best_same": {
+   "conf": 0.3394,
+   "iou": 0.863,
+   "weak": true
+  },
+  "best_other": {
+   "class": "person",
+   "conf": 0.5725,
+   "iou": 0.071
+  },
+  "thr": 0.5,
+  "person_cover": true,
+  "assignable": true,
+  "cause": "taken_by_other_gt"
+ }
+]

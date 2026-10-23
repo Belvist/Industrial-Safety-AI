@@ -1,0 +1,14 @@
+{
+ "commit": "823a6808dd8e4e0c74f18a272a852d03731ea17c",
+ "thresholds": {
+  "person": 0.45,
+  "helmet": 0.5,
+  "no_helmet": 0.6,
+  "vest": 0.5,
+  "no_vest": 0.6
+ },
+ "iou": 0.5,
+ "base_sha": "b270cd96214105f6cabd7de3fb64a849be4bb18d4cebe2f99af4e6b112445d36",
+ "candidate_sha": "688bbf4d68217d1ff722aac06b2bae0a0296b6e5938d4b29f68623edd2d09f88",
+ "config": "roi off, CPU, dual pipeline, production thresholds"
+}

@@ -1,0 +1,148 @@
+{
+ "commit": "547aa71a7ac5af0d1be068c376b8cad40ef95277",
+ "thresholds": {
+  "person": 0.45,
+  "helmet": 0.5,
+  "no_helmet": 0.6,
+  "vest": 0.5,
+  "no_vest": 0.6
+ },
+ "modes": {
+  "single": {
+   "ms_p50": 358.5,
+   "ms_p95": 389.5,
+   "classes": {
+    "person": {
+     "tp": 188,
+     "fp": 53,
+     "fn": 30,
+     "p": 0.78,
+     "r": 0.862,
+     "f1": 0.819
+    },
+    "helmet": {
+     "tp": 191,
+     "fp": 25,
+     "fn": 36,
+     "p": 0.884,
+     "r": 0.841,
+     "f1": 0.862
+    },
+    "no_helmet": {
+     "tp": 12,
+     "fp": 1,
+     "fn": 19,
+     "p": 0.923,
+     "r": 0.387,
+     "f1": 0.545
+    },
+    "vest": {
+     "tp": 94,
+     "fp": 20,
+     "fn": 37,
+     "p": 0.825,
+     "r": 0.718,
+     "f1": 0.767
+    },
+    "no_vest": {
+     "tp": 27,
+     "fp": 13,
+     "fn": 34,
+     "p": 0.675,
+     "r": 0.443,
+     "f1": 0.535
+    }
+   },
+   "assignability": {
+    "helmet": {
+     "assignable": 195,
+     "total": 227,
+     "rate": 0.859
+    },
+    "no_helmet": {
+     "assignable": 23,
+     "total": 31,
+     "rate": 0.742
+    },
+    "vest": {
+     "assignable": 124,
+     "total": 131,
+     "rate": 0.947
+    },
+    "no_vest": {
+     "assignable": 52,
+     "total": 61,
+     "rate": 0.852
+    }
+   }
+  },
+  "dual": {
+   "ms_p50": 434.3,
+   "ms_p95": 460.8,
+   "classes": {
+    "person": {
+     "tp": 191,
+     "fp": 76,
+     "fn": 27,
+     "p": 0.715,
+     "r": 0.876,
+     "f1": 0.788
+    },
+    "helmet": {
+     "tp": 191,
+     "fp": 25,
+     "fn": 36,
+     "p": 0.884,
+     "r": 0.841,
+     "f1": 0.862
+    },
+    "no_helmet": {
+     "tp": 12,
+     "fp": 1,
+     "fn": 19,
+     "p": 0.923,
+     "r": 0.387,
+     "f1": 0.545
+    },
+    "vest": {
+     "tp": 94,
+     "fp": 20,
+     "fn": 37,
+     "p": 0.825,
+     "r": 0.718,
+     "f1": 0.767
+    },
+    "no_vest": {
+     "tp": 27,
+     "fp": 13,
+     "fn": 34,
+     "p": 0.675,
+     "r": 0.443,
+     "f1": 0.535
+    }
+   },
+   "assignability": {
+    "helmet": {
+     "assignable": 203,
+     "total": 227,
+     "rate": 0.894
+    },
+    "no_helmet": {
+     "assignable": 29,
+     "total": 31,
+     "rate": 0.935
+    },
+    "vest": {
+     "assignable": 117,
+     "total": 131,
+     "rate": 0.893
+    },
+    "no_vest": {
+     "assignable": 57,
+     "total": 61,
+     "rate": 0.934
+    }
+   }
+  }
+ }
+}
