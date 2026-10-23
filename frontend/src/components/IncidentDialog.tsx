@@ -3,6 +3,7 @@ import { Check, X } from "lucide-react";
 import type { Incident } from "../types";
 import { date, labels, percentage } from "../types";
 import { useAuthedImageUrl } from "../useAuthedImage";
+import { useAuthedVideoUrl } from "../useAuthedVideo";
 
 function SnapshotImage({ incidentId }: { incidentId: string }) {
   const src = useAuthedImageUrl(`/api/v1/incidents/${incidentId}/snapshot`);
@@ -27,6 +28,10 @@ export default function IncidentDialog({
     document.addEventListener("keydown", listener);
     return () => document.removeEventListener("keydown", listener);
   }, [onClose]);
+  const evidenceUrl = incident.evidence
+    ? `/api/v1/cameras/${incident.camera_id}/evidence/${incident.evidence}`
+    : null;
+  const videoUrl = useAuthedVideoUrl(evidenceUrl);
   const notification: Record<string, string> = {
     sent: "Фото отправлено в Telegram",
     pending: "Telegram: отправляется",
@@ -56,8 +61,10 @@ export default function IncidentDialog({
             <X size={22} />
           </button>
         </div>
-        {incident.snapshot && (
-          <SnapshotImage incidentId={incident.id} />
+        {videoUrl ? (
+          <video className="incident-replay" controls src={videoUrl} />
+        ) : (
+          incident.snapshot && <SnapshotImage incidentId={incident.id} />
         )}
         <div className="modal-content">
           <span className={"status-badge " + incident.status}>

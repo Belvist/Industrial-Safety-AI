@@ -102,6 +102,8 @@ export type Incident = {
   feedback: string;
   notification: string;
   resolution_reason: string | null;
+  zone_name?: string | null;
+  evidence?: string | null;
 };
 export type InferenceInfo = {
   provider: string;

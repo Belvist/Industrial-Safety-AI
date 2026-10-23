@@ -25,7 +25,7 @@ class Storage:
                     confidence REAL NOT NULL, duration REAL NOT NULL, snapshot TEXT,
                     feedback TEXT NOT NULL DEFAULT 'unreviewed',
                     resolution_reason TEXT, notification TEXT NOT NULL DEFAULT 'disabled',
-                    zone_name TEXT
+                    zone_name TEXT, evidence TEXT
                 );
                 CREATE INDEX IF NOT EXISTS incident_time ON incidents(started_at DESC);
                 CREATE INDEX IF NOT EXISTS incident_type ON incidents(type, started_at DESC);
@@ -36,6 +36,8 @@ class Storage:
                 db.execute("ALTER TABLE incidents ADD COLUMN ended_at TEXT")
             if "zone_name" not in columns:
                 db.execute("ALTER TABLE incidents ADD COLUMN zone_name TEXT")
+            if "evidence" not in columns:
+                db.execute("ALTER TABLE incidents ADD COLUMN evidence TEXT")
             db.execute("CREATE INDEX IF NOT EXISTS incident_zone ON incidents(zone_name)")
             # Legacy rows finished before ended_at existed: end time falls
             # back to resolved_at, then started_at (documented, never invented
@@ -104,6 +106,7 @@ class Storage:
         incident_id=None,
         snapshot=None,
         zone_name=None,
+        evidence=None,
     ):
         record = {
             "id": incident_id or uuid4().hex,
@@ -120,6 +123,7 @@ class Storage:
             "duration": duration,
             "snapshot": snapshot,
             "zone_name": zone_name,
+            "evidence": evidence,
         }
         with self.connection() as db:
             db.execute(
@@ -136,6 +140,7 @@ class Storage:
             "confidence",
             "duration",
             "snapshot",
+            "evidence",
             "feedback",
             "resolution_reason",
             "notification",

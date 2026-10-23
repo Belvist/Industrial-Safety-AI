@@ -54,6 +54,10 @@ class CameraSession:
         self.display_conf: dict[tuple[str, str], tuple[float, float]] = {}
         self.radar_events: list = []
         self.radar_evidence: str | None = None
+        self.radar_evidence_by_track: dict[int, str] = {}
+        # Last confirmed PPE state per track: avoids UI flicker when the
+        # TPU misses a helmet/vest on an individual frame.
+        self.ppe_memory: dict[int, tuple[dict, dict, float]] = {}
         self.radar = SafetyRadar()
 
     @property
@@ -297,6 +301,7 @@ class Runtime:
                 session.tracker, session.engine = Tracker(), TemporalEngine()
                 session.behavior = RunningDetector()
                 session.radar = SafetyRadar()
+                session.radar_evidence_by_track.clear()
                 session.machine.dispatch(CameraEvent.START)
                 session.kind, session.error = kind, None
                 session.session_id = uuid4().hex
@@ -380,10 +385,18 @@ class Runtime:
             h, w = first.shape[:2]
             writer = cv2.VideoWriter(
                 str(path),
-                cv2.VideoWriter_fourcc(*"mp4v"),
+                cv2.VideoWriter_fourcc(*"avc1"),
                 max(1.0, float(self.settings.target_fps)),
                 (w, h),
             )
+            if not writer.isOpened():
+                # Some OpenCV builds lack H.264; fall back to MPEG-4 Part 2.
+                writer = cv2.VideoWriter(
+                    str(path),
+                    cv2.VideoWriter_fourcc(*"mp4v"),
+                    max(1.0, float(self.settings.target_fps)),
+                    (w, h),
+                )
             if not writer.isOpened():
                 path.unlink(missing_ok=True)
                 return
@@ -583,8 +596,30 @@ class Runtime:
                 for event in radar_events:
                     event.evidence = evidence_name
         session.radar_evidence = evidence_name
+        # Map track -> evidence for this frame so the incident row can link
+        # the clip that actually contains its CRITICAL moment.
+        for event in radar_events:
+            if event.evidence:
+                session.radar_evidence_by_track[event.track_id] = event.evidence
         observed = evaluate_assigned(tracks, assignments, session.config)
         cleared = cleared_assigned(tracks, assignments, session.config)
+        # Display-only PPE memory: keep the last confirmed state for a few
+        # seconds so a single missed detection does not flip the UI to
+        # "unknown". Violations still use the raw per-frame assignments.
+        for track in tracks:
+            known = {k: v for k, v in track.ppe.items() if v != "unknown"}
+            if known:
+                session.ppe_memory[track.id] = (
+                    dict(track.ppe), dict(track.ppe_confidence), now
+                )
+            else:
+                remembered = session.ppe_memory.get(track.id)
+                if remembered and now - remembered[2] <= 5.0:
+                    track.ppe = dict(remembered[0])
+                    track.ppe_confidence = dict(remembered[1])
+        stale = [tid for tid, (_, _, seen) in session.ppe_memory.items() if now - seen > 30.0]
+        for tid in stale:
+            del session.ppe_memory[tid]
         # Radar CRITICAL is a confirmed zone crossing on the foot point.
         # Feed it into the same temporal engine so one incident is created
         # (no duplicate path and no radar-only alarms).
@@ -680,6 +715,7 @@ class Runtime:
                             if key[1] == "danger_zone"
                             else None
                         ),
+                        evidence=session.radar_evidence_by_track.get(key[0]),
                     )
                 except (OSError, ValueError, sqlite3.Error):
                     path.unlink(missing_ok=True)

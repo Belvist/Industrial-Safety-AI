@@ -581,10 +581,6 @@ export default function App() {
                     {screen.workers === 1 ? "человек" : "чел."}
                   </div>
                 )}
-                <SafetyRadarPanel
-                  radar={result?.radar}
-                  workers={result?.tracks.length ?? 0}
-                />
                 <CameraViewport
                   camera={camera}
                   result={result}
@@ -595,6 +591,10 @@ export default function App() {
                   setShowBoxes={setShowBoxes}
                   showRaw={showRaw}
                   setShowRaw={setShowRaw}
+                />
+                <SafetyRadarPanel
+                  radar={result?.radar}
+                  workers={result?.tracks.length ?? 0}
                 />
                   </>
                 )}
