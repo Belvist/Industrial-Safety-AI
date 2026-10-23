@@ -44,6 +44,10 @@ export type Config = {
   mask: boolean;
   smoking: boolean;
   zone_enabled: boolean;
+  zone_name?: string;
+  running_enabled?: boolean;
+  running_speed?: number;
+  running_min_seconds?: number;
   zone: Point[];
   confirm_seconds: number;
   clear_seconds: number;
@@ -142,6 +146,14 @@ export const labels: Record<string, string> = {
   server_restarted: "Перезапуск сервера",
   processing_failed: "Ошибка обработки",
 };
+export const typeLabels: Record<string, string> = {
+  no_helmet: "Без каски",
+  no_vest: "Без жилета",
+  no_mask: "Без респиратора",
+  smoking: "Курение",
+  danger_zone: "Опасная зона",
+  running: "Бег по цеху",
+};
 export const date = (v: string) =>
   new Date(v).toLocaleString("ru-RU", {
     day: "2-digit",
@@ -164,6 +176,10 @@ export function configOf(camera: Camera): Config {
     mask: camera.mask,
     smoking: camera.smoking,
     zone_enabled: camera.zone_enabled,
+    zone_name: camera.zone_name ?? "Опасная зона",
+    running_enabled: camera.running_enabled ?? false,
+    running_speed: camera.running_speed ?? 1.8,
+    running_min_seconds: camera.running_min_seconds ?? 0.8,
     zone: camera.zone,
     confirm_seconds: camera.confirm_seconds,
     clear_seconds: camera.clear_seconds,

@@ -19,7 +19,13 @@ class CameraConfig(BaseModel):
     mask: bool = False
     smoking: bool = False
     zone_enabled: bool = False
+    zone_name: str = Field(default="Опасная зона", min_length=1, max_length=80)
     zone: list[tuple[float, float]] = Field(default_factory=list, max_length=30)
+    # Behavioural analytics (case slide 4, scenario 01). Runs on Worker
+    # tracks only: no model class is required, so it works with any detector.
+    running_enabled: bool = False
+    running_speed: float = Field(default=1.8, ge=0.5, le=10)
+    running_min_seconds: float = Field(default=0.8, ge=0.2, le=10)
     confirm_seconds: float = Field(default=2, ge=0.2, le=60)
     clear_seconds: float = Field(default=2, ge=0.2, le=60)
     # Temporal consensus (§4): confirm only after `temporal_required`
@@ -131,7 +137,9 @@ class TrackView(BaseModel):
 
 class RuleView(BaseModel):
     track_id: int
-    type: Literal["no_helmet", "no_vest", "no_mask", "smoking", "danger_zone"]
+    type: Literal[
+        "no_helmet", "no_vest", "no_mask", "smoking", "danger_zone", "running"
+    ]
     phase: Literal["pending", "active", "clearing"]
     confidence: float = Field(ge=0, le=1)
     elapsed_seconds: float = Field(ge=0)

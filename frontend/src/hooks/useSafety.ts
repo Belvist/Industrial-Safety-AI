@@ -8,6 +8,8 @@ export function useSafety() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState("");
+  const [incidentType, setIncidentType] = useState("");
+  const [incidentCamera, setIncidentCamera] = useState("");
   const [offset, setOffset] = useState(0);
   const [connection, setConnection] = useState<
     "connecting" | "online" | "offline"
@@ -30,14 +32,21 @@ export function useSafety() {
   }, []);
   const refreshIncidents = useCallback(async () => {
     const id = ++requestId.current;
+    const params = new URLSearchParams({
+      limit: "30",
+      offset: String(offset),
+    });
+    if (filter) params.set("status", filter);
+    if (incidentType) params.append("type", incidentType);
+    if (incidentCamera) params.append("camera_id", incidentCamera);
     const list = await api<{ items: Incident[]; total: number }>(
-      `/incidents?limit=30&offset=${offset}${filter ? "&status=" + filter : ""}`,
+      `/incidents?${params.toString()}`,
     );
     if (id !== requestId.current) return;
     // In-place update: pagination and scroll position survive the poll.
     setIncidents(list.items);
     setTotal(list.total);
-  }, [filter, offset]);
+  }, [filter, incidentType, incidentCamera, offset]);
   const refresh = useCallback(async () => {
     await refreshState();
     await refreshIncidents();
@@ -103,9 +112,19 @@ export function useSafety() {
     incidents,
     total,
     filter,
+    incidentType,
+    incidentCamera,
     offset,
     setFilter: (value: string) => {
       setFilter(value);
+      setOffset(0);
+    },
+    setIncidentType: (value: string) => {
+      setIncidentType(value);
+      setOffset(0);
+    },
+    setIncidentCamera: (value: string) => {
+      setIncidentCamera(value);
       setOffset(0);
     },
     setOffset,

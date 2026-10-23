@@ -1,6 +1,8 @@
 import time
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Annotated
 from urllib.parse import urlsplit
 from uuid import uuid4
 
@@ -391,19 +393,59 @@ def create_app(config: Settings = settings, runtime=None):
             jpeg = match[1 if raw else 2]
         return Response(jpeg, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
 
+    incident_types = {
+        "no_helmet",
+        "no_vest",
+        "no_mask",
+        "smoking",
+        "danger_zone",
+        "running",
+    }
+
+    def _utc(value: datetime | None) -> str | None:
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=UTC)
+        return value.astimezone(UTC).isoformat()
+
     @app.get("/api/v1/incidents")
     def incidents(
         request: Request,
         status: str | None = None,
+        types: Annotated[list[str] | None, Query(alias="type")] = None,
+        camera_id: Annotated[list[str] | None, Query()] = None,
+        zone: Annotated[str | None, Query(max_length=80)] = None,
+        from_time: datetime | None = None,
+        to_time: datetime | None = None,
         limit: int = Query(50, ge=1, le=200),
         offset: int = Query(0, ge=0),
     ):
         if status not in {None, "active", "resolved", "interrupted"}:
             raise HTTPException(422, "Неизвестный статус.")
+        if types:
+            unknown = set(types) - incident_types
+            if unknown:
+                raise HTTPException(
+                    422, f"Неизвестный тип нарушения: {', '.join(sorted(unknown))}."
+                )
+        start, end = _utc(from_time), _utc(to_time)
+        if start and end and start > end:
+            raise HTTPException(422, "Начало интервала позже его окончания.")
         master, scope = caller(request)
-        if master or scope is None:
-            return rt(request).storage.incidents(status, limit, offset)
-        return rt(request).storage.incidents(status, limit, offset, camera_ids=scope)
+        allowed = set(camera_id) if camera_id else None
+        if not master and scope is not None:
+            allowed = scope if allowed is None else allowed & scope
+        return rt(request).storage.incidents(
+            status,
+            limit,
+            offset,
+            camera_ids=allowed,
+            types=sorted(set(types)) if types else None,
+            zone_name=zone.strip() if zone else None,
+            from_time=start,
+            to_time=end,
+        )
 
     def _own_incident(request: Request, incident_id: str) -> dict:
         service = rt(request)

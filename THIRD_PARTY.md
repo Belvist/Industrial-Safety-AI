@@ -4,7 +4,19 @@
 
 Record the repository and license for external code, models and datasets. Check model/checkpoint licensing separately from runtime-library licensing. Preserve required notices. Model weights and captured media are runtime assets, excluded from Git.
 
+## Vendored source
+
+`backend/app/inference/tpu_wire/` contains the unmodified wire-format package
+`tpu_pycloud_format` 0.0.1 (protobuf message + AMQP header names) issued by the
+LinQ TPU organizers for the hackathon. It is vendored because its published
+wheel pins `numpy<2`, while this project uses NumPy 2.x. The package is pure
+Python and only serializes tensors; it does not contain the TPU runtime itself.
+Files: `__init__.py`, `_io.py`, `headers.py`, `message.proto`,
+`message_pb2.py`. Keep this copy in sync with the organizers' wheel if the
+wire format changes.
+
 ## Runtime libraries
+
 
 No third-party application source code was pasted into this repository. Dependencies are installed with pip/npm; their distributions retain their license notices.
 

@@ -164,7 +164,7 @@ def main():
                 "pip",
                 "install",
                 "-e",
-                ".[vision]",
+                ".[vision,linq]",
                 "-c",
                 "constraints.txt",
             ],

@@ -31,7 +31,7 @@ import IncidentDialog from "./components/IncidentDialog";
 import PhoneConnect from "./components/PhoneConnect";
 import ConnectPage from "./ConnectPage";
 import type { Camera, Config, Incident, Page, Point, Result } from "./types";
-import { configOf, date, isActive, labels, percentage } from "./types";
+import { configOf, date, isActive, labels, percentage, typeLabels } from "./types";
 import { accelerationHint, inferenceLabel, inferenceSub } from "./inferenceLabel";
 import {
   cameraAlert,
@@ -566,7 +566,7 @@ export default function App() {
                   >
                     <strong>
                       {screen.level === "active" ? "НАРУШЕНИЕ" : "ПРОВЕРКА"}:{" "}
-                      {labels[screen.type] || screen.type}
+                      {typeLabels[screen.type] || labels[screen.type] || screen.type}
                     </strong>
                     <span>
                       Работник #{screen.trackId} · {screen.elapsed.toFixed(1)} /{" "}
@@ -1120,6 +1120,7 @@ export default function App() {
                   ["mask", "Контроль респиратора"],
                   ["smoking", "Контроль курения"],
                   ["zone_enabled", "Контроль опасной зоны"],
+                  ["running_enabled", "Контроль бега по цеху"],
                 ].map(([key, title]) => {
                   // Rule needs at least one of its VIOLATION classes in the model.
                   // Unknown backend info preserves the legacy default
@@ -1131,6 +1132,7 @@ export default function App() {
                     mask: ["no_mask"],
                     smoking: ["smoking"],
                     zone_enabled: ["person"],
+                    running_enabled: ["person"],
                   };
                   const supported =
                     known === undefined
@@ -1205,6 +1207,37 @@ export default function App() {
                   <option value="resolved">Завершённые</option>
                   <option value="interrupted">Прерванные</option>
                 </select>
+                <select
+                  aria-label="Фильтр типа нарушения"
+                  value={safety.incidentType}
+                  onChange={(e) => safety.setIncidentType(e.target.value)}
+                >
+                  <option value="">Все типы</option>
+                  {[
+                    "no_helmet",
+                    "no_vest",
+                    "no_mask",
+                    "smoking",
+                    "danger_zone",
+                    "running",
+                  ].map((kind) => (
+                    <option key={kind} value={kind}>
+                      {typeLabels[kind] || labels[kind] || kind}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  aria-label="Фильтр камеры"
+                  value={safety.incidentCamera}
+                  onChange={(e) => safety.setIncidentCamera(e.target.value)}
+                >
+                  <option value="">Все камеры</option>
+                  {safety.cameras.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
                 {page !== "incidents" && (
                   <button
                     className="text-button"
@@ -1240,7 +1273,7 @@ export default function App() {
                             <span className={"event-icon " + i.type}>
                               <AlertTriangle size={16} />
                             </span>
-                            {labels[i.type]}
+                            {typeLabels[i.type] || labels[i.type] || i.type}
                           </button>
                         </td>
                         <td>

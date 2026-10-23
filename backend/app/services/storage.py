@@ -24,13 +24,19 @@ class Storage:
                     status TEXT NOT NULL, started_at TEXT NOT NULL, resolved_at TEXT,
                     confidence REAL NOT NULL, duration REAL NOT NULL, snapshot TEXT,
                     feedback TEXT NOT NULL DEFAULT 'unreviewed',
-                    resolution_reason TEXT, notification TEXT NOT NULL DEFAULT 'disabled'
+                    resolution_reason TEXT, notification TEXT NOT NULL DEFAULT 'disabled',
+                    zone_name TEXT
                 );
                 CREATE INDEX IF NOT EXISTS incident_time ON incidents(started_at DESC);
+                CREATE INDEX IF NOT EXISTS incident_type ON incidents(type, started_at DESC);
+                CREATE INDEX IF NOT EXISTS incident_camera ON incidents(camera_id, started_at DESC);
             """)
             columns = {r["name"] for r in db.execute("PRAGMA table_info(incidents)")}
             if "ended_at" not in columns:
                 db.execute("ALTER TABLE incidents ADD COLUMN ended_at TEXT")
+            if "zone_name" not in columns:
+                db.execute("ALTER TABLE incidents ADD COLUMN zone_name TEXT")
+            db.execute("CREATE INDEX IF NOT EXISTS incident_zone ON incidents(zone_name)")
             # Legacy rows finished before ended_at existed: end time falls
             # back to resolved_at, then started_at (documented, never invented
             # as a fresh observation — it only bounds retention).
@@ -89,7 +95,15 @@ class Storage:
             return moved
 
     def create_incident(
-        self, camera_id, name, key, confidence, duration, incident_id=None, snapshot=None
+        self,
+        camera_id,
+        name,
+        key,
+        confidence,
+        duration,
+        incident_id=None,
+        snapshot=None,
+        zone_name=None,
     ):
         record = {
             "id": incident_id or uuid4().hex,
@@ -105,6 +119,7 @@ class Storage:
             "confidence": confidence,
             "duration": duration,
             "snapshot": snapshot,
+            "zone_name": zone_name,
         }
         with self.connection() as db:
             db.execute(
@@ -174,7 +189,17 @@ class Storage:
             row = db.execute("SELECT * FROM incidents WHERE id=?", (incident_id,)).fetchone()
         return dict(row) if row else None
 
-    def incidents(self, status=None, limit=100, offset=0, camera_ids=None):
+    def incidents(
+        self,
+        status=None,
+        limit=100,
+        offset=0,
+        camera_ids=None,
+        types=None,
+        zone_name=None,
+        from_time=None,
+        to_time=None,
+    ):
         with self.connection() as db:
             clauses, params = [], []
             if status:
@@ -186,6 +211,19 @@ class Storage:
                     return {"items": [], "total": 0}
                 clauses.append(f"camera_id IN ({','.join('?' * len(ids))})")
                 params.extend(ids)
+            if types:
+                kinds = sorted(set(types))
+                clauses.append(f"type IN ({','.join('?' * len(kinds))})")
+                params.extend(kinds)
+            if zone_name:
+                clauses.append("zone_name=?")
+                params.append(zone_name)
+            if from_time:
+                clauses.append("started_at>=?")
+                params.append(from_time)
+            if to_time:
+                clauses.append("started_at<=?")
+                params.append(to_time)
             where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
             total = db.execute("SELECT count(*) FROM incidents" + where, params).fetchone()[0]
             rows = db.execute(

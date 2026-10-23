@@ -9,6 +9,7 @@ from uuid import uuid4
 import numpy as np
 
 from app.inference.local_onnx import LocalOnnxProvider
+from app.services.behavior import RunningDetector
 from app.services.engine import (
     TemporalEngine,
     Tracker,
@@ -27,6 +28,7 @@ class CameraSession:
     def __init__(self, camera_id, config):
         self.id, self.config = camera_id, config
         self.tracker, self.engine = Tracker(), TemporalEngine()
+        self.behavior = RunningDetector()
         self.lock = threading.Lock()
         self.control = threading.RLock()
         self.machine = CameraMachine()
@@ -131,6 +133,16 @@ class Runtime:
                     thresholds=settings.class_thresholds,
                     floor=settings.display_floor,
                     roi_mode=settings.ppe_roi_mode,
+                    amqp_host=settings.linq_amqp_host,
+                    amqp_port=settings.linq_amqp_port,
+                    amqp_user=settings.linq_amqp_user,
+                    amqp_password=settings.linq_amqp_password,
+                    amqp_vhost=settings.linq_amqp_vhost,
+                    amqp_exchange=settings.linq_amqp_exchange,
+                    amqp_input_queue=settings.linq_amqp_input_queue,
+                    tpu_program=settings.linq_tpu_program,
+                    tpu_cache_dir=settings.linq_tpu_cache_dir,
+                    tpu_output_is_logits=settings.linq_tpu_output_is_logits,
                 )
                 try:
                     self.provider.load()
@@ -276,6 +288,7 @@ class Runtime:
             with session.lock:
                 session.stop.clear()
                 session.tracker, session.engine = Tracker(), TemporalEngine()
+                session.behavior = RunningDetector()
                 session.machine.dispatch(CameraEvent.START)
                 session.kind, session.error = kind, None
                 session.session_id = uuid4().hex
@@ -360,6 +373,7 @@ class Runtime:
                     duration=state.last - state.since,
                 )
         session.engine = TemporalEngine()
+        session.behavior.reset()
         if session.latest:
             session.latest = {**session.latest, "rules": [], "active": 0}
 
@@ -457,6 +471,21 @@ class Runtime:
         assignments, owners = assign_detections(tracks, detections, session.config)
         observed = evaluate_assigned(tracks, assignments, session.config)
         cleared = cleared_assigned(tracks, assignments, session.config)
+        if session.config.running_enabled:
+            running_observed, running_cleared = session.behavior.update(
+                tracks,
+                now,
+                session.config.running_speed,
+                session.config.running_min_seconds,
+            )
+            for track in tracks:
+                if (track.id, "running") in running_observed:
+                    track.violations.append("running")
+            observed.update(running_observed)
+            for key, confidence in running_cleared.items():
+                cleared.setdefault(key, confidence)
+        else:
+            session.behavior.reset()
         detections = [
             replace(d, track_hint=str(owners[index]) if owners[index] is not None else None)
             for index, d in enumerate(detections)
@@ -526,6 +555,11 @@ class Runtime:
                         now - state.since,
                         incident_id=incident_id,
                         snapshot=path.name,
+                        zone_name=(
+                            session.config.zone_name
+                            if key[1] == "danger_zone"
+                            else None
+                        ),
                     )
                 except (OSError, ValueError, sqlite3.Error):
                     path.unlink(missing_ok=True)

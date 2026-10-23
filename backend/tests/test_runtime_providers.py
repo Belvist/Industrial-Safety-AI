@@ -56,3 +56,21 @@ def test_local_runtime_default_roi_auto(tmp_path):
     config = _config(tmp_path)
     runtime = Runtime(config)
     assert runtime.provider.roi_mode == "auto"
+
+def test_linq_runtime_forwards_amqp_settings(tmp_path):
+    config = _config(
+        tmp_path,
+        inference_provider="linq",
+        linq_amqp_host="10.0.114.30",
+        linq_tpu_program="ppe_nosig_p999.tpu",
+        linq_tpu_cache_dir="/auto/cache/hackathon93154",
+    )
+    runtime = Runtime(config)
+    provider = runtime.provider
+    assert provider.amqp_host == "10.0.114.30"
+    assert provider.tpu_program == "ppe_nosig_p999.tpu"
+    assert provider.program_uri == (
+        "file:///auto/cache/hackathon93154/ppe_nosig_p999.tpu?raw=False"
+    )
+    assert provider.status()["protocol"] == "linq-rabbitmq-tpu-v1"
+    assert provider.status()["worker_verified"] is False

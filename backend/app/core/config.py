@@ -31,10 +31,26 @@ class Settings(BaseSettings):
     # LinQ accelerator access (online access is provided by hackathon organizers).
     # Empty endpoint => LinqProvider runs the same ONNX graph locally (dev fallback)
     # keeping the Detection contract unchanged.
+    # Deprecated alias kept for old .env files; use linq_amqp_host.
     linq_endpoint: str = ""
     linq_api_key: str = ""
     linq_timeout_seconds: float = Field(default=8.0, ge=1.0, le=60.0)
     linq_model: str = "ppe-linq"
+
+    # LinQ TPU service: RabbitMQ broker + compiled program on the shared cache.
+    # Empty host keeps LinqProvider on the local ONNX fallback. For the
+    # hackathon network set LINQ_AMQP_HOST=10.0.114.30 (see README_HACKATHON).
+    linq_amqp_host: str = ""
+    linq_amqp_port: int = Field(default=5672, ge=1, le=65535)
+    linq_amqp_user: str = "guest"
+    linq_amqp_password: str = "guest"
+    linq_amqp_vhost: str = "/"
+    linq_amqp_exchange: str = "tpu.direct"
+    linq_amqp_input_queue: str = "input"
+    linq_tpu_program: str = "ppe_nosig_p999.tpu"
+    linq_tpu_cache_dir: str = "/auto/cache/hackathon93154"
+    # Our compiled program drops the final Sigmoid; class rows are logits.
+    linq_tpu_output_is_logits: bool = True
     # Comma-separated ONNX execution providers in priority order, e.g.
     # "LinQExecutionProvider". The vendor EP name may differ — override here
     # without touching code. CPU fallback is always appended automatically.
