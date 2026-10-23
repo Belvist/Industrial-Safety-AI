@@ -4,6 +4,7 @@ from pydantic import ValidationError
 from app.domain.models import BoundingBox, Detection
 from app.services.engine import (
     TemporalEngine,
+    Track,
     Tracker,
     assign_detections,
     cleared_assigned,
@@ -336,3 +337,45 @@ def test_sequence_two_then_miss_then_one_needs_fresh_time():
     assert engine.update({key: 0.9}, 1, 2, 2) == []
     assert engine.update({}, 2, 2, 2) == []
     assert engine.update({key: 0.9}, 3, 2, 2) == []
+
+
+def test_multiple_named_zones_are_evaluated_independently():
+    from app.services.schemas import CameraConfig, Zone
+
+    config = CameraConfig(
+        zones=[
+            Zone(id="a", name="Погрузчик", points=[(0.0, 0.0), (0.3, 0.0), (0.3, 0.3), (0.0, 0.3)]),
+            Zone(id="b", name="Конвейер", points=[(0.6, 0.6), (0.9, 0.6), (0.9, 0.9), (0.6, 0.9)]),
+        ]
+    )
+    # foot point inside the second zone
+    track = Track(1, BoundingBox(0.70, 0.70, 0.80, 0.80), 0.0, 0.9)
+    observed = evaluate([track], [], config)
+    assert (1, "danger_zone") in observed
+    assert track.zone_name == "Конвейер"
+
+    outside = Track(2, BoundingBox(0.40, 0.40, 0.50, 0.50), 0.0, 0.9)
+    assert (2, "danger_zone") not in evaluate([outside], [], config)
+
+
+def test_disabled_zone_is_ignored():
+    from app.services.schemas import CameraConfig, Zone
+
+    config = CameraConfig(
+        zones=[
+            Zone(id="a", name="A", enabled=False, points=[(0.0, 0.0), (0.9, 0.0), (0.9, 0.9), (0.0, 0.9)]),
+        ]
+    )
+    track = Track(1, BoundingBox(0.4, 0.4, 0.5, 0.5), 0.0, 0.9)
+    assert (1, "danger_zone") not in evaluate([track], [], config)
+
+
+def test_legacy_zone_still_works():
+    from app.services.schemas import CameraConfig
+
+    config = CameraConfig(
+        zone=[(0.0, 0.0), (0.9, 0.0), (0.9, 0.9), (0.0, 0.9)],
+        zone_enabled=True,
+    )
+    track = Track(1, BoundingBox(0.4, 0.4, 0.5, 0.5), 0.0, 0.9)
+    assert (1, "danger_zone") in evaluate([track], [], config)

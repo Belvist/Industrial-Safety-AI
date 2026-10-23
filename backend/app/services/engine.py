@@ -42,6 +42,7 @@ class Track:
     seen: float
     confidence: float
     violations: list[str] = field(default_factory=list)
+    zone_name: str | None = None
     ppe: dict = field(default_factory=dict)
     ppe_confidence: dict = field(default_factory=dict)
     # Constant-velocity estimate (normalized units/sec), updated on match.
@@ -295,11 +296,15 @@ def evaluate_assigned(
         if getattr(config, "smoking", False) and smoking_conf:
             result[(track.id, "smoking")] = smoking_conf
             track.violations.append("smoking")
-        if config.zone_enabled and contains(
-            config.zone, ((track.bbox.x1 + track.bbox.x2) / 2, track.bbox.y2)
-        ):
-            result[(track.id, "danger_zone")] = track.confidence
-            track.violations.append("danger_zone")
+        zones = config.effective_zones() if hasattr(config, "effective_zones") else []
+        foot = ((track.bbox.x1 + track.bbox.x2) / 2, track.bbox.y2)
+        for zone in zones:
+            if contains(zone.points, foot):
+                result[(track.id, "danger_zone")] = track.confidence
+                track.violations.append("danger_zone")
+                # Remember which named zone triggered, for the incident row.
+                track.zone_name = zone.name
+                break
     return result
 
 
@@ -331,9 +336,9 @@ def cleared_assigned(
                 cleared[(track.id, negative)] = values[positive]
         if not values.get("smoking", 0):
             cleared[(track.id, "smoking")] = track.confidence
-        if config.zone_enabled and not contains(
-            config.zone, ((track.bbox.x1 + track.bbox.x2) / 2, track.bbox.y2)
-        ):
+        zones = config.effective_zones() if hasattr(config, "effective_zones") else []
+        foot = ((track.bbox.x1 + track.bbox.x2) / 2, track.bbox.y2)
+        if zones and not any(contains(zone.points, foot) for zone in zones):
             cleared[(track.id, "danger_zone")] = track.confidence
     return cleared
 

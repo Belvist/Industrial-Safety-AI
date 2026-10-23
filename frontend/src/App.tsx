@@ -31,7 +31,7 @@ import CameraTile from "./components/CameraTile";
 import IncidentDialog from "./components/IncidentDialog";
 import PhoneConnect from "./components/PhoneConnect";
 import ConnectPage from "./ConnectPage";
-import type { Camera, Config, Incident, Page, Point, Result } from "./types";
+import type { Camera, Config, Incident, Page, Point, Result, Zone } from "./types";
 import { configOf, date, isActive, labels, percentage, typeLabels } from "./types";
 import { accelerationHint, inferenceLabel, inferenceSub } from "./inferenceLabel";
 import {
@@ -64,6 +64,9 @@ export default function App() {
   const [formCamera, setFormCamera] = useState("");
   const [editing, setEditing] = useState(false);
   const [points, setPoints] = useState<Point[]>([]);
+  const [zoneIndex, setZoneIndex] = useState(0);
+  const [zoneDraft, setZoneDraft] = useState<Zone[]>([]);
+  const [newZoneName, setNewZoneName] = useState("");
   const [showBoxes, setShowBoxes] = useState(true);
   const [showRaw, setShowRaw] = useState(false);
   const [detail, setDetail] = useState<Incident | null>(null);
@@ -117,7 +120,14 @@ export default function App() {
     if (camera && formCamera !== camera.id) {
       setForm(configOf(camera));
       setFormCamera(camera.id);
-      setPoints(camera.zone);
+      const loaded = camera.zones?.length
+        ? camera.zones
+        : camera.zone.length >= 3
+          ? [{ id: "legacy", name: camera.zone_name || "Опасная зона", enabled: true, points: camera.zone }]
+          : [];
+      setZoneDraft(loaded);
+      setZoneIndex(0);
+      setPoints(loaded[0]?.points ?? []);
       setEditing(false);
     }
   }, [camera, formCamera]);
@@ -198,14 +208,56 @@ export default function App() {
         json(config, "PUT"),
       );
       setForm(configOf(saved));
-      setPoints(saved.zone);
+      const zones = saved.zones?.length ? saved.zones : [];
+      setZoneDraft(zones);
+      setPoints(zones[0]?.points ?? saved.zone);
       setEditing(false);
     });
   }
-  function editZone() {
+  function editZone(index = 0) {
     setPage("monitor");
-    setPoints(camera?.zone || []);
+    const zones = camera?.zones?.length
+      ? camera.zones
+      : camera?.zone.length
+        ? [{ id: "legacy", name: camera.zone_name || "Опасная зона", enabled: true, points: camera.zone }]
+        : [];
+    const idx = Math.min(index, Math.max(0, zones.length - 1));
+    setZoneDraft(zones);
+    setZoneIndex(idx);
+    setPoints(zones[idx]?.points ?? []);
     setEditing(true);
+  }
+
+  function addZone() {
+    const name = newZoneName.trim() || `Зона ${zoneDraft.length + 1}`;
+    const next: Zone = { id: `z${Date.now()}`, name, enabled: true, points: [] };
+    setZoneDraft((old) => [...old, next]);
+    setZoneIndex(zoneDraft.length);
+    setPoints([]);
+    setNewZoneName("");
+    setEditing(true);
+    setPage("monitor");
+  }
+
+  function selectZone(index: number) {
+    setZoneIndex(index);
+    setPoints(zoneDraft[index]?.points ?? []);
+  }
+
+  function removeZone(index: number) {
+    const next = zoneDraft.filter((_, i) => i !== index);
+    setZoneDraft(next);
+    const idx = Math.max(0, Math.min(index, next.length - 1));
+    setZoneIndex(idx);
+    setPoints(next[idx]?.points ?? []);
+  }
+
+  function renameZone(index: number, name: string) {
+    setZoneDraft((old) => old.map((z, i) => (i === index ? { ...z, name } : z)));
+  }
+
+  function toggleZone(index: number) {
+    setZoneDraft((old) => old.map((z, i) => (i === index ? { ...z, enabled: !z.enabled } : z)));
   }
   const errorMessage = error || safety.command.error;
   const canStop =
@@ -585,10 +637,125 @@ export default function App() {
                     {screen.workers === 1 ? "человек" : "чел."}
                   </div>
                 )}
+              {editing ? (
+                <div className="zone-editor">
+                  <div className="zone-list">
+                    {zoneDraft.map((z, i) => (
+                      <div
+                        key={z.id || i}
+                        className={"zone-row" + (i === zoneIndex ? " active" : "")}
+                      >
+                        <button
+                          className="zone-pick"
+                          onClick={() => selectZone(i)}
+                          title="Редактировать эту зону"
+                        >
+                          <span className="zone-dot" data-on={z.enabled} />
+                          {z.name}
+                          <small>{z.points.length} т.</small>
+                        </button>
+                        <input
+                          className="zone-name-input"
+                          value={z.name}
+                          aria-label={`Имя зоны ${i + 1}`}
+                          onChange={(e) => renameZone(i, e.target.value)}
+                        />
+                        <button
+                          className="text-button"
+                          onClick={() => toggleZone(i)}
+                          title={z.enabled ? "Отключить зону" : "Включить зону"}
+                        >
+                          {z.enabled ? "вкл" : "выкл"}
+                        </button>
+                        <button
+                          className="text-button danger"
+                          onClick={() => removeZone(i)}
+                          title="Удалить зону"
+                        >
+                          удалить
+                        </button>
+                      </div>
+                    ))}
+                    {!zoneDraft.length && (
+                      <p className="zone-empty">Зон пока нет. Добавьте первую.</p>
+                    )}
+                  </div>
+                  <div className="zone-add">
+                    <input
+                      placeholder="Имя новой зоны, например «Погрузчик»"
+                      value={newZoneName}
+                      onChange={(e) => setNewZoneName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") addZone();
+                      }}
+                    />
+                    <button className="button small" onClick={addZone}>
+                      + Добавить зону
+                    </button>
+                  </div>
+                  <div className="zone-actions">
+                    <span>
+                      {zoneDraft[zoneIndex]?.name ?? "Зона"} · {points.length} точек
+                      (нормализованные)
+                    </span>
+                    <div className="inline">
+                      <button
+                        className="button small"
+                        disabled={!points.length}
+                        onClick={() => setPoints(points.slice(0, -1))}
+                      >
+                        Убрать точку
+                      </button>
+                      <button
+                        className="button small"
+                        disabled={!points.length}
+                        onClick={() => setPoints([])}
+                      >
+                        Очистить
+                      </button>
+                      <button
+                        className="button small"
+                        onClick={() => {
+                          setEditing(false);
+                          setZoneDraft(camera?.zones ?? []);
+                          setPoints(camera?.zone ?? []);
+                        }}
+                      >
+                        Отмена
+                      </button>
+                      <button
+                        className="button primary small"
+                        disabled={points.length < 3 || busy}
+                        onClick={() => {
+                          if (!form) return;
+                          const zones = zoneDraft.map((z, i) =>
+                            i === zoneIndex ? { ...z, points } : z,
+                          );
+                          const first = zones.find(
+                            (z) => z.enabled && z.points.length >= 3,
+                          );
+                          void save({
+                            ...form,
+                            zones,
+                            zone: first?.points ?? [],
+                            zone_name: first?.name ?? form.zone_name,
+                            zone_enabled: Boolean(first),
+                          });
+                        }}
+                      >
+                        <Check size={14} />
+                        Сохранить зоны
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
                 <CameraViewport
                   camera={camera}
                   result={result}
                   editing={editing}
+                  zones={zoneDraft}
+                  activeIndex={zoneIndex}
                   points={points}
                   onPoint={(p) => setPoints((old) => [...old, p])}
                   showBoxes={showBoxes}
@@ -603,39 +770,7 @@ export default function App() {
                   </>
                 )}
               </div>
-              {editing ? (
-                <div className="zone-actions">
-                  <span>
-                    Нормализованные координаты · {points.length} точек
-                  </span>
-                  <div className="inline">
-                    <button
-                      className="button small"
-                      disabled={!points.length}
-                      onClick={() => setPoints(points.slice(0, -1))}
-                    >
-                      Убрать точку
-                    </button>
-                    <button
-                      className="button small"
-                      onClick={() => setEditing(false)}
-                    >
-                      Отмена
-                    </button>
-                    <button
-                      className="button primary small"
-                      disabled={points.length < 3 || busy}
-                      onClick={() =>
-                        form &&
-                        void save({ ...form, zone: points, zone_enabled: true })
-                      }
-                    >
-                      <Check size={14} />
-                      Сохранить зону
-                    </button>
-                  </div>
-                </div>
-              ) : (
+              {!editing && (
                 <div className="detection-summary">
                   <span className="summary-label">В кадре</span>
                   {groups.map((g) => (
@@ -871,7 +1006,7 @@ export default function App() {
                 ))}
                 <button
                   className="zone-button"
-                  onClick={editZone}
+                  onClick={() => editZone()}
                   disabled={!camera || busy}
                 >
                   <ScanLine size={17} />
@@ -1163,7 +1298,7 @@ export default function App() {
                   );
                 })}
                 <div className="inline">
-                  <button className="button" onClick={editZone}>
+                  <button className="button" onClick={() => editZone()}>
                     <ScanLine size={16} />
                     Редактор зоны
                   </button>

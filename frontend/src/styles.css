@@ -2363,3 +2363,17 @@ td small {
 .track-box.unknown { border-color:#94a3b8; border-style:dashed; }
 .track-label { position:absolute; left:-2px; top:-2px; transform:translateY(-100%); background:rgba(10,15,25,.88); color:#fff; font-size:.68rem; line-height:1.25; padding:3px 6px; border-radius:4px; white-space:nowrap; }
 .detection-box.raw { border-style:dotted; opacity:.75; }
+.zone-editor { display:flex; flex-direction:column; gap:.6rem; margin-top:.6rem; }
+.zone-list { display:flex; flex-direction:column; gap:.35rem; }
+.zone-row { display:flex; align-items:center; gap:.4rem; border:1px solid var(--line,#e5e7eb); border-radius:8px; padding:.35rem .5rem; background:#fff; }
+.zone-row.active { border-color:#111; box-shadow:0 0 0 1px #111; }
+.zone-pick { display:flex; align-items:center; gap:.45rem; background:none; border:0; padding:0; font-weight:600; cursor:pointer; min-width:140px; text-align:left; }
+.zone-pick small { color:#6b7280; font-weight:400; }
+.zone-dot { width:9px; height:9px; border-radius:50%; background:#d1d5db; }
+.zone-dot[data-on="true"] { background:#16a34a; }
+.zone-name-input { flex:1; min-width:120px; border:1px solid #e5e7eb; border-radius:6px; padding:.3rem .45rem; font:inherit; }
+.zone-add { display:flex; gap:.4rem; }
+.zone-add input { flex:1; border:1px solid #e5e7eb; border-radius:6px; padding:.4rem .5rem; font:inherit; }
+.zone-empty { color:#6b7280; font-size:.8rem; margin:0; }
+.zone-actions { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; }
+.text-button.danger { color:#b91c1c; }

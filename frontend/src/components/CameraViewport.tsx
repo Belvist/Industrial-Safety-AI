@@ -6,6 +6,8 @@ import { useAuthedImageUrl } from "../useAuthedImage";
 export default function CameraViewport({
   camera,
   result,
+  zones,
+  activeIndex = 0,
   editing,
   points,
   onPoint,
@@ -16,6 +18,8 @@ export default function CameraViewport({
 }: {
   camera?: Camera;
   result?: Result | null;
+  zones?: { id: string; name: string; enabled: boolean; points: Point[] }[];
+  activeIndex?: number;
   editing: boolean;
   points: Point[];
   onPoint: (point: Point) => void;
@@ -28,7 +32,9 @@ export default function CameraViewport({
   useEffect(() => {
     setDisplayed(null);
   }, [camera?.id, camera?.session_id]);
-  const zone = editing ? points : camera?.zone || [];
+  // When editing, show every draft zone; the active one is highlighted.
+  const draftZones = editing ? zones ?? [] : [];
+  const activeZone = editing ? points : camera?.zone || [];
   // Evidence frames load with auth headers into a Blob URL: the bearer
   // token never lands in an <img> URL, logs or Referer query strings.
   const frameSrc = useAuthedImageUrl(result ? result.frame_url : null);
@@ -94,19 +100,51 @@ export default function CameraViewport({
               ]);
             }}
           >
-            {zone.length > 1 && (
-              <polygon
-                points={zone
-                  .map(([x, y]) => `${x * 1000},${y * 1000}`)
-                  .join(" ")}
-                fill="rgba(251,191,36,.13)"
-                stroke="#eac36b"
-                strokeWidth="2"
-                strokeDasharray="6 5"
-              />
-            )}
+            {editing
+              ? draftZones.map((z, zi) => (
+                  <g key={z.id || zi}>
+                    {z.points.length > 1 && (
+                      <polygon
+                        points={z.points
+                          .map(([x, y]) => `${x * 1000},${y * 1000}`)
+                          .join(" ")}
+                        fill={
+                          z.enabled
+                            ? zi === activeIndex
+                              ? "rgba(251,191,36,.22)"
+                              : "rgba(251,191,36,.08)"
+                            : "rgba(148,163,184,.10)"
+                        }
+                        stroke={z.enabled ? "#eac36b" : "#94a3b8"}
+                        strokeWidth={zi === activeIndex ? 3 : 1.5}
+                        strokeDasharray={z.enabled ? "6 5" : "3 4"}
+                      />
+                    )}
+                    {z.points.length > 1 && (
+                      <text
+                        x={z.points[0][0] * 1000 + 8}
+                        y={z.points[0][1] * 1000 + 22}
+                        fill={z.enabled ? "#8a6a1f" : "#64748b"}
+                        fontSize="26"
+                      >
+                        {z.name}
+                      </text>
+                    )}
+                  </g>
+                ))
+              : activeZone.length > 1 && (
+                  <polygon
+                    points={activeZone
+                      .map(([x, y]) => `${x * 1000},${y * 1000}`)
+                      .join(" ")}
+                    fill="rgba(251,191,36,.13)"
+                    stroke="#eac36b"
+                    strokeWidth="2"
+                    strokeDasharray="6 5"
+                  />
+                )}
             {editing &&
-              zone.map(([x, y], i) => (
+              activeZone.map(([x, y], i) => (
                 <circle
                   key={i}
                   cx={x * 1000}

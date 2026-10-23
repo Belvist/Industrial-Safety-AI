@@ -347,6 +347,13 @@ class Runtime:
                     self.pairing.revoke_camera(camera_id)
                 return session._snapshot()
 
+    @staticmethod
+    def _zone_for_track(tracks, track_id):
+        for track in tracks:
+            if track.id == track_id and getattr(track, "zone_name", None):
+                return track.zone_name
+        return None
+
     def _finish(self, incident_id, outcome, reason, duration):
         """Finish once. Two tracks may share one merged incident."""
         if not incident_id:
@@ -585,11 +592,9 @@ class Runtime:
         radar = session.radar
         # zone_enabled must be respected; a disabled/empty zone invalidates
         # prior risk state instead of continuing to warn.
-        if session.config.zone_enabled and session.config.zone:
-            radar.set_zones(
-                {session.config.zone_name or "Опасная зона": session.config.zone},
-                enabled=True,
-            )
+        zones = session.config.effective_zones()
+        if zones:
+            radar.set_zones({z.name: z.points for z in zones}, enabled=True)
         else:
             radar.set_zones({}, enabled=False)
         # Radar works directly on confirmed person tracks from tracker
@@ -666,8 +671,10 @@ class Runtime:
         )
         annotated = frame.copy()
         h, w = frame.shape[:2]
-        if session.config.zone:
-            polygon = np.array([(int(x * w), int(y * h)) for x, y in session.config.zone], np.int32)
+        for zone in session.config.effective_zones():
+            polygon = np.array(
+                [(int(x * w), int(y * h)) for x, y in zone.points], np.int32
+            )
             cv2.polylines(annotated, [polygon], True, (0, 160, 255), 2)
         for detection in display_detections:
             if detection.weak:
@@ -709,10 +716,11 @@ class Runtime:
                 # many incidents: reuse an active incident for the same
                 # camera + violation + zone.
                 if key[1] == "danger_zone":
+                    zone_name = self._zone_for_track(tracks, key[0]) or session.config.zone_name
                     existing = self.storage.reopenable_incident(
                         session.id,
                         "danger_zone",
-                        session.config.zone_name,
+                        zone_name,
                         within_seconds=max(60.0, session.config.clear_seconds * 4),
                     )
                     if existing is not None:
@@ -735,7 +743,8 @@ class Runtime:
                         incident_id=incident_id,
                         snapshot=path.name,
                         zone_name=(
-                            session.config.zone_name
+                            self._zone_for_track(tracks, key[0])
+                            or session.config.zone_name
                             if key[1] == "danger_zone"
                             else None
                         ),

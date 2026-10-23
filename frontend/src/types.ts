@@ -67,6 +67,12 @@ export type Result = {
   timestamp: string;
   radar?: Radar | null;
 };
+export type Zone = {
+  id: string;
+  name: string;
+  enabled: boolean;
+  points: Point[];
+};
 export type Config = {
   name: string;
   helmet: boolean;
@@ -79,6 +85,7 @@ export type Config = {
   running_speed?: number;
   running_min_seconds?: number;
   zone: Point[];
+  zones?: Zone[];
   confirm_seconds: number;
   clear_seconds: number;
   temporal_window: number;
@@ -222,6 +229,7 @@ export function configOf(camera: Camera): Config {
     running_speed: camera.running_speed ?? 1.8,
     running_min_seconds: camera.running_min_seconds ?? 0.8,
     zone: camera.zone,
+    zones: camera.zones ?? [],
     confirm_seconds: camera.confirm_seconds,
     clear_seconds: camera.clear_seconds,
     temporal_window: camera.temporal_window,

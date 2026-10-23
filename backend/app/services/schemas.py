@@ -7,6 +7,22 @@ from app.domain.models import BoundingBox, Detection
 from app.services.state_machine import CameraState
 
 
+class Zone(BaseModel):
+    """A named danger zone. Points are normalized [0, 1]."""
+    id: str = Field(default="", max_length=32)
+    name: str = Field(default="Опасная зона", min_length=1, max_length=80)
+    enabled: bool = True
+    points: list[tuple[float, float]] = Field(default_factory=list, max_length=30)
+
+    @model_validator(mode="after")
+    def valid_points(self):
+        if any(not (0 <= x <= 1 and 0 <= y <= 1) for x, y in self.points):
+            raise ValueError("Zone coordinates must be in 0..1.")
+        if self.enabled and len(self.points) < 3:
+            raise ValueError("An enabled zone needs at least three points.")
+        return self
+
+
 class CameraConfig(BaseModel):
     name: str = Field(default="Камера 1", min_length=1, max_length=80)
     # Owner scope: None = shared operator camera; "phone:<id>" = isolated
@@ -18,9 +34,18 @@ class CameraConfig(BaseModel):
     # Off by default; enable per camera once the model provides the classes.
     mask: bool = False
     smoking: bool = False
+    # Legacy single zone. Kept for old clients and stored cameras.
     zone_enabled: bool = False
     zone_name: str = Field(default="Опасная зона", min_length=1, max_length=80)
     zone: list[tuple[float, float]] = Field(default_factory=list, max_length=30)
+    # Named zones. When present they replace the legacy single zone for
+    # monitoring; the legacy fields mirror the first enabled zone so older
+    # clients and incident filters keep working.
+    zones: list[Zone] = Field(default_factory=list, max_length=10)
+    # Multiple named zones. When non-empty, these replace the legacy fields
+    # for monitoring; the legacy fields mirror the first enabled zone so old
+    # UI code and filters keep working.
+    zones: list[Zone] = Field(default_factory=list, max_length=10)
     # Behavioural analytics (case slide 4, scenario 01). Runs on Worker
     # tracks only: no model class is required, so it works with any detector.
     running_enabled: bool = False
@@ -32,6 +57,14 @@ class CameraConfig(BaseModel):
     # positive observations within the last `temporal_window` frames.
     temporal_window: int = Field(default=4, ge=1, le=20)
     temporal_required: int = Field(default=3, ge=1, le=20)
+
+    def effective_zones(self) -> list[Zone]:
+        """Enabled, drawable zones used by the radar and the overlay."""
+        if self.zones:
+            return [z for z in self.zones if z.enabled and len(z.points) >= 3]
+        if self.zone_enabled and len(self.zone) >= 3:
+            return [Zone(id="legacy", name=self.zone_name, enabled=True, points=self.zone)]
+        return []
 
     @model_validator(mode="after")
     def valid_temporal(self):
@@ -80,6 +113,25 @@ class CameraConfig(BaseModel):
             )
             if area < 0.0001:
                 raise ValueError("Zone area must be greater than zero.")
+        if self.zones:
+            enabled = [z for z in self.zones if z.enabled]
+            if enabled:
+                self.zone = list(enabled[0].points)
+                self.zone_name = enabled[0].name
+                self.zone_enabled = True
+            else:
+                self.zone_enabled = False
+            return self
+        if self.zones:
+            enabled = [z for z in self.zones if z.enabled]
+            if enabled:
+                first = enabled[0]
+                self.zone = list(first.points)
+                self.zone_name = first.name
+                self.zone_enabled = True
+            else:
+                self.zone_enabled = False
+            return self
         if self.zone_enabled and not self.zone:
             raise ValueError("Draw a zone before enabling it.")
         return self
