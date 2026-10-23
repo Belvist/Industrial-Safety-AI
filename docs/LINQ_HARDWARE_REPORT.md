@@ -159,26 +159,52 @@ Local ONNX/CoreML numbers exist in `docs/PERFORMANCE_REPORT.md` and
 
 ## End-to-end through LinQ (video -> TPU -> radar -> incident -> evidence)
 
-Script: 20 frames from `footage_v4/yt_eval/3SuIh5zgKQQ.mp4` (854x480, 30 fps),
-letterboxed and sent to `ppe_nosig_p999.tpu` over RabbitMQ. A ground-zone was
-configured in normalized coordinates; `confirm_seconds=0.1` for the short clip.
+### Neural split (honest)
 
-Observed sequence:
+The compiled PPE program has no usable `person` head (max person score ~0.002
+on real frames), so worker tracking uses a **separate person detector**
+(`models/person.onnx`) on CPU. PPE detection runs on the LinQ TPU. The adapter
+reports this split in `system/info`:
 
-1. TPU returned real detections on each frame (`worker_verified=true`).
-2. Tracker produced a stable person Track.
-3. Safety Radar emitted `zone_approach / WARNING` at t=0.433 s with the
-   explanation and a saved MP4 clip.
-4. Within the same cooldown, crossing the polygon emitted
-   `zone_cross / CRITICAL` at t=0.467 s (escalation is never suppressed).
-5. TemporalEngine confirmed one `danger_zone` incident (total = 1), no repeats.
-6. Two evidence clips were written and served as `video/mp4` with access
-   control and a path-traversal guard.
+```
+"ppe_runtime": "tpu", "person_detector": "cpu"
+```
 
-This proves the full chain on the real accelerator path. The person box in the
-E2E script is a scripted fallback when the TPU detects no person in a frame
-(the clip is a wide factory scene); detection itself still runs on the TPU.
-That fallback is a test harness, not part of the product path.
+Tracking, Safety Radar, TemporalEngine, storage and UI run on CPU.
+
+### Fully automatic run (no scripted boxes)
+
+Input: `footage_v4/yt_eval/3SuIh5zgKQQ.mp4` (854x480, 30 fps), first 60
+frames. Zone: normalized rectangle x 0.80-0.99, y 0.20-0.62
+("Зона техники"). No bounding boxes are injected anywhere.
+
+Observed:
+
+1. Each frame is sent to `ppe_nosig_p999.tpu` over RabbitMQ
+   (`worker_verified=true`, worker PID 7).
+2. `models/person.onnx` (CPU) returns real person detections; the tracker
+   produces Track #1 with a stable ID.
+3. Safety Radar reaches `CRITICAL` (foot point inside the polygon) and
+   emits `zone_cross` with the explanation.
+4. Radar CRITICAL is fed into TemporalEngine as `danger_zone`; it confirms
+   **exactly one incident**.
+5. One MP4 evidence clip is written asynchronously and served as `video/mp4`
+   with `X-API-Token` auth and a path-traversal guard.
+
+### Approach warning on a second real clip
+
+Input: `footage_v4/yt_eval/UVh_Jv0n1ZQ.mp4`, zone x 0.10-0.315. The worker
+walks toward the boundary; Radar emits `zone_approach / WARNING` with
+`distance=0.015 norm` (no metres, no time-to-collision). A single-frame
+boundary touch does **not** create an incident — temporal confirmation is
+required.
+
+### Limits of this evidence
+
+- It is a real-video run, not a labelled event benchmark. Event-level
+  precision/recall and false alarms/hour are not measured.
+- The person detector is CPU, not TPU. Only the PPE graph is on LinQ.
+- `hardware_verified=false`: no independent hardware counters.
 
 ## Honest limits after the fixes
 

@@ -1,5 +1,6 @@
 import { AlertTriangle, CheckCircle, HelpCircle } from "lucide-react";
 import type { Radar, RadarEvent } from "../types";
+import { useAuthedVideoUrl } from "../useAuthedVideo";
 
 type Props = {
   radar: Radar | null | undefined;
@@ -24,6 +25,8 @@ function riskSummary(radar: Radar | null | undefined): keyof typeof levelConfig 
 
 export default function SafetyRadarPanel({ radar, workers }: Props) {
   const summary = riskSummary(radar);
+  const evidenceSrc = radar?.events.find((e) => e.evidence_url)?.evidence_url ?? null;
+  const videoUrl = useAuthedVideoUrl(evidenceSrc);
   const cfg = levelConfig[summary];
   const Icon = cfg.icon;
   const events = radar?.events ?? [];
@@ -47,8 +50,8 @@ export default function SafetyRadarPanel({ radar, workers }: Props) {
             <li key={`${ev.track_id}-${ev.timestamp}-${idx}`} className={`radar-event ${ev.level.toLowerCase()}`}>
               <span className="radar-event-level">{ev.level}</span>
               <span className="radar-event-message">{ev.message}</span>
-              {ev.evidence_url && (
-                <a className="radar-replay" href={ev.evidence_url} target="_blank" rel="noreferrer">
+              {ev.evidence_url && videoUrl && (
+                <a className="radar-replay" href={videoUrl} target="_blank" rel="noreferrer">
                   Replay
                 </a>
               )}
@@ -56,13 +59,7 @@ export default function SafetyRadarPanel({ radar, workers }: Props) {
           ))}
         </ul>
       )}
-      {events.some((e) => e.evidence_url) && (
-        <video
-          className="radar-video"
-          controls
-          src={events.find((e) => e.evidence_url)?.evidence_url ?? undefined}
-        />
-      )}
+      {videoUrl && <video className="radar-video" controls src={videoUrl} />}
       {events.length === 0 && summary !== "UNKNOWN" && (
         <p className="radar-empty">Опасных сближений не обнаружено.</p>
       )}

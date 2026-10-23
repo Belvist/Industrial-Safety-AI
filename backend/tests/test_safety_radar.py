@@ -165,14 +165,15 @@ def test_runtime_radar_reaches_session_latest(tmp_path):
 
 
 def test_runtime_radar_resets_on_restart(tmp_path):
-    provider = SequenceProvider([(0.35, 0.40, 0.45, 0.50)] * 5)
+    provider = SequenceProvider([(0.35, 0.40, 0.45, 0.50)] * 6)
     runtime = Runtime(_settings(tmp_path), provider)
     try:
         cam = next(iter(runtime.sessions.values()))
         runtime.sessions[cam.id].config.zone = [(0.3, 0.3), (0.9, 0.3), (0.9, 0.9), (0.3, 0.9)]
+        runtime.sessions[cam.id].config.zone_enabled = True
         runtime.start(cam.id, "browser")
         frame = np.zeros((240, 320, 3), dtype=np.uint8)
-        for t in range(3):
+        for t in range(6):
             runtime.process(cam, frame, float(t))
         assert runtime.sessions[cam.id].radar.get_events()
         runtime.stop(cam.id)
@@ -260,7 +261,12 @@ def test_evidence_replay_file_and_endpoint(tmp_path):
                     if ev.get("evidence_url"):
                         url = ev["evidence_url"]
             assert url, "radar event must carry evidence_url"
+            import time as _time
+            deadline = _time.monotonic() + 5.0
             response = client.get(url)
+            while response.status_code == 404 and _time.monotonic() < deadline:
+                _time.sleep(0.1)
+                response = client.get(url)
             assert response.status_code == 200
             assert response.headers["content-type"].startswith("video/mp4")
             assert len(response.content) > 100
@@ -293,3 +299,192 @@ def test_get_events_dedupes_by_track_and_type():
     for t in range(5):
         radar.update([_track(1, 0.35, 0.4, 0.45, 0.5)], "cam", float(t))
     assert len(radar.get_events()) == 1
+
+
+def test_risk_event_has_declared_evidence_field():
+    """P0 regression: evidence must be a real dataclass field, not dynamic."""
+    from dataclasses import fields
+
+    from app.services.safety_radar import RiskEvent
+
+    assert "evidence" in {f.name for f in fields(RiskEvent)}
+    ev = RiskEvent(1, "cam", "zone_cross", "CRITICAL", 0.0, "m")
+    assert ev.evidence is None
+
+
+def test_critical_state_survives_cooldown_inside_zone():
+    """P0 regression: staying in the zone > cooldown stays CRITICAL."""
+    radar = SafetyRadar(cooldown_seconds=1.0, min_history_points=2)
+    radar.set_zones({"zone": [(0.3, 0.3), (0.9, 0.3), (0.9, 0.9), (0.3, 0.9)]})
+    track = _track(1, 0.35, 0.40, 0.45, 0.50)
+    for t in range(15):  # 15 s inside the zone, cooldown is 1 s
+        radar.update([track], "cam", float(t))
+        if t >= 1:  # after min_history_points
+            assert radar.get_current_risk_level(1) == "CRITICAL"
+    # Notifications are throttled, state is not.
+    assert len(radar.get_events()) == 1
+
+
+def test_zone_disabled_emits_no_events():
+    radar = SafetyRadar(min_history_points=1)
+    radar.set_zones({"zone": [(0.3, 0.3), (0.9, 0.3), (0.9, 0.9), (0.3, 0.9)]}, enabled=True)
+    radar.set_zones({"zone": [(0.3, 0.3), (0.9, 0.3), (0.9, 0.9), (0.3, 0.9)]}, enabled=False)
+    events = radar.update([_track(1, 0.35, 0.4, 0.45, 0.5)], "cam", 0.0)
+    assert events == []
+    assert radar.get_current_risk_level(1) == "UNKNOWN"
+
+
+def test_zone_disable_invalidates_state(tmp_path):
+    """Integration: turning zone_enabled off stops new WARNING/CRITICAL."""
+    from app.services.runtime import Runtime
+
+    class Provider:
+        name = "p"
+
+        def predict_sync(self, frame):
+            return [Detection("person", 0.99, BoundingBox(0.35, 0.40, 0.45, 0.50))]
+
+    settings = _settings(tmp_path)
+    runtime = Runtime(settings, Provider())
+    try:
+        cam = next(iter(runtime.sessions.values()))
+        cam.config.zone = [(0.3, 0.3), (0.9, 0.3), (0.9, 0.9), (0.3, 0.9)]
+        cam.config.zone_enabled = True
+        runtime.start(cam.id, "browser")
+        frame = np.zeros((240, 320, 3), dtype=np.uint8)
+        for t in range(4):
+            runtime.process(cam, frame, float(t))
+        assert cam.radar.get_events()
+
+        cam.config.zone_enabled = False
+        for t in range(4, 8):
+            latest = runtime.process(cam, frame, float(t))
+        assert cam.radar.all_events() == []
+        assert latest["radar"]["events"] == []
+        assert latest["radar"]["track_risks"].get(1) in {"UNKNOWN", "NORMAL"}
+    finally:
+        runtime.close()
+
+
+def test_multiple_events_share_failure_safe_evidence(tmp_path):
+    """Two tracks in the zone must not crash if evidence writing fails."""
+    from app.services.runtime import Runtime
+
+    class TwoProvider:
+        name = "two"
+
+        def predict_sync(self, frame):
+            return [
+                Detection("person", 0.99, BoundingBox(0.35, 0.40, 0.45, 0.50)),
+                Detection("person", 0.98, BoundingBox(0.70, 0.70, 0.80, 0.80)),
+            ]
+
+    settings = _settings(tmp_path)
+    runtime = Runtime(settings, TwoProvider())
+    try:
+        cam = next(iter(runtime.sessions.values()))
+        cam.config.zone = [(0.3, 0.3), (0.95, 0.3), (0.95, 0.95), (0.3, 0.95)]
+        cam.config.zone_enabled = True
+        runtime.start(cam.id, "browser")
+        frame = np.zeros((240, 320, 3), dtype=np.uint8)
+        # Force writer failure: unwritable evidence dir
+        (runtime.data / "evidence").chmod(0o500)
+        try:
+            for t in range(5):
+                latest = runtime.process(cam, frame, float(t))
+        finally:
+            (runtime.data / "evidence").chmod(0o700)
+        # No crash; events exist, evidence may be None.
+        assert len(latest["radar"]["events"]) >= 1
+        for ev in latest["radar"]["events"]:
+            assert "evidence_url" in ev
+    finally:
+        runtime.close()
+
+
+def test_evidence_requires_api_token(tmp_path):
+    """Evidence video must be protected by X-API-Token, not a query string."""
+    import time as _time
+
+    from fastapi.testclient import TestClient
+
+    from app.main import create_app
+
+    provider = SequenceProvider([(0.10 + i * 0.03, 0.70, 0.30 + i * 0.03, 0.80) for i in range(18)])
+    settings = _settings(tmp_path)
+    settings.api_token = "secret-token"
+    runtime = Runtime(settings, provider)
+    try:
+        with TestClient(create_app(settings, runtime)) as client:
+            auth = {"X-API-Token": "secret-token"}
+            cam = client.get("/api/v1/cameras", headers=auth).json()[0]
+            cam = client.put(
+                f"/api/v1/cameras/{cam['id']}",
+                headers=auth,
+                json={
+                    **cam,
+                    "zone": [[0.6, 0.6], [0.9, 0.6], [0.9, 0.9], [0.6, 0.9]],
+                    "zone_enabled": True,
+                },
+            ).json()
+            started = client.post(
+                f"/api/v1/cameras/{cam['id']}/start",
+                headers=auth,
+                json={"kind": "browser"},
+            ).json()
+            import cv2
+
+            _, encoded = cv2.imencode(".jpg", np.full((240, 320, 3), 100, np.uint8))
+            headers = {**auth, "X-Session-Id": started["session_id"]}
+            url = None
+            for _ in range(18):
+                body = client.post(
+                    f"/api/v1/cameras/{cam['id']}/frame",
+                    content=encoded.tobytes(),
+                    headers=headers,
+                ).json()
+                for ev in body.get("radar", {}).get("events", []):
+                    if ev.get("evidence_url"):
+                        url = ev["evidence_url"]
+            assert url
+            # Wait for the async writer.
+            deadline = _time.monotonic() + 5.0
+            while _time.monotonic() < deadline:
+                if (runtime.data / "evidence" / url.rsplit("/", 1)[-1]).is_file():
+                    break
+                _time.sleep(0.1)
+            assert client.get(url).status_code == 401
+            # UI uses the header path only; token never goes into the media URL.
+            assert client.get(url, headers=auth).status_code == 200
+    finally:
+        runtime.close()
+
+
+def test_radar_critical_confirms_single_incident(tmp_path):
+    """Radar CRITICAL feeds TemporalEngine; one incident, no duplicates."""
+    from app.services.runtime import Runtime
+
+    class Provider:
+        name = "p"
+
+        def predict_sync(self, frame):
+            return [Detection("person", 0.99, BoundingBox(0.35, 0.40, 0.45, 0.50))]
+
+    settings = _settings(tmp_path)
+    runtime = Runtime(settings, Provider())
+    try:
+        cam = next(iter(runtime.sessions.values()))
+        cam.config.zone = [(0.3, 0.3), (0.9, 0.3), (0.9, 0.9), (0.3, 0.9)]
+        cam.config.zone_enabled = True
+        cam.config.confirm_seconds = 0.1
+        runtime.start(cam.id, "browser")
+        frame = np.zeros((240, 320, 3), dtype=np.uint8)
+        for t in range(10):
+            runtime.process(cam, frame, t / 30)
+        assert runtime.storage.incidents()["total"] == 1
+        # Continued presence must not create duplicates.
+        for t in range(10, 40):
+            runtime.process(cam, frame, t / 30)
+        assert runtime.storage.incidents()["total"] == 1
+    finally:
+        runtime.close()

@@ -117,6 +117,7 @@ class LinqProvider(InferenceProvider):
         self.readiness = "unconfigured"
         self.stats = LinqStats(mode="uninitialized")
         self._local = None
+        self._person = None
         self._loaded = False
         self._connection = None
         self._channel = None
@@ -139,9 +140,12 @@ class LinqProvider(InferenceProvider):
         if self._loaded:
             return
         if self.amqp_host:
-            # Remote mode needs no local weights; the broker is connected
-            # lazily per frame so the UI can start without blocking.
+            # Remote mode runs the PPE graph on the TPU. The PPE weights have
+            # no usable `person` head, so worker tracking needs a separate
+            # person detector. It runs locally on CPU and this split is
+            # reported honestly in status().
             self.stats.mode = "linq_remote"
+            self._load_remote_person()
             self.readiness = "configured"
             self._loaded = True
             return
@@ -197,6 +201,26 @@ class LinqProvider(InferenceProvider):
         except Exception:
             self.readiness = "failed"
         return self.readiness
+
+    def _load_remote_person(self) -> None:
+        if not self.person_model_path:
+            return
+        try:
+            from app.inference.local_onnx import LocalOnnxProvider
+
+            self._person = LocalOnnxProvider(
+                str(self.person_model_path),
+                self.confidence,
+                self.threads,
+                providers=["CPUExecutionProvider"],
+                thresholds=self.thresholds,
+                floor=self.floor,
+                roi_mode="off",
+                required_classes={"person"},
+            )
+            self._person.load()
+        except Exception:  # noqa: BLE001 - PPE/TPU path still works without it
+            self._person = None
 
     def _pick_local_mode(self) -> str:
         # Mode by FACT from the loaded session, not by global availability:
@@ -271,6 +295,11 @@ class LinqProvider(InferenceProvider):
             "supported_classes": self.supported_classes(),
             "model": self.model,
             "protocol": PROTOCOL if self.stats.mode == "linq_remote" else None,
+            "person_detector": (
+                "cpu" if self.stats.mode == "linq_remote" and self._person is not None
+                else None
+            ),
+            "ppe_runtime": "tpu" if self.stats.mode == "linq_remote" else "cpu",
             "hardware_verified": self.readiness == "hardware_verified",
             "worker_pid": self.stats.worker_pid,
             "worker_inference_ms": round(self.stats.worker_inference_ms, 3),
@@ -288,6 +317,13 @@ class LinqProvider(InferenceProvider):
         started = time.perf_counter()
         if self.stats.mode == "linq_remote":
             detections = self._predict_remote(frame)
+            if self._person is not None:
+                people = [
+                    d for d in self._person.predict_sync(frame)
+                    if d.class_name == "person"
+                ]
+                if people:
+                    detections = people + detections
         elif self._local is not None:
             detections = self._local.predict_sync(frame)
         else:  # pragma: no cover - defensive; load() always sets a mode

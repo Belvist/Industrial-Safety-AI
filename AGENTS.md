@@ -33,6 +33,9 @@ hackathon accelerator (see `docs/LINQ_CASE_TRACEABILITY.md`).
 - Parity: val 20/20 detections; test 11/14 (2 low-confidence `no_helmet`
   misses, 1 extra). End-to-end wall p50 0.98–1.26 s (14 frames), worker p50 73.7 ms.
   No independent hardware counters: `hardware_verified=false`, `worker_verified=true`.
+- Neural split: PPE on TPU; separate `models/person.onnx` on CPU (PPE model's
+  person head is dead, max ~0.002). `system/info` reports
+  `ppe_runtime=tpu`, `person_detector=cpu`.
 - Settings: `LINQ_AMQP_HOST` enables remote mode; `LINQ_TPU_PROGRAM`,
   `LINQ_TPU_CACHE_DIR`; `pika`/`protobuf` are `linq` extra. Wire format
   vendored in `backend/app/inference/tpu_wire/` (see `THIRD_PARTY.md`).
@@ -40,7 +43,9 @@ hackathon accelerator (see `docs/LINQ_CASE_TRACEABILITY.md`).
 - Scenarios 02–08: 02–04 BLOCKED (no models), 05 PARTIAL (named polygon
   zones only; no conveyor/load detector), 06 BLOCKED, 07 FAIL (no
   Fall/Idle/Sit split), 08 NOT_IMPLEMENTED. Must not claim as implemented.
-- Tests: 189 backend (ruff clean), 32 frontend (vitest), all passing.
+- Tests: 209+ backend (ruff clean), 32 frontend (vitest), all passing.
+- Fully automatic LinQ E2E (no scripted boxes): real video → TPU PPE +
+  CPU person → Track → Radar CRITICAL → 1 incident → MP4 evidence.
 
 ## Frozen / do not do
 

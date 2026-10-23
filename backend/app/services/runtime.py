@@ -3,6 +3,7 @@ import sqlite3
 import threading
 import time
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, replace
 from uuid import uuid4
 
@@ -108,6 +109,7 @@ class Runtime:
         (self.data / "snapshots").mkdir(parents=True, exist_ok=True)
         (self.data / "uploads").mkdir(parents=True, exist_ok=True)
         (self.data / "evidence").mkdir(parents=True, exist_ok=True)
+        self._evidence_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="evidence")
         self.storage.purge_old_resolved(
             settings.snapshot_retention_days, self.data / "snapshots"
         )
@@ -341,33 +343,50 @@ class Runtime:
                 return session._snapshot()
 
     def _save_evidence(self, session, events):
-        """Save a short MP4 around a radar event from the ring buffer.
+        """Queue an MP4 clip around a radar event (never blocks the pipeline).
 
-        Frames are already JPEG bytes; decode, write at target fps.
-        Returns filename or None. Never raises into the pipeline.
+        The clip contains buffered frames before the event plus frames that
+        arrive during a short post-event window. Writing happens on a
+        background thread; failures are swallowed and logged by the caller.
         """
-        import cv2
-
         if not events or not session.frames:
             return None
         try:
-            frames = list(session.frames)
-            # Keep the last N frames (up to ~5 s at target_fps)
-            limit = max(10, int(self.settings.target_fps * 5))
-            frames = frames[-limit:]
             first_event = events[0]
-            name = f"radar_{session.id}_{int(first_event.timestamp * 1000)}.mp4"
-            path = self.data / "evidence" / name
+            name = f"radar_{session.id}_{int(first_event.timestamp * 1000)}_{uuid4().hex[:6]}.mp4"
+            snapshot = list(session.frames)
+            self._evidence_pool.submit(self._write_evidence, name, snapshot, session)
+            return name
+        except Exception:  # noqa: BLE001 - evidence must not break monitoring
+            return None
+
+    def _write_evidence(self, name, pre_frames, session):
+        """Write pre/post frames to MP4 on a worker thread."""
+        import cv2
+
+        path = self.data / "evidence" / name
+        try:
+            # Collect a short post-event window (bounded wait, never blocks frames)
+            deadline = time.monotonic() + 1.0
+            post = []
+            while time.monotonic() < deadline:
+                time.sleep(0.05)
+                with session.lock:
+                    post = [f for f in session.frames if f[0] > pre_frames[-1][0]]
+            frames = (pre_frames + post)[-max(10, int(self.settings.target_fps * 6)):]
             first = cv2.imdecode(np.frombuffer(frames[0][1], np.uint8), cv2.IMREAD_COLOR)
             if first is None:
-                return None
+                return
             h, w = first.shape[:2]
             writer = cv2.VideoWriter(
-                str(path), cv2.VideoWriter_fourcc(*"mp4v"),
-                max(1.0, float(self.settings.target_fps)), (w, h),
+                str(path),
+                cv2.VideoWriter_fourcc(*"mp4v"),
+                max(1.0, float(self.settings.target_fps)),
+                (w, h),
             )
             if not writer.isOpened():
-                return None
+                path.unlink(missing_ok=True)
+                return
             try:
                 for _, raw, _ in frames:
                     img = cv2.imdecode(np.frombuffer(raw, np.uint8), cv2.IMREAD_COLOR)
@@ -375,9 +394,32 @@ class Runtime:
                         writer.write(img)
             finally:
                 writer.release()
-            return name
-        except Exception:  # noqa: BLE001 - evidence must not break monitoring
-            return None
+            self._purge_evidence(keep_name=name)
+        except Exception:  # noqa: BLE001 - evidence failure must not crash a worker
+            path.unlink(missing_ok=True)
+
+    def _purge_evidence(self, keep_name: str | None = None):
+        """Retention by age and total size; never deletes the fresh clip.
+
+        Age retention is only applied when snapshot_retention_days > 0
+        (0 means "no age limit", consistent with snapshot retention).
+        """
+        folder = self.data / "evidence"
+        now = time.time()
+        max_age = self.settings.snapshot_retention_days * 86400
+        files = sorted(
+            (p for p in folder.glob("*.mp4") if p.is_file()),
+            key=lambda p: p.stat().st_mtime,
+        )
+        total = 0
+        for path in reversed(files):
+            size = path.stat().st_size
+            too_old = max_age > 0 and (now - path.stat().st_mtime) > max_age
+            too_big = total + size > 512 * 1024 * 1024
+            if path.name != keep_name and (too_old or too_big):
+                path.unlink(missing_ok=True)
+            else:
+                total += size
 
     def _smooth_for_display(self, session, detection, now, alpha: float = 0.4):
         """EMA over raw confidence, keyed by (track, class).
@@ -519,9 +561,15 @@ class Runtime:
         # Safety Radar: update trajectories and detect risks
         # Use normalized coordinates [0,1] consistently with track.bbox
         radar = session.radar
-        if session.config.zone:
-            # Zone points are already normalized [0,1] in config
-            radar.set_zones({session.config.zone_name or "Опасная зона": session.config.zone})
+        # zone_enabled must be respected; a disabled/empty zone invalidates
+        # prior risk state instead of continuing to warn.
+        if session.config.zone_enabled and session.config.zone:
+            radar.set_zones(
+                {session.config.zone_name or "Опасная зона": session.config.zone},
+                enabled=True,
+            )
+        else:
+            radar.set_zones({}, enabled=False)
         # Radar works directly on confirmed person tracks from tracker
         # track.bbox is normalized [0,1], use frame timestamp 'now' for time
         radar_events = radar.update(tracks, session.id, now)
@@ -532,10 +580,17 @@ class Runtime:
         if radar_events:
             evidence_name = self._save_evidence(session, radar_events)
             if evidence_name:
-                radar_events[0].evidence = evidence_name
+                for event in radar_events:
+                    event.evidence = evidence_name
         session.radar_evidence = evidence_name
         observed = evaluate_assigned(tracks, assignments, session.config)
         cleared = cleared_assigned(tracks, assignments, session.config)
+        # Radar CRITICAL is a confirmed zone crossing on the foot point.
+        # Feed it into the same temporal engine so one incident is created
+        # (no duplicate path and no radar-only alarms).
+        for track in tracks:
+            if radar.get_current_risk_level(track.id) == "CRITICAL":
+                observed[(track.id, "danger_zone")] = 1.0
         if session.config.running_enabled:
             running_observed, running_cleared = session.behavior.update(
                 tracks,
@@ -683,8 +738,8 @@ class Runtime:
                 "message": ev.message,
                 "zone_name": ev.zone_name,
                 "evidence_url": (
-                    f"/api/v1/cameras/{session.id}/evidence/{ev.evidence}"
-                    if ev.evidence else None
+                    f"/api/v1/cameras/{session.id}/evidence/{getattr(ev, 'evidence', '')}"
+                    if getattr(ev, "evidence", None) else None
                 ),
             })
 
@@ -714,6 +769,7 @@ class Runtime:
 
     def close(self):
         self.shutdown.set()
+        self._evidence_pool.shutdown(wait=False, cancel_futures=True)
         self.watchdog.join(timeout=1)
         for camera_id in list(self.sessions):
             try:
