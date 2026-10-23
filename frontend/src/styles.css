@@ -2377,3 +2377,22 @@ td small {
 .zone-empty { color:#6b7280; font-size:.8rem; margin:0; }
 .zone-actions { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; }
 .text-button.danger { color:#b91c1c; }
+.zone-editor { display:flex; flex-direction:column; gap:.55rem; margin-top:.5rem; }
+.zone-list { display:flex; flex-direction:column; gap:.4rem; max-height:230px; overflow:auto; }
+.zone-card { border:1px solid #e5e7eb; border-radius:10px; padding:.45rem .5rem; background:#fff; cursor:pointer; transition:border-color .12s, box-shadow .12s; }
+.zone-card:hover { border-color:#c7cbd1; }
+.zone-card.active { border-color:#111; box-shadow:0 0 0 1px #111; }
+.zone-card.off { opacity:.62; }
+.zone-card-head { display:flex; align-items:center; gap:.35rem; }
+.zone-card-head .zone-name-input { flex:1; min-width:0; border:1px solid transparent; background:transparent; font-weight:600; padding:.2rem .25rem; border-radius:6px; }
+.zone-card-head .zone-name-input:focus { border-color:#d1d5db; background:#fff; outline:none; }
+.zone-card-foot { display:flex; justify-content:space-between; font-size:.7rem; color:#6b7280; margin-top:.2rem; padding-left:1.05rem; }
+.zone-editing { color:#b45309; font-weight:600; }
+.icon-mini { border:0; background:none; cursor:pointer; font-size:.85rem; line-height:1; padding:.15rem .25rem; color:#6b7280; border-radius:4px; }
+.icon-mini:hover { background:#f3f4f6; color:#111; }
+.icon-mini.danger:hover { background:#fee2e2; color:#b91c1c; }
+.zone-add { display:flex; gap:.35rem; }
+.zone-add input { flex:1; min-width:0; border:1px solid #e5e7eb; border-radius:8px; padding:.4rem .5rem; font:inherit; font-size:.82rem; }
+.zone-tools { display:flex; flex-direction:column; gap:.35rem; border-top:1px dashed #e5e7eb; padding-top:.45rem; font-size:.75rem; color:#6b7280; }
+.zone-tools-row { display:flex; gap:.35rem; flex-wrap:wrap; }
+.zone-tools .button.small { flex:1; }

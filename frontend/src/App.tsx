@@ -637,119 +637,6 @@ export default function App() {
                     {screen.workers === 1 ? "человек" : "чел."}
                   </div>
                 )}
-              {editing ? (
-                <div className="zone-editor">
-                  <div className="zone-list">
-                    {zoneDraft.map((z, i) => (
-                      <div
-                        key={z.id || i}
-                        className={"zone-row" + (i === zoneIndex ? " active" : "")}
-                      >
-                        <button
-                          className="zone-pick"
-                          onClick={() => selectZone(i)}
-                          title="Редактировать эту зону"
-                        >
-                          <span className="zone-dot" data-on={z.enabled} />
-                          {z.name}
-                          <small>{z.points.length} т.</small>
-                        </button>
-                        <input
-                          className="zone-name-input"
-                          value={z.name}
-                          aria-label={`Имя зоны ${i + 1}`}
-                          onChange={(e) => renameZone(i, e.target.value)}
-                        />
-                        <button
-                          className="text-button"
-                          onClick={() => toggleZone(i)}
-                          title={z.enabled ? "Отключить зону" : "Включить зону"}
-                        >
-                          {z.enabled ? "вкл" : "выкл"}
-                        </button>
-                        <button
-                          className="text-button danger"
-                          onClick={() => removeZone(i)}
-                          title="Удалить зону"
-                        >
-                          удалить
-                        </button>
-                      </div>
-                    ))}
-                    {!zoneDraft.length && (
-                      <p className="zone-empty">Зон пока нет. Добавьте первую.</p>
-                    )}
-                  </div>
-                  <div className="zone-add">
-                    <input
-                      placeholder="Имя новой зоны, например «Погрузчик»"
-                      value={newZoneName}
-                      onChange={(e) => setNewZoneName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") addZone();
-                      }}
-                    />
-                    <button className="button small" onClick={addZone}>
-                      + Добавить зону
-                    </button>
-                  </div>
-                  <div className="zone-actions">
-                    <span>
-                      {zoneDraft[zoneIndex]?.name ?? "Зона"} · {points.length} точек
-                      (нормализованные)
-                    </span>
-                    <div className="inline">
-                      <button
-                        className="button small"
-                        disabled={!points.length}
-                        onClick={() => setPoints(points.slice(0, -1))}
-                      >
-                        Убрать точку
-                      </button>
-                      <button
-                        className="button small"
-                        disabled={!points.length}
-                        onClick={() => setPoints([])}
-                      >
-                        Очистить
-                      </button>
-                      <button
-                        className="button small"
-                        onClick={() => {
-                          setEditing(false);
-                          setZoneDraft(camera?.zones ?? []);
-                          setPoints(camera?.zone ?? []);
-                        }}
-                      >
-                        Отмена
-                      </button>
-                      <button
-                        className="button primary small"
-                        disabled={points.length < 3 || busy}
-                        onClick={() => {
-                          if (!form) return;
-                          const zones = zoneDraft.map((z, i) =>
-                            i === zoneIndex ? { ...z, points } : z,
-                          );
-                          const first = zones.find(
-                            (z) => z.enabled && z.points.length >= 3,
-                          );
-                          void save({
-                            ...form,
-                            zones,
-                            zone: first?.points ?? [],
-                            zone_name: first?.name ?? form.zone_name,
-                            zone_enabled: Boolean(first),
-                          });
-                        }}
-                      >
-                        <Check size={14} />
-                        Сохранить зоны
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
                 <CameraViewport
                   camera={camera}
                   result={result}
@@ -1013,6 +900,138 @@ export default function App() {
                   Настроить опасную зону
                   <ArrowUpRight size={16} />
                 </button>
+              {editing ? (
+                <div className="zone-editor">
+                  <div className="zone-list">
+                    {zoneDraft.map((z, i) => (
+                      <div
+                        key={z.id || i}
+                        className={
+                          "zone-card" +
+                          (i === zoneIndex ? " active" : "") +
+                          (z.enabled ? "" : " off")
+                        }
+                        onClick={() => selectZone(i)}
+                      >
+                        <div className="zone-card-head">
+                          <span className="zone-dot" data-on={z.enabled} />
+                          <input
+                            className="zone-name-input"
+                            value={z.name}
+                            aria-label={`Имя зоны ${i + 1}`}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => renameZone(i, e.target.value)}
+                          />
+                          <button
+                            className="icon-mini"
+                            title={z.enabled ? "Отключить" : "Включить"}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleZone(i);
+                            }}
+                          >
+                            {z.enabled ? "●" : "○"}
+                          </button>
+                          <button
+                            className="icon-mini danger"
+                            title="Удалить зону"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeZone(i);
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <div className="zone-card-foot">
+                          <span>{z.points.length} точек</span>
+                          {i === zoneIndex && editing ? (
+                            <span className="zone-editing">
+                              {z.points.length < 3 ? "поставьте ≥3 точки" : "кликните на кадр, чтобы добавить точку"}
+                            </span>
+                          ) : (
+                            <span>{z.enabled ? "активна" : "выключена"}</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {!zoneDraft.length && (
+                      <p className="zone-empty">Зон пока нет — добавьте первую.</p>
+                    )}
+                  </div>
+
+                  <div className="zone-add">
+                    <input
+                      placeholder="Название зоны"
+                      value={newZoneName}
+                      onChange={(e) => setNewZoneName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") addZone();
+                      }}
+                    />
+                    <button className="button small" onClick={addZone}>
+                      + Добавить
+                    </button>
+                  </div>
+
+                  <div className="zone-tools">
+                    <span>
+                      {zoneDraft[zoneIndex]?.name ?? "Зона"} · {points.length} точек
+                    </span>
+                    <div className="zone-tools-row">
+                      <button
+                        className="text-button"
+                        disabled={!points.length}
+                        onClick={() => setPoints(points.slice(0, -1))}
+                      >
+                        Убрать точку
+                      </button>
+                      <button
+                        className="text-button"
+                        disabled={!points.length}
+                        onClick={() => setPoints([])}
+                      >
+                        Очистить
+                      </button>
+                    </div>
+                    <div className="zone-tools-row">
+                      <button
+                        className="button small"
+                        onClick={() => {
+                          setEditing(false);
+                          setZoneDraft(camera?.zones ?? []);
+                          setPoints(camera?.zone ?? []);
+                        }}
+                      >
+                        Отмена
+                      </button>
+                      <button
+                        className="button primary small"
+                        disabled={points.length < 3 || busy}
+                        onClick={() => {
+                          if (!form) return;
+                          const zones = zoneDraft.map((z, i) =>
+                            i === zoneIndex ? { ...z, points } : z,
+                          );
+                          const first = zones.find(
+                            (z) => z.enabled && z.points.length >= 3,
+                          );
+                          void save({
+                            ...form,
+                            zones,
+                            zone: first?.points ?? [],
+                            zone_name: first?.name ?? form.zone_name,
+                            zone_enabled: Boolean(first),
+                          });
+                        }}
+                      >
+                        <Check size={14} />
+                        Сохранить
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
                 <div className="confirmation">
                   <span>Подтверждение нарушения</span>
                   <strong>
