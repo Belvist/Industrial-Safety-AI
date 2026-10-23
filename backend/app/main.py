@@ -393,6 +393,21 @@ def create_app(config: Settings = settings, runtime=None):
             jpeg = match[1 if raw else 2]
         return Response(jpeg, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
 
+    @app.get("/api/v1/cameras/{camera_id}/evidence/{name}")
+    def evidence(camera_id: str, name: str, request: Request):
+        from fastapi.responses import FileResponse
+
+        session(request, camera_id)  # 404 if the camera is unknown
+        # Path traversal guard: only a bare filename from our evidence dir.
+        if "/" in name or "\\" in name or not name.endswith(".mp4"):
+            raise HTTPException(404, "Доказательство не найдено.")
+        path = rt(request).data / "evidence" / name
+        if not path.is_file():
+            raise HTTPException(404, "Доказательство не найдено.")
+        return FileResponse(
+            path, media_type="video/mp4", headers={"Cache-Control": "no-store"}
+        )
+
     incident_types = {
         "no_helmet",
         "no_vest",

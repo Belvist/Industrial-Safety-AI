@@ -23,6 +23,21 @@ export type Rule = {
   elapsed_seconds: number;
   confirm_seconds: number;
 };
+export type RadarEvent = {
+  track_id: number;
+  camera_id: string;
+  risk_type: "zone_approach" | "zone_cross" | "worker_cross";
+  level: "WARNING" | "CRITICAL" | "UNKNOWN";
+  timestamp: number;
+  message: string;
+  zone_name?: string | null;
+  other_track_id?: number | null;
+  evidence_url?: string | null;
+};
+export type Radar = {
+  track_risks: Record<number, "NORMAL" | "WARNING" | "CRITICAL" | "UNKNOWN">;
+  events: RadarEvent[];
+};
 export type Result = {
   session_id: string;
   sequence: number;
@@ -36,6 +51,7 @@ export type Result = {
   width: number;
   height: number;
   timestamp: string;
+  radar?: Radar | null;
 };
 export type Config = {
   name: string;

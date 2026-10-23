@@ -26,6 +26,7 @@ import { api, json, saveOperatorToken, stopPath } from "./api";
 import { useSafety } from "./hooks/useSafety";
 import { useBrowserCamera } from "./hooks/useBrowserCamera";
 import CameraViewport from "./components/CameraViewport";
+import SafetyRadarPanel from "./components/SafetyRadarPanel";
 import CameraTile from "./components/CameraTile";
 import IncidentDialog from "./components/IncidentDialog";
 import PhoneConnect from "./components/PhoneConnect";
@@ -580,6 +581,10 @@ export default function App() {
                     {screen.workers === 1 ? "человек" : "чел."}
                   </div>
                 )}
+                <SafetyRadarPanel
+                  radar={result?.radar}
+                  workers={result?.tracks.length ?? 0}
+                />
                 <CameraViewport
                   camera={camera}
                   result={result}

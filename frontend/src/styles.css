@@ -2319,3 +2319,38 @@ td small {
 .camera-row.alarming {
   border-color: rgba(220, 38, 38, 0.6);
 }
+
+/* Safety Radar */
+.radar-panel {
+  margin: 0.5rem 0;
+  border: 1px solid var(--line, #ddd);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  background: var(--surface, #fff);
+}
+.radar-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.radar-status strong { display: block; font-size: 0.9rem; }
+.radar-status small { color: var(--muted, #777); font-size: 0.75rem; }
+.radar-normal { color: #1a7f37; }
+.radar-warning { color: #b26a00; }
+.radar-critical { color: #c62828; }
+.radar-unknown { color: #6b7280; }
+.radar-events { list-style: none; margin: 0.4rem 0 0; padding: 0; }
+.radar-event {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0.25rem 0;
+  border-top: 1px dashed var(--line, #eee);
+  font-size: 0.8rem;
+}
+.radar-event-level { font-weight: 700; font-size: 0.7rem; }
+.radar-event.warning .radar-event-level { color: #b26a00; }
+.radar-event.critical .radar-event-level { color: #c62828; }
+.radar-empty { color: var(--muted, #777); font-size: 0.78rem; margin: 0.35rem 0 0; }
+.radar-replay { margin-left: auto; font-size: 0.72rem; color: #1a5fb4; }
+.radar-video { width: 100%; margin-top: 0.4rem; border-radius: 6px; background: #000; }

@@ -147,6 +147,21 @@ class RuleView(BaseModel):
     incident_id: str | None
 
 
+class RadarEventView(BaseModel):
+    track_id: int
+    camera_id: str
+    risk_type: Literal["zone_approach", "zone_cross", "worker_cross"]
+    level: Literal["WARNING", "CRITICAL", "UNKNOWN"]
+    timestamp: float
+    message: str
+    zone_name: str | None = None
+    other_track_id: int | None = None
+    evidence_url: str | None = None
+
+class RadarView(BaseModel):
+    track_risks: dict[int, Literal["NORMAL", "WARNING", "CRITICAL", "UNKNOWN"]]
+    events: list[RadarEventView]
+
 class FrameResult(BaseModel):
     session_id: str
     sequence: int = Field(ge=1)
@@ -160,6 +175,7 @@ class FrameResult(BaseModel):
     width: int = Field(gt=0)
     height: int = Field(gt=0)
     active: int = Field(ge=0)
+    radar: RadarView | None = None
 
 
 class CameraView(CameraConfig):

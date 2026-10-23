@@ -34,9 +34,9 @@ Verification levels:
 | 02 | Dangerous approach to moving machinery | FAIL | A polygon zone exists, but it does not detect moving machinery. Not claimed as scenario 02. |
 | 03 | Phone use | FAIL | Only a legacy `smoking` flag exists for another class; no phone model. |
 | 04 | Smoking / open fire | FAIL | `smoking` is a config flag consumed only when the loaded model emits a `smoking` class; no verified smoking model. Do not present it as working. |
-| 05 | Crossing barriers / under conveyor or load | FAIL | No detector. |
+| 05 | Crossing barriers / under conveyor or load | PARTIAL | Named polygon zones, foot-point crossing and `zone_name` on incidents are implemented and tested. There is no conveyor/load detector, so only the drawn-zone part is covered. |
 | 06 | Work at height without harness | FAIL | No detector. |
-| 07 | Fall / long immobility | FAIL | Not implemented; a bbox ratio alone is not evidence. |
+| 07 | Fall / long immobility | FAIL | Not implemented. `TemporalEngine`/tracking exist, but there is no Fall/Idle/Sit split; a bbox ratio alone is not evidence. |
 | 08 | Unsafe load carrying (optional) | FAIL | Not implemented. |
 
 ## Desired capabilities (slide 13)

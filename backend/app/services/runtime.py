@@ -10,7 +10,6 @@ import numpy as np
 
 from app.inference.local_onnx import LocalOnnxProvider
 from app.services.behavior import RunningDetector
-from app.services.safety_radar import SafetyRadar, get_radar
 from app.services.engine import (
     TemporalEngine,
     Tracker,
@@ -20,6 +19,7 @@ from app.services.engine import (
 )
 from app.services.notifications import Notifier
 from app.services.pairing import PairingStore
+from app.services.safety_radar import SafetyRadar
 from app.services.schemas import CameraConfig
 from app.services.state_machine import CameraEvent, CameraMachine, CameraState
 from app.services.storage import Storage, utcnow
@@ -35,7 +35,7 @@ class CameraSession:
         self.machine = CameraMachine()
         self.session_id = None
         self.sequence = 0
-        self.frames = deque(maxlen=4)
+        self.frames = deque(maxlen=150)  # ~5-30s ring buffer for Evidence Replay
         self.stop = threading.Event()
         self.thread = None
         self.error = None
@@ -52,6 +52,8 @@ class CameraSession:
         # so the UI stops flickering frame to frame.
         self.display_conf: dict[tuple[str, str], tuple[float, float]] = {}
         self.radar_events: list = []
+        self.radar_evidence: str | None = None
+        self.radar = SafetyRadar()
 
     @property
     def status(self):
@@ -105,6 +107,7 @@ class Runtime:
         self.data = settings.resolve(settings.data_dir)
         (self.data / "snapshots").mkdir(parents=True, exist_ok=True)
         (self.data / "uploads").mkdir(parents=True, exist_ok=True)
+        (self.data / "evidence").mkdir(parents=True, exist_ok=True)
         self.storage.purge_old_resolved(
             settings.snapshot_retention_days, self.data / "snapshots"
         )
@@ -291,6 +294,7 @@ class Runtime:
                 session.stop.clear()
                 session.tracker, session.engine = Tracker(), TemporalEngine()
                 session.behavior = RunningDetector()
+                session.radar = SafetyRadar()
                 session.machine.dispatch(CameraEvent.START)
                 session.kind, session.error = kind, None
                 session.session_id = uuid4().hex
@@ -336,6 +340,45 @@ class Runtime:
                     self.pairing.revoke_camera(camera_id)
                 return session._snapshot()
 
+    def _save_evidence(self, session, events):
+        """Save a short MP4 around a radar event from the ring buffer.
+
+        Frames are already JPEG bytes; decode, write at target fps.
+        Returns filename or None. Never raises into the pipeline.
+        """
+        import cv2
+
+        if not events or not session.frames:
+            return None
+        try:
+            frames = list(session.frames)
+            # Keep the last N frames (up to ~5 s at target_fps)
+            limit = max(10, int(self.settings.target_fps * 5))
+            frames = frames[-limit:]
+            first_event = events[0]
+            name = f"radar_{session.id}_{int(first_event.timestamp * 1000)}.mp4"
+            path = self.data / "evidence" / name
+            first = cv2.imdecode(np.frombuffer(frames[0][1], np.uint8), cv2.IMREAD_COLOR)
+            if first is None:
+                return None
+            h, w = first.shape[:2]
+            writer = cv2.VideoWriter(
+                str(path), cv2.VideoWriter_fourcc(*"mp4v"),
+                max(1.0, float(self.settings.target_fps)), (w, h),
+            )
+            if not writer.isOpened():
+                return None
+            try:
+                for _, raw, _ in frames:
+                    img = cv2.imdecode(np.frombuffer(raw, np.uint8), cv2.IMREAD_COLOR)
+                    if img is not None:
+                        writer.write(img)
+            finally:
+                writer.release()
+            return name
+        except Exception:  # noqa: BLE001 - evidence must not break monitoring
+            return None
+
     def _smooth_for_display(self, session, detection, now, alpha: float = 0.4):
         """EMA over raw confidence, keyed by (track, class).
 
@@ -376,6 +419,7 @@ class Runtime:
                 )
         session.engine = TemporalEngine()
         session.behavior.reset()
+        session.radar.reset()
         if session.latest:
             session.latest = {**session.latest, "rules": [], "active": 0}
 
@@ -473,21 +517,23 @@ class Runtime:
         assignments, owners = assign_detections(tracks, detections, session.config)
         
         # Safety Radar: update trajectories and detect risks
-        radar = get_radar(session.id)
+        # Use normalized coordinates [0,1] consistently with track.bbox
+        radar = session.radar
         if session.config.zone:
-            # Convert normalized zone points to pixel coordinates
-            h, w = frame.shape[:2]
-            zone_points = [(x * w, y * h) for x, y in session.config.zone]
-            radar.set_zones({session.config.zone_name or "Опасная зона": zone_points})
-        # Build track_id -> class_name mapping from detections and owners
-        track_classes = {}
-        for idx, track_id in enumerate(owners):
-            if track_id is not None and idx < len(detections):
-                track_classes[track_id] = detections[idx].class_name
-        
-        radar_events = radar.update(tracks, session.id, now, track_classes)
+            # Zone points are already normalized [0,1] in config
+            radar.set_zones({session.config.zone_name or "Опасная зона": session.config.zone})
+        # Radar works directly on confirmed person tracks from tracker
+        # track.bbox is normalized [0,1], use frame timestamp 'now' for time
+        radar_events = radar.update(tracks, session.id, now)
         # Store radar events in session for API access
         session.radar_events = radar_events
+        # Evidence Replay: save a short clip for the first new event
+        evidence_name = None
+        if radar_events:
+            evidence_name = self._save_evidence(session, radar_events)
+            if evidence_name:
+                radar_events[0].evidence = evidence_name
+        session.radar_evidence = evidence_name
         observed = evaluate_assigned(tracks, assignments, session.config)
         cleared = cleared_assigned(tracks, assignments, session.config)
         if session.config.running_enabled:
@@ -620,14 +666,14 @@ class Runtime:
         _, raw_encoded = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
         session.frames.append((session.sequence, raw_encoded.tobytes(), jpeg))
         # Safety Radar: get current risk levels for tracks
-        radar = get_radar(session.id)
+        radar = session.radar
         track_risks = {}
         for track in tracks:
-            track_risks[track.id] = radar.get_current_risk_level(track.id)
+            track_risks[track.id] = radar.get_current_risk_level(track.id, now)
         
-        # Collect radar events for this frame
+        # Collect recent radar events (not only this frame) for UI/evidence
         radar_events_data = []
-        for ev in getattr(session, 'radar_events', []):
+        for ev in radar.get_events(since=now - 10.0):
             radar_events_data.append({
                 "track_id": ev.track_id,
                 "camera_id": ev.camera_id,
@@ -636,6 +682,10 @@ class Runtime:
                 "timestamp": ev.timestamp,
                 "message": ev.message,
                 "zone_name": ev.zone_name,
+                "evidence_url": (
+                    f"/api/v1/cameras/{session.id}/evidence/{ev.evidence}"
+                    if ev.evidence else None
+                ),
             })
 
         session.latest = {

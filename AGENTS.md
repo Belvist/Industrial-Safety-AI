@@ -37,9 +37,9 @@ hackathon accelerator (see `docs/LINQ_CASE_TRACEABILITY.md`).
   `LINQ_TPU_CACHE_DIR`; `pika`/`protobuf` are `linq` extra. Wire format
   vendored in `backend/app/inference/tpu_wire/` (see `THIRD_PARTY.md`).
 - **Safety Radar** separate service, works with both LinQ and local ONNX.
-- Scenarios 02–08: 02–04 BLOCKED (no models), 05 IMPLEMENTED (zones),
-  06 BLOCKED, 07 PARTIAL (fall detection needs Fall/Idle/Sit split),
-  08 NOT_IMPLEMENTED. Must not claim as implemented.
+- Scenarios 02–08: 02–04 BLOCKED (no models), 05 PARTIAL (named polygon
+  zones only; no conveyor/load detector), 06 BLOCKED, 07 FAIL (no
+  Fall/Idle/Sit split), 08 NOT_IMPLEMENTED. Must not claim as implemented.
 - Tests: 189 backend (ruff clean), 32 frontend (vitest), all passing.
 
 ## Frozen / do not do
