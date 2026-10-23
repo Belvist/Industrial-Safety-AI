@@ -17,6 +17,7 @@ dependencies = [
 
 [project.optional-dependencies]
 vision = [
+  "shapely>=2.0,<3.0",
   "opencv-python>=4.10,<5.0",
   "onnxruntime>=1.19,<2.0",
 ]

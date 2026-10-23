@@ -10,6 +10,7 @@ import numpy as np
 
 from app.inference.local_onnx import LocalOnnxProvider
 from app.services.behavior import RunningDetector
+from app.services.safety_radar import SafetyRadar, get_radar
 from app.services.engine import (
     TemporalEngine,
     Tracker,
@@ -50,6 +51,7 @@ class CameraSession:
         # the numbers shown on the overlay and in session.latest are smoothed
         # so the UI stops flickering frame to frame.
         self.display_conf: dict[tuple[str, str], tuple[float, float]] = {}
+        self.radar_events: list = []
 
     @property
     def status(self):
@@ -469,6 +471,23 @@ class Runtime:
             detections = asyncio.run(self.provider.predict(frame))
         tracks = session.tracker.update(detections, now)
         assignments, owners = assign_detections(tracks, detections, session.config)
+        
+        # Safety Radar: update trajectories and detect risks
+        radar = get_radar(session.id)
+        if session.config.zone:
+            # Convert normalized zone points to pixel coordinates
+            h, w = frame.shape[:2]
+            zone_points = [(x * w, y * h) for x, y in session.config.zone]
+            radar.set_zones({session.config.zone_name or "Опасная зона": zone_points})
+        # Build track_id -> class_name mapping from detections and owners
+        track_classes = {}
+        for idx, track_id in enumerate(owners):
+            if track_id is not None and idx < len(detections):
+                track_classes[track_id] = detections[idx].class_name
+        
+        radar_events = radar.update(tracks, session.id, now, track_classes)
+        # Store radar events in session for API access
+        session.radar_events = radar_events
         observed = evaluate_assigned(tracks, assignments, session.config)
         cleared = cleared_assigned(tracks, assignments, session.config)
         if session.config.running_enabled:
@@ -600,6 +619,25 @@ class Runtime:
         session.sequence += 1
         _, raw_encoded = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
         session.frames.append((session.sequence, raw_encoded.tobytes(), jpeg))
+        # Safety Radar: get current risk levels for tracks
+        radar = get_radar(session.id)
+        track_risks = {}
+        for track in tracks:
+            track_risks[track.id] = radar.get_current_risk_level(track.id)
+        
+        # Collect radar events for this frame
+        radar_events_data = []
+        for ev in getattr(session, 'radar_events', []):
+            radar_events_data.append({
+                "track_id": ev.track_id,
+                "camera_id": ev.camera_id,
+                "risk_type": ev.risk_type,
+                "level": ev.level,
+                "timestamp": ev.timestamp,
+                "message": ev.message,
+                "zone_name": ev.zone_name,
+            })
+
         session.latest = {
             "session_id": session.session_id,
             "sequence": session.sequence,
@@ -613,6 +651,10 @@ class Runtime:
             "width": w,
             "height": h,
             "active": sum(s.incident_id is not None for s in session.engine.states.values()),
+            "radar": {
+                "track_risks": track_risks,
+                "events": radar_events_data,
+            },
         }
         session.last_tick = ended
         session.last_frame = ended
