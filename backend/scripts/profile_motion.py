@@ -29,12 +29,16 @@ if args.window <= 0 or args.warmup < 0 or not 1 <= args.cameras <= 8:
 
 
 def cgroup_cpu():
-    return dict(
-        (key, int(value))
-        for key, value in (
-            line.split() for line in Path("/sys/fs/cgroup/cpu.stat").read_text().splitlines()
+    """cgroup v2 CPU stats; unavailable on macOS/Windows returns empty."""
+    try:
+        return dict(
+            (key, int(value))
+            for key, value in (
+                line.split() for line in Path("/sys/fs/cgroup/cpu.stat").read_text().splitlines()
+            )
         )
-    )
+    except (OSError, ValueError):
+        return {}
 
 
 sys.path.insert(0, str(args.repo / "backend"))
@@ -243,11 +247,22 @@ try:
         "ppe_enabled": args.ppe,
         "provider": r.provider.status(),
         "cpu_percent_one_core": cpu,
-        "cgroup_cpu_percent_one_core": (group_end["usage_usec"] - group_start["usage_usec"])
-        / ((end - window_start) * 10000),
-        "cgroup_throttled_periods": group_end.get("nr_throttled", 0)
-        - group_start.get("nr_throttled", 0),
-        "cpu_quota": Path("/sys/fs/cgroup/cpu.max").read_text().strip(),
+        "cgroup_cpu_percent_one_core": (
+            (group_end["usage_usec"] - group_start["usage_usec"])
+            / ((end - window_start) * 10000)
+            if "usage_usec" in group_start and "usage_usec" in group_end
+            else None
+        ),
+        "cgroup_throttled_periods": (
+            group_end.get("nr_throttled", 0) - group_start.get("nr_throttled", 0)
+            if group_start and group_end
+            else None
+        ),
+        "cpu_quota": (
+            Path("/sys/fs/cgroup/cpu.max").read_text().strip()
+            if Path("/sys/fs/cgroup/cpu.max").exists()
+            else "not available (non-Linux host)"
+        ),
         "cameras": rows,
         "global_stages": {
             name: percentiles([x[3] for x in window_samples if x[1] == "global" and x[2] == name])

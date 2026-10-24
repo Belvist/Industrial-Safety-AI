@@ -124,6 +124,7 @@ class LinqProvider(InferenceProvider):
         self.tpu_cache_dir = tpu_cache_dir.rstrip("/")
         self.tpu_output_is_logits = tpu_output_is_logits
         self.allow_spinning = allow_spinning
+        self.last_ppe_route: dict = {}
         # Vendor EP name may differ from the guess — override via LINQ_PROVIDERS.
         self.requested_providers = list(providers) if providers else ["LinQExecutionProvider"]
         self.thresholds = dict(thresholds) if thresholds else {}
@@ -317,6 +318,7 @@ class LinqProvider(InferenceProvider):
             "supported_classes": self.supported_classes(),
             "model": self.model,
             "protocol": PROTOCOL if self.stats.mode == "linq_remote" else None,
+            "ppe_route": getattr(self, "last_ppe_route", {}),
             "person_detector": (
                 "cpu" if self.stats.mode == "linq_remote" and self._person is not None else None
             ),
@@ -384,31 +386,56 @@ class LinqProvider(InferenceProvider):
         return detections
 
     def _predict_ppe_remote(self, frame, people):
-        """Mirror LocalOnnxProvider ROI crops so remote TPU sees the same PPE path."""
+        """Mirror LocalOnnxProvider ROI crops so remote TPU sees the same PPE path.
+
+        ROI is only used for 1-2 strong workers with boxes big enough to be
+        informative; otherwise the full frame is sent. ``last_ppe_route``
+        records which path actually ran so benchmarks cannot claim ROI when
+        the fallback executed.
+        """
         from app.inference.local_onnx import (
             deduplicate_ppe,
             person_roi_pixels,
             project_roi_detection,
         )
 
-        if self.roi_mode == "auto":
-            strong = [d for d in people if d.class_name == "person" and not d.weak]
-            height, width = frame.shape[:2]
-            if 1 <= len(strong) <= 2:
-                rois = [person_roi_pixels(d.bbox, width, height) for d in strong]
-                if all(
-                    x2 - x1 >= 72
-                    and y2 - y1 >= 72
-                    and (x2 - x1) * (y2 - y1) <= 0.8 * width * height
-                    for x1, y1, x2, y2 in rois
-                ):
-                    ppe = []
-                    for roi in rois:
-                        x1, y1, x2, y2 = roi
-                        for det in self._predict_remote(frame[y1:y2, x1:x2]):
-                            if det.class_name != "person":
-                                ppe.append(project_roi_detection(det, roi, width, height))
-                    return deduplicate_ppe(ppe)
+        height, width = frame.shape[:2]
+        strong = [d for d in people if d.class_name == "person" and not d.weak]
+        reason = ""
+        rois: list[tuple[int, int, int, int]] = []
+        if self.roi_mode != "auto":
+            reason = f"roi_mode={self.roi_mode}"
+        elif not 1 <= len(strong) <= 2:
+            reason = f"people={len(strong)} (roi needs 1-2)"
+        else:
+            rois = [person_roi_pixels(d.bbox, width, height) for d in strong]
+            if not all(
+                x2 - x1 >= 72 and y2 - y1 >= 72
+                and (x2 - x1) * (y2 - y1) <= 0.8 * width * height
+                for x1, y1, x2, y2 in rois
+            ):
+                reason = "roi too small or too large"
+                rois = []
+
+        if rois:
+            ppe = []
+            for roi in rois:
+                x1, y1, x2, y2 = roi
+                for det in self._predict_remote(frame[y1:y2, x1:x2]):
+                    if det.class_name != "person":
+                        ppe.append(project_roi_detection(det, roi, width, height))
+            self.last_ppe_route = {
+                "roi_executed": True,
+                "roi_count": len(rois),
+                "fallback_reason": None,
+            }
+            return deduplicate_ppe(ppe)
+
+        self.last_ppe_route = {
+            "roi_executed": False,
+            "roi_count": 0,
+            "fallback_reason": reason or "disabled",
+        }
         return [d for d in self._predict_remote(frame) if d.class_name != "person"]
 
     def _predict_people(self, frame):

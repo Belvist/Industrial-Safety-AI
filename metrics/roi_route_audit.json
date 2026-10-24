@@ -1,0 +1,37 @@
+[
+ {
+  "img": "coco_000001.jpg",
+  "people": 7,
+  "roi_executed": false,
+  "roi_count": 0,
+  "fallback_reason": "people=5 (roi needs 1-2)"
+ },
+ {
+  "img": "coco_000124.jpg",
+  "people": 4,
+  "roi_executed": false,
+  "roi_count": 0,
+  "fallback_reason": "people=4 (roi needs 1-2)"
+ },
+ {
+  "img": "coco_000127.jpg",
+  "people": 4,
+  "roi_executed": false,
+  "roi_count": 0,
+  "fallback_reason": "people=4 (roi needs 1-2)"
+ },
+ {
+  "img": "frame_30.jpg",
+  "people": 3,
+  "roi_executed": false,
+  "roi_count": 0,
+  "fallback_reason": "roi too small or too large"
+ },
+ {
+  "img": "frame_300.jpg",
+  "people": 2,
+  "roi_executed": true,
+  "roi_count": 1,
+  "fallback_reason": null
+ }
+]
