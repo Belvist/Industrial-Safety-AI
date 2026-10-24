@@ -17,7 +17,12 @@ p.add_argument("--repo", type=Path, required=True)
 p.add_argument("--output", type=Path, required=True)
 p.add_argument("--video", type=Path, required=True)
 p.add_argument("--cameras", type=int, default=1)
-p.add_argument("--ppe", action="store_true")
+p.add_argument(
+    "--motion-only",
+    action="store_true",
+    help="Explicitly disable PPE for a motion CPU diagnostic only.",
+)
+p.add_argument("--model", type=Path, help="PPE ONNX model path (defaults to Settings).")
 p.add_argument("--target-fps", type=float, default=5)
 p.add_argument("--window", type=float, default=60)
 p.add_argument("--warmup", type=float, default=5)
@@ -56,6 +61,8 @@ cfg = Settings(
     inference_threads=args.threads,
     target_fps=args.target_fps,
 )
+if args.model:
+    cfg.model_path = str(args.model.resolve())
 if args.provider == "linq" and not (cfg.linq_amqp_host or cfg.linq_endpoint):
     (args.output / "report.json").write_text(
         json.dumps(
@@ -73,7 +80,7 @@ assert not r.model_error, r.model_error
 config = CameraConfig(
     **json.loads((args.repo / "docs/acceptance/configs/worker-zone-motion.json").read_text())
 )
-config.helmet = config.vest = args.ppe
+config.helmet = config.vest = not args.motion_only
 cams = [next(iter(r.sessions.values()))]
 cams[0].config = config
 for i in range(1, args.cameras):
@@ -244,7 +251,11 @@ try:
         "duration_seconds": end - window_start,
         "warmup_seconds": args.warmup,
         "target_fps": args.target_fps,
-        "ppe_enabled": args.ppe,
+        "helmet_enabled": config.helmet,
+        "vest_enabled": config.vest,
+        "ppe_enabled": config.helmet or config.vest,
+        "model_path": str(cfg.resolve(cfg.model_path)),
+        "model_sha256": hashlib.sha256(cfg.resolve(cfg.model_path).read_bytes()).hexdigest(),
         "provider": r.provider.status(),
         "cpu_percent_one_core": cpu,
         "cgroup_cpu_percent_one_core": (
@@ -264,6 +275,12 @@ try:
             else "not available (non-Linux host)"
         ),
         "cameras": rows,
+        "rates": {
+            "person_fps": sum(row["fps"]["person"] for row in rows) / len(rows),
+            "radar_fps": sum(row["fps"]["radar"] for row in rows) / len(rows),
+            "ppe_requests_per_second": sum(row["fps"]["ppe"] for row in rows) / len(rows),
+            "ppe_applied_per_second": sum(row["fps"]["ppe_applied"] for row in rows) / len(rows),
+        },
         "global_stages": {
             name: percentiles([x[3] for x in window_samples if x[1] == "global" and x[2] == name])
             for name in sorted({x[2] for x in window_samples if x[1] == "global"})
