@@ -720,7 +720,7 @@ class Runtime:
                 next_live = 0.0
                 while not session.stop.is_set() and not capture_cancel.is_set():
                     with session.metrics.stage("capture_decode_ms"):
-                        ok, frame = capture.read()
+                        ok = capture.grab()
                     if not ok:
                         if session.kind == "video":
                             break
@@ -748,6 +748,12 @@ class Runtime:
                             session.metrics.mark("sampled_out")
                             continue
                         next_live = captured + 1 / self.settings.target_fps
+                    # Decode the stream continuously, but convert/copy to BGR only
+                    # for scheduled frames. Never reduce model input or source time.
+                    with session.metrics.stage("capture_retrieve_ms"):
+                        ok, frame = capture.retrieve()
+                    if not ok or frame is None:
+                        raise RuntimeError("Could not retrieve scheduled video frame")
                     with session.lock:
                         item = (frame, timestamp, captured, session.session_id, session.generation)
                     if session.kind == "video":
