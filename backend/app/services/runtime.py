@@ -1262,6 +1262,18 @@ class Runtime:
             session.metrics.observe("event_delay_ms", (time.monotonic() - captured) * 1000)
         for action, key, state in events:
             if action == "active":
+                existing = (
+                    self.storage.incident_for_episode(
+                        session.id, key[1], key[2], key[3]
+                    )
+                    if key[1] == "danger_zone" and len(key) > 3
+                    else None
+                )
+                if existing:
+                    if existing["status"] != "active":
+                        self.storage.reopen(existing["id"])
+                    state.incident_id = existing["id"]
+                    continue
                 # Never merge different workers solely by camera/zone. Without
                 # identity evidence, separate episodes are safer than lost incidents.
                 incident_id = uuid4().hex

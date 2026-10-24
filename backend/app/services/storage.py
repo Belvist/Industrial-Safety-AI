@@ -205,6 +205,18 @@ class Storage:
                 raise ValueError("Incident not found or already finished.")
         return self.get(incident_id)
 
+    def incident_for_episode(self, camera_id, kind, zone_name, episode_id):
+        if not episode_id:
+            return None
+        with self.connection() as db:
+            row = db.execute(
+                "SELECT * FROM incidents WHERE camera_id=? AND type=? "
+                "AND COALESCE(zone_name,'')=? AND episode_id=? "
+                "AND status IN ('active','interrupted') ORDER BY started_at LIMIT 1",
+                (camera_id, kind, zone_name or "", episode_id),
+            ).fetchone()
+        return dict(row) if row else None
+
     def reopenable_incident(self, camera_id, kind, zone_name=None, within_seconds=60):
         """A recently finished incident for the same camera/type/zone.
 

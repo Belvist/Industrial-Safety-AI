@@ -99,6 +99,33 @@ def test_real_image_pipeline_persists_evidence_and_resolves(runtime):
     assert runtime.storage.incidents()["items"][0]["status"] == "interrupted"
 
 
+def test_zone_episode_confirmation_after_unknown_gap_reuses_incident(runtime):
+    from app.services.schemas import Zone
+
+    camera = next(iter(runtime.sessions.values()))
+    camera.config = CameraConfig(
+        name="Same episode", zones=[Zone(id="z", name="Zone A", points=[(0.3, 0.85), (0.6, 0.85), (0.6, 1.0), (0.3, 1.0)])],
+        confirm_seconds=0.2,
+        clear_seconds=0.2,
+    )
+    runtime.start(camera.id, "browser")
+    frame = np.full((240, 320, 3), 100, np.uint8)
+    for timestamp in (0.0, 0.2, 0.4):
+        runtime.process(camera, frame, timestamp)
+    incidents = runtime.storage.incidents(types=["danger_zone"])["items"]
+    assert len(incidents) == 1
+    original_id = incidents[0]["id"]
+    original_episode = incidents[0]["episode_id"]
+    assert original_episode
+    for timestamp in (1.2, 1.4, 1.6):
+        runtime.process(camera, frame, timestamp)
+    incidents = runtime.storage.incidents(types=["danger_zone"])["items"]
+    assert len(incidents) == 1
+    assert incidents[0]["id"] == original_id
+    assert incidents[0]["episode_id"] == original_episode
+    assert incidents[0]["status"] == "active"
+
+
 def test_server_restart_does_not_claim_violation_cleared(runtime):
     record = runtime.storage.create_incident("cam", "Test", (1, "no_helmet"), 0.9, 2)
     reopened = Storage(runtime.settings.storage_path)
