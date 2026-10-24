@@ -890,6 +890,24 @@ class Runtime:
         metrics.mark("ppe")
         return detections
 
+    def _ppe_age_budget(self):
+        """Packet window that adapts to the measured remote RPC.
+
+        A fixed 2.5 s window silently dropped every reply while broker
+        publish/RPC degraded to ~3.5/4.6 s. Use the observed RPC p95 with
+        headroom, bounded by the configured maximum.
+        """
+        base = self.settings.ppe_max_age_seconds
+        stages = getattr(self.provider, "metrics", None)
+        if stages is None:
+            return base
+        try:
+            rpc = stages.snapshot()["stages"].get("rpc_ms") or {}
+            p95 = float(rpc.get("p95") or 0.0) / 1000.0
+        except Exception:  # noqa: BLE001 - metrics must never break analysis
+            return base
+        return min(max(base, p95 * 1.5), max(base, 20.0))
+
     def _update_ppe(self, session, frame, tracks, quality, now, captured):
         ppe = session.independent_ppe
         invalid = ppe.observe_tracks(tracks, now)
@@ -964,7 +982,7 @@ class Runtime:
                 limit=min(
                     self.settings.ppe_max_in_flight_per_camera, self.settings.linq_max_in_flight
                 ),
-                max_age=self.settings.ppe_max_age_seconds,
+                max_age=self._ppe_age_budget(),
             )
         return events, packet
 
@@ -1380,7 +1398,7 @@ class Runtime:
             "radar_fps": measured["rates"].get("radar", {}).get("fps"),
             "tpu_fps": measured["rates"].get("tpu", {}).get("fps"),
             "ppe": {
-                **session.independent_ppe.describe(now, self.settings.ppe_max_age_seconds),
+                **session.independent_ppe.describe(now, self._ppe_age_budget()),
                 "runtime": "tpu"
                 if getattr(self.provider, "mode", None) == "linq_remote"
                 else "cpu",
