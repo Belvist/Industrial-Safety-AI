@@ -1,0 +1,5 @@
+{
+  "status": "BLOCKED",
+  "reason": "No configured LinQ endpoint; no inference/fallback performed.",
+  "worker_verified": false
+}

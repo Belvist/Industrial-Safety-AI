@@ -1,0 +1,177 @@
+{
+  "source_sha256": "452b11b7e0efbd019f1d9570d0c790e90416ad4ad29eec6003872d08443140ef",
+  "config": {
+    "name": "Обычная ходьба — отрицательный пример",
+    "owner": null,
+    "helmet": false,
+    "vest": false,
+    "mask": false,
+    "smoking": false,
+    "zone_enabled": false,
+    "zone_name": "Опасная зона",
+    "zone": [],
+    "zones": [],
+    "running_enabled": true,
+    "running_speed": 1.8,
+    "running_min_seconds": 0.8,
+    "confirm_seconds": 2.0,
+    "clear_seconds": 2.0,
+    "temporal_window": 4,
+    "temporal_required": 3
+  },
+  "provider_requested": "local_onnx",
+  "git_sha": "84ee9473d6d7a3a64c0bb97d685482ede1df64de",
+  "git_dirty": false,
+  "cameras": [
+    {
+      "camera_id": "84267aa76b254676b6bdf0f449b1de84",
+      "frames_observed": 73,
+      "wall_seconds": 12.103658245001498,
+      "metrics": {
+        "window_seconds": 12.087,
+        "rates": {
+          "capture": {
+            "fps": 12.161,
+            "window_count": 147,
+            "total": 147
+          },
+          "sampled_out": {
+            "fps": 6.039,
+            "window_count": 73,
+            "total": 73
+          },
+          "person": {
+            "fps": 6.039,
+            "window_count": 73,
+            "total": 73
+          },
+          "radar": {
+            "fps": 6.039,
+            "window_count": 73,
+            "total": 73
+          },
+          "analytics": {
+            "fps": 6.039,
+            "window_count": 73,
+            "total": 73
+          }
+        },
+        "stages": {
+          "capture_decode_ms": {
+            "samples": 147,
+            "p50": 0.439,
+            "p95": 1.541,
+            "p99": 2.372,
+            "max": 3.784
+          },
+          "capture_retrieve_ms": {
+            "samples": 73,
+            "p50": 0.266,
+            "p95": 0.349,
+            "p99": 0.744,
+            "max": 0.859
+          },
+          "cpu_person_ms": {
+            "samples": 73,
+            "p50": 79.296,
+            "p95": 103.427,
+            "p99": 107.899,
+            "max": 108.653
+          },
+          "inference_ms": {
+            "samples": 73,
+            "p50": 79.318,
+            "p95": 103.447,
+            "p99": 107.917,
+            "max": 108.672
+          },
+          "tracking_ms": {
+            "samples": 73,
+            "p50": 0.032,
+            "p95": 0.043,
+            "p99": 0.136,
+            "max": 0.286
+          },
+          "radar_ms": {
+            "samples": 73,
+            "p50": 0.018,
+            "p95": 0.119,
+            "p99": 0.273,
+            "max": 0.283
+          },
+          "jpeg_annotated_ms": {
+            "samples": 73,
+            "p50": 0.938,
+            "p95": 1.389,
+            "p99": 1.998,
+            "max": 3.016
+          },
+          "jpeg_raw_ms": {
+            "samples": 73,
+            "p50": 0.668,
+            "p95": 0.876,
+            "p99": 0.94,
+            "max": 0.942
+          },
+          "analytics_ms": {
+            "samples": 73,
+            "p50": 2.931,
+            "p95": 3.703,
+            "p99": 4.789,
+            "max": 5.036
+          },
+          "end_to_end_ms": {
+            "samples": 73,
+            "p50": 83.861,
+            "p95": 107.675,
+            "p99": 113.868,
+            "max": 115.962
+          }
+        }
+      },
+      "measurement_window": null,
+      "last_source_seconds": 12.0,
+      "terminal_state": "stopped",
+      "error": null,
+      "events": [],
+      "incidents": [],
+      "statistics": {
+        "incidents": [],
+        "warnings": [],
+        "note": "Counts of recorded observations, not accident probabilities."
+      },
+      "ppe_observations": 0,
+      "tracks_issued": 1,
+      "max_people": 1,
+      "running_history_ready_frames": 48,
+      "radar_history_ready_frames": 0,
+      "maximum_data_age_ms": 120.0,
+      "unique_ppe_source_frames": 0
+    }
+  ],
+  "status": "MEASURED",
+  "worker_verified": false,
+  "provider": {
+    "provider": "local_onnx",
+    "mode": "local_onnx",
+    "requested_providers": [],
+    "active_providers": [
+      "CPUExecutionProvider"
+    ],
+    "supported_classes": [
+      "helmet",
+      "mask",
+      "no_helmet",
+      "no_mask",
+      "no_vest",
+      "person",
+      "vest"
+    ],
+    "model": "ppe.onnx",
+    "inference_threads": 2,
+    "allow_spinning": false,
+    "ppe_roi_mode": "auto"
+  },
+  "independent_motion": true,
+  "replay": []
+}

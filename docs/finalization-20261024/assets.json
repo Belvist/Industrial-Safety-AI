@@ -1,0 +1,90 @@
+{
+  "assets/operator-demo.mp4": {
+    "bytes": 650278,
+    "sha256": "b0a9efccf10ad0af1ef9992262bcf829012d8e927f08186bdb9ceb9850d7e1b0"
+  },
+  "assets/incident-timeline.png": {
+    "bytes": 260620,
+    "sha256": "cb79594d6f7765a33155cb7f152103d3f698ce8f42aaf0a4f19afeb7e66676e7"
+  },
+  "assets/critical.png": {
+    "bytes": 459655,
+    "sha256": "ef72b4f45a21f653af8293ab4687762440711e728ad146a8b2fb2d0d2dea6c7a"
+  },
+  "assets/warning.png": {
+    "bytes": 424537,
+    "sha256": "ef31d7b7266bf56bbf996cac7c1ed7691b567a9967e3ccca0fc131060da4965a"
+  },
+  "assets/reentry-2.mp4": {
+    "bytes": 1801769,
+    "sha256": "95f3099a0d546db2a6a3c3fee3cbd5e08aaac1bbf941ab4ba0ac2fe594685861"
+  },
+  "assets/reentry-1.mp4": {
+    "bytes": 1776231,
+    "sha256": "3ab5043f56f739edbf86d5d1472dca82765e2fd8040b19c897905cd2ebe60e54"
+  },
+  "assets/manual/one-by-one-person-detection-8-manual.jpg": {
+    "bytes": 75788,
+    "sha256": "a9bf10c48a3f96c238ea3668600bc8439b0396990732c0136ada052585d76c64"
+  },
+  "assets/manual/one-by-one-person-detection-10-manual.jpg": {
+    "bytes": 84567,
+    "sha256": "418e22cbfac33616860d1f6e99c7e1fffe6ff2cae26e26c9feaae4309a675e0c"
+  },
+  "assets/manual/one-by-one-person-detection-40-manual.jpg": {
+    "bytes": 83183,
+    "sha256": "a24396e01333b352d1cc47e92bdb31e91f0875dfcb4b7276478c2e8553aa4c8f"
+  },
+  "assets/manual/one-by-one-person-detection-60-manual.jpg": {
+    "bytes": 84183,
+    "sha256": "b1f3a3ca890caf6af698acb0f84595fcc42496ebc49fa552f115382bb36bdeed"
+  },
+  "assets/manual/one-by-one-person-detection-80-manual.jpg": {
+    "bytes": 82889,
+    "sha256": "34901f64a2227e6e5fd46b2c193f87344a70d49021f5dbe3a104e49073f2eb9d"
+  },
+  "assets/manual/one-by-one-person-detection-100-manual.jpg": {
+    "bytes": 84519,
+    "sha256": "fdb51bbb0a2db35dbcab7dacc8b6433dfe8153a7a6e0ef522bd6e87ef1a120d7"
+  },
+  "assets/manual/person-bicycle-car-detection-3-manual.jpg": {
+    "bytes": 58633,
+    "sha256": "dabfa4bc92cc6a07d6ef614ae75d2bc0cf3deb6c24acf60a75529aced11ce0e7"
+  },
+  "assets/manual/person-bicycle-car-detection-4-manual.jpg": {
+    "bytes": 63874,
+    "sha256": "700bd93fd2dc22724aa1e831aa353740f9aeff77e52390abf759333eab468517"
+  },
+  "assets/manual/person-bicycle-car-detection-5-manual.jpg": {
+    "bytes": 66664,
+    "sha256": "4b31dd7451d933000f945e96aafbc027e55bd0a7276eb0a16fd64d7d2bd80fdb"
+  },
+  "assets/manual/person-bicycle-car-detection-6-manual.jpg": {
+    "bytes": 57698,
+    "sha256": "1ec066da504559a097d9f8f7e167d957816b3011ddb834af4ceafa5ecb03c771"
+  },
+  "assets/manual/worker-zone-detection-6-manual.jpg": {
+    "bytes": 353658,
+    "sha256": "d87c339580e7fe7edfed8b0c0406c4bcdc879488bdcabcae8a302089ea64a5ff"
+  },
+  "assets/manual/worker-zone-detection-25-manual.jpg": {
+    "bytes": 400067,
+    "sha256": "f21a1ec30b1b87f54f5524e54981421cf1ba90383dfe00176df82f5a1befe512"
+  },
+  "assets/manual/worker-zone-detection-40-manual.jpg": {
+    "bytes": 361030,
+    "sha256": "5a6bf59b38a6163fd725ce0f33257e8cde6ede759413d6c0bfee4c0409df1a28"
+  },
+  "assets/manual/worker-zone-detection-55-manual.jpg": {
+    "bytes": 365546,
+    "sha256": "7524c77519ff44452cc2049986e0f8913c519e452e8a1b84303469e73a2d38c9"
+  },
+  "assets/manual/worker-zone-detection-65-manual.jpg": {
+    "bytes": 390017,
+    "sha256": "773e9309e6ad03d78e0017f5cb091cb87787cdbc35343343e71027e836412299"
+  },
+  "assets/manual/worker-zone-detection-72-manual.jpg": {
+    "bytes": 358637,
+    "sha256": "928fc17d76a754e146b59746f3b59c50ac1626b747d867e26b7ac738181dbab5"
+  }
+}

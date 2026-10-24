@@ -1,0 +1,16 @@
+
+> industrial-safety-ai@0.2.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /workspace/Industrial-Safety-AI/frontend
+
+
+ Test Files  6 passed (6)
+      Tests  38 passed (38)
+   Start at  12:16:35
+   Duration  659ms (import 41%, tests 24%, transform 20%, worker 15%, environment 1%)
+
+    Isolate  6 workers spawned · ~81ms startup each (spawn + environment, per file)
+             at least ~404ms faster with isolate: false — reuses workers across files instead of one per file
+

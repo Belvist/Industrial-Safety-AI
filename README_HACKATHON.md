@@ -3,7 +3,13 @@
 Video monitoring for industrial safety: cameras → neural detection → worker
 tracking → behaviour rules → confirmed incidents → operator journal.
 
-**Current acceptance (24 October 2026):** motion tracking and predictive zone
+**Latest finalization:** [repeated measurements and remaining blockers](docs/finalization-20261024/RESULTS.md).
+Per-camera bounded PPE concurrency, ordered results, fair global admission and
+source-isolated metrics are implemented. CPU-only motion is about 6 FPS;
+with local CPU PPE it is about 5 FPS (not consistently >=5). Real LinQ acceptance
+remains BLOCKED. PPE diagnostic misses remain substantial. UX is unchanged.
+
+**Previous acceptance (24 October 2026):** motion tracking and predictive zone
 warnings now run independently from asynchronous PPE. Real licensed industrial
 video, source-bound event timelines, actual camera/zone statistics and a
 reproducible browser journey are documented in [critical acceptance](docs/acceptance/README.md).

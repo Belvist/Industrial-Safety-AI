@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "scope": "same model/640x640, spinning true vs false; not recall validation",
+  "frames": [
+    {
+      "model": "person",
+      "frame": "worker-zone-detection-25.jpg",
+      "detections": 1,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "person",
+      "frame": "worker-zone-detection-40.jpg",
+      "detections": 2,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "person",
+      "frame": "worker-zone-detection-55.jpg",
+      "detections": 1,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "person",
+      "frame": "worker-zone-detection-6.jpg",
+      "detections": 1,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "person",
+      "frame": "worker-zone-detection-65.jpg",
+      "detections": 1,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "person",
+      "frame": "worker-zone-detection-72.jpg",
+      "detections": 1,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "ppe",
+      "frame": "worker-zone-detection-25.jpg",
+      "detections": 2,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "ppe",
+      "frame": "worker-zone-detection-40.jpg",
+      "detections": 3,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "ppe",
+      "frame": "worker-zone-detection-55.jpg",
+      "detections": 1,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "ppe",
+      "frame": "worker-zone-detection-6.jpg",
+      "detections": 2,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "ppe",
+      "frame": "worker-zone-detection-65.jpg",
+      "detections": 1,
+      "max_numeric_difference": 0
+    },
+    {
+      "model": "ppe",
+      "frame": "worker-zone-detection-72.jpg",
+      "detections": 1,
+      "max_numeric_difference": 0
+    }
+  ]
+}

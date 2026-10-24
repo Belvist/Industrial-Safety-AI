@@ -71,3 +71,6 @@ norm_err.txt
 # Explicit CC BY licensed acceptance derivatives; original/private video stays ignored.
 !docs/acceptance/assets/zone-entry-replay.mp4
 !docs/acceptance/assets/operator-demo.mp4
+!docs/finalization-20261024/assets/operator-demo.mp4
+!docs/finalization-20261024/assets/reentry-1.mp4
+!docs/finalization-20261024/assets/reentry-2.mp4

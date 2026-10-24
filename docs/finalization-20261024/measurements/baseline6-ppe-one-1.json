@@ -1,0 +1,440 @@
+{
+  "git_sha": "f27f3912bb5c9cbac736a548e7265b1edf2b60f2",
+  "git_dirty": false,
+  "source_sha256": "b8b58b8100a81600bc42ee7ee082ced777b12a32a3619139ef289d27cbdcd284",
+  "duration_seconds": 60.00646949499969,
+  "warmup_seconds": 5,
+  "target_fps": 6.0,
+  "ppe_enabled": true,
+  "provider": {
+    "provider": "local_onnx",
+    "mode": "local_onnx",
+    "requested_providers": [],
+    "active_providers": [
+      "CPUExecutionProvider"
+    ],
+    "supported_classes": [
+      "helmet",
+      "mask",
+      "no_helmet",
+      "no_mask",
+      "no_vest",
+      "person",
+      "vest"
+    ],
+    "model": "ppe.onnx",
+    "ppe_roi_mode": "auto"
+  },
+  "cpu_percent_one_core": 176.36431169278964,
+  "cpu_quota": "200000 100000",
+  "cameras": [
+    {
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "counts": {
+        "capture": 1843,
+        "sampled_out": 1659,
+        "person": 184,
+        "radar": 184,
+        "analytics": 184,
+        "ppe": 30,
+        "ppe_applied": 0,
+        "tpu": 0,
+        "dropped": 0,
+        "ppe_stale": 0,
+        "ppe_identity_rejected": 2
+      },
+      "fps": {
+        "capture": 30.713355001723208,
+        "sampled_out": 27.64701896248443,
+        "person": 3.0663360392387795,
+        "radar": 3.0663360392387795,
+        "analytics": 3.0663360392387795,
+        "ppe": 0.49994609335414886,
+        "ppe_applied": 0.0,
+        "tpu": 0.0,
+        "dropped": 0.0,
+        "ppe_stale": 0.0,
+        "ppe_identity_rejected": 0.03332973955694325
+      },
+      "age_ms": {
+        "samples": 184,
+        "p50": 915.55,
+        "p95": 1295.1149999999998,
+        "p99": 1552.6459999999986,
+        "max": 1708.1,
+        "mean": 898.6190217391304,
+        "sum": 165345.9
+      },
+      "media_lag_ms": {
+        "samples": 184,
+        "p50": 15331.633556165903,
+        "p95": 29650.544382966422,
+        "p99": 29751.381796258796,
+        "max": 30146.84740499851,
+        "mean": 15607.676494274554,
+        "sum": 2871812.474946518
+      },
+      "max_people": 2,
+      "stages": {
+        "analytics_ms": {
+          "samples": 184,
+          "p50": 28.88461900056427,
+          "p95": 74.20824269920558,
+          "p99": 78.86096223011911,
+          "max": 84.83912500014412,
+          "mean": 36.276673364059405,
+          "sum": 6674.90789898693
+        },
+        "capture_decode_ms": {
+          "samples": 1843,
+          "p50": 3.8694290014973376,
+          "p95": 38.01904059964727,
+          "p99": 48.1251701397923,
+          "max": 72.06609500099148,
+          "mean": 6.751904481282543,
+          "sum": 12443.759959003728
+        },
+        "capture_retrieve_ms": {
+          "samples": 184,
+          "p50": 1.5729180004200316,
+          "p95": 7.231270249576477,
+          "p99": 37.226187879132326,
+          "max": 43.66384300010395,
+          "mean": 3.037221559699664,
+          "sum": 558.8487669847382
+        },
+        "cpu_person_ms": {
+          "samples": 184,
+          "p50": 287.70254049959476,
+          "p95": 416.20758045100956,
+          "p99": 521.3481180392769,
+          "max": 595.8751090001897,
+          "mean": 277.4020314455989,
+          "sum": 51041.973785990194
+        },
+        "end_to_end_ms": {
+          "samples": 184,
+          "p50": 915.5626640003902,
+          "p95": 1295.0952187002258,
+          "p99": 1552.6773510593362,
+          "max": 1708.0552130009892,
+          "mean": 898.6155283097481,
+          "sum": 165345.25720899366
+        },
+        "event_delay_ms": {
+          "samples": 6,
+          "p50": 861.7233385002692,
+          "p95": 1185.5762012496598,
+          "p99": 1202.808990649737,
+          "max": 1207.1171879997564,
+          "mean": 873.8598206664392,
+          "sum": 5243.158923998635
+        },
+        "inference_ms": {
+          "samples": 184,
+          "p50": 287.73575100058224,
+          "p95": 416.24097370076925,
+          "p99": 521.3846583511254,
+          "max": 595.8984839999175,
+          "mean": 277.43737752721046,
+          "sum": 51048.47746500673
+        },
+        "jpeg_annotated_ms": {
+          "samples": 184,
+          "p50": 11.073967499214632,
+          "p95": 50.44721054919137,
+          "p99": 57.13762465002217,
+          "max": 60.82482499914477,
+          "mean": 17.230269918489125,
+          "sum": 3170.3696650019992
+        },
+        "jpeg_raw_ms": {
+          "samples": 184,
+          "p50": 8.629256500171323,
+          "p95": 43.732913550957164,
+          "p99": 55.4051747800804,
+          "max": 57.29660999895714,
+          "mean": 13.459533141218818,
+          "sum": 2476.5540979842626
+        },
+        "ppe_inference_ms": {
+          "samples": 30,
+          "p50": 1693.7201839991758,
+          "p95": 2120.953826799359,
+          "p99": 2270.529296310233,
+          "max": 2307.061223000346,
+          "mean": 1667.4780703000579,
+          "sum": 50024.34210900174
+        },
+        "radar_ms": {
+          "samples": 184,
+          "p50": 0.43496750004123896,
+          "p95": 0.7276178506799624,
+          "p99": 1.0564717999841378,
+          "max": 34.95215700058907,
+          "mean": 0.6280208804820058,
+          "sum": 115.55584200868907
+        },
+        "tracking_ms": {
+          "samples": 184,
+          "p50": 0.039685000956524163,
+          "p95": 0.06870119987070211,
+          "p99": 0.11702896084898345,
+          "max": 0.15011699906608555,
+          "mean": 0.04438221735061076,
+          "sum": 8.166327992512379
+        }
+      }
+    }
+  ],
+  "global_stages": {
+    "evidence_encoding_ms": {
+      "samples": 4,
+      "p50": 11798.666970998966,
+      "p95": 13973.20690205006,
+      "p99": 14260.659802010177,
+      "max": 14332.523027000207,
+      "mean": 12050.696368999525,
+      "sum": 48202.7854759981
+    },
+    "sqlite_connection_ms": {
+      "samples": 41,
+      "p50": 0.4534959989541676,
+      "p95": 4.722891000710661,
+      "p99": 9.564571599912608,
+      "max": 12.652159999561263,
+      "mean": 1.1444753901032083,
+      "sum": 46.92349099423154
+    }
+  },
+  "incidents": [
+    {
+      "id": "6b37cf3a013848dda7ff1ff5d67c1cdd",
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "camera_name": "Intel — длительный контроль движения",
+      "track_id": 2,
+      "type": "danger_zone",
+      "severity": "critical",
+      "status": "resolved",
+      "started_at": "2026-10-24T12:08:36.240577+00:00",
+      "resolved_at": "2026-10-24T12:08:38.576244+00:00",
+      "confidence": 0.9202799797058105,
+      "duration": 2.1688333333333354,
+      "snapshot": "6b37cf3a013848dda7ff1ff5d67c1cdd.jpg",
+      "feedback": "unreviewed",
+      "resolution_reason": "violation_cleared",
+      "notification": "disabled",
+      "zone_name": "Демонстрационная зона пересечения",
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_27677_79a69a.mp4",
+      "ended_at": "2026-10-24T12:08:38.576244+00:00",
+      "episode_id": "0389b714e4e84c5580ab66a6eeb2aaee",
+      "source_seconds": 27.67765
+    },
+    {
+      "id": "8ca1ea99b8894fd58517daa1d9fdd813",
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "camera_name": "Intel — длительный контроль движения",
+      "track_id": 1,
+      "type": "danger_zone",
+      "severity": "critical",
+      "status": "resolved",
+      "started_at": "2026-10-24T12:08:15.069427+00:00",
+      "resolved_at": "2026-10-24T12:08:17.238261+00:00",
+      "confidence": 0.911262035369873,
+      "duration": 2.002,
+      "snapshot": "8ca1ea99b8894fd58517daa1d9fdd813.jpg",
+      "feedback": "unreviewed",
+      "resolution_reason": "violation_cleared",
+      "notification": "disabled",
+      "zone_name": "Демонстрационная зона пересечения",
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_6506_d47595.mp4",
+      "ended_at": "2026-10-24T12:08:17.238261+00:00",
+      "episode_id": "3a8750b0457246f39d1e39ec04869916",
+      "source_seconds": 6.5065
+    }
+  ],
+  "all_events": [
+    {
+      "id": 1,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": 1,
+      "zone_name": "Демонстрационная зона пересечения",
+      "kind": "warning",
+      "source_seconds": 5.6723333333333334,
+      "occurred_at": "2026-10-24T12:08:14.235260+00:00",
+      "recorded_at": "2026-10-24T12:08:15.535126+00:00",
+      "episode_id": "3a8750b0457246f39d1e39ec04869916",
+      "incident_id": null,
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_5672_ed9525.mp4",
+      "payload": "{\"lead_time_seconds\": null, \"predicted_entry_seconds\": 1.0622, \"event_delay_ms\": 500.343}"
+    },
+    {
+      "id": 2,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": 1,
+      "zone_name": "Демонстрационная зона пересечения",
+      "kind": "critical",
+      "source_seconds": 6.5065,
+      "occurred_at": "2026-10-24T12:08:15.069427+00:00",
+      "recorded_at": "2026-10-24T12:08:16.737494+00:00",
+      "episode_id": "3a8750b0457246f39d1e39ec04869916",
+      "incident_id": null,
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_6506_d47595.mp4",
+      "payload": "{\"lead_time_seconds\": 0.8342, \"predicted_entry_seconds\": null, \"event_delay_ms\": 690.38}"
+    },
+    {
+      "id": 3,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": 1,
+      "zone_name": "Демонстрационная зона пересечения",
+      "kind": "confirmed",
+      "source_seconds": 7.1738333333333335,
+      "occurred_at": "2026-10-24T12:08:15.736761+00:00",
+      "recorded_at": "2026-10-24T12:08:17.768851+00:00",
+      "episode_id": "3a8750b0457246f39d1e39ec04869916",
+      "incident_id": "8ca1ea99b8894fd58517daa1d9fdd813",
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_6506_d47595.mp4",
+      "payload": "{\"type\": \"danger_zone\"}"
+    },
+    {
+      "id": 4,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": 1,
+      "zone_name": "Демонстрационная зона пересечения",
+      "kind": "resolved",
+      "source_seconds": 8.675333333333333,
+      "occurred_at": "2026-10-24T12:08:17.238261+00:00",
+      "recorded_at": "2026-10-24T12:08:22.232654+00:00",
+      "episode_id": "3a8750b0457246f39d1e39ec04869916",
+      "incident_id": "8ca1ea99b8894fd58517daa1d9fdd813",
+      "evidence": null,
+      "payload": "{\"reason\": \"violation_cleared\"}"
+    },
+    {
+      "id": 5,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": null,
+      "zone_name": null,
+      "kind": "evidence_ready",
+      "source_seconds": 6.5065,
+      "occurred_at": "2026-10-24T12:08:28.674565+00:00",
+      "recorded_at": "2026-10-24T12:08:28.674585+00:00",
+      "episode_id": null,
+      "incident_id": null,
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_6506_d47595.mp4",
+      "payload": "{}"
+    },
+    {
+      "id": 6,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": null,
+      "zone_name": null,
+      "kind": "evidence_ready",
+      "source_seconds": 5.6723333333333334,
+      "occurred_at": "2026-10-24T12:08:29.867622+00:00",
+      "recorded_at": "2026-10-24T12:08:29.867640+00:00",
+      "episode_id": null,
+      "incident_id": null,
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_5672_ed9525.mp4",
+      "payload": "{}"
+    },
+    {
+      "id": 7,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": 2,
+      "zone_name": "Демонстрационная зона пересечения",
+      "kind": "warning",
+      "source_seconds": 26.676650000000002,
+      "occurred_at": "2026-10-24T12:08:35.239577+00:00",
+      "recorded_at": "2026-10-24T12:08:57.754604+00:00",
+      "episode_id": "0389b714e4e84c5580ab66a6eeb2aaee",
+      "incident_id": null,
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_26676_5d5f98.mp4",
+      "payload": "{\"lead_time_seconds\": null, \"predicted_entry_seconds\": 1.3423, \"event_delay_ms\": 1120.063}"
+    },
+    {
+      "id": 8,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": 2,
+      "zone_name": "Демонстрационная зона пересечения",
+      "kind": "critical",
+      "source_seconds": 27.67765,
+      "occurred_at": "2026-10-24T12:08:36.240577+00:00",
+      "recorded_at": "2026-10-24T12:09:00.042220+00:00",
+      "episode_id": "0389b714e4e84c5580ab66a6eeb2aaee",
+      "incident_id": null,
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_27677_79a69a.mp4",
+      "payload": "{\"lead_time_seconds\": 1.001, \"predicted_entry_seconds\": null, \"event_delay_ms\": 985.968}"
+    },
+    {
+      "id": 9,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": 2,
+      "zone_name": "Демонстрационная зона пересечения",
+      "kind": "confirmed",
+      "source_seconds": 28.344983333333335,
+      "occurred_at": "2026-10-24T12:08:36.907911+00:00",
+      "recorded_at": "2026-10-24T12:09:01.772219+00:00",
+      "episode_id": "0389b714e4e84c5580ab66a6eeb2aaee",
+      "incident_id": "6b37cf3a013848dda7ff1ff5d67c1cdd",
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_27677_79a69a.mp4",
+      "payload": "{\"type\": \"danger_zone\"}"
+    },
+    {
+      "id": 10,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": 2,
+      "zone_name": "Демонстрационная зона пересечения",
+      "kind": "resolved",
+      "source_seconds": 30.013316666666668,
+      "occurred_at": "2026-10-24T12:08:38.576244+00:00",
+      "recorded_at": "2026-10-24T12:09:06.356696+00:00",
+      "episode_id": "0389b714e4e84c5580ab66a6eeb2aaee",
+      "incident_id": "6b37cf3a013848dda7ff1ff5d67c1cdd",
+      "evidence": null,
+      "payload": "{\"reason\": \"violation_cleared\"}"
+    },
+    {
+      "id": 11,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": null,
+      "zone_name": null,
+      "kind": "evidence_ready",
+      "source_seconds": 26.676650000000002,
+      "occurred_at": "2026-10-24T12:09:09.421803+00:00",
+      "recorded_at": "2026-10-24T12:09:09.421822+00:00",
+      "episode_id": null,
+      "incident_id": null,
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_26676_5d5f98.mp4",
+      "payload": "{}"
+    },
+    {
+      "id": 12,
+      "camera_id": "d0a3bee27be647c1836e52c015eee707",
+      "track_id": null,
+      "zone_name": null,
+      "kind": "evidence_ready",
+      "source_seconds": 27.67765,
+      "occurred_at": "2026-10-24T12:09:10.325362+00:00",
+      "recorded_at": "2026-10-24T12:09:10.325379+00:00",
+      "episode_id": null,
+      "incident_id": null,
+      "evidence": "radar_d0a3bee27be647c1836e52c015eee707_27677_79a69a.mp4",
+      "payload": "{}"
+    }
+  ],
+  "late_shutdown_stages": {
+    "window_seconds": 60.0,
+    "rates": {},
+    "stages": {
+      "evidence_encoding_ms": {
+        "samples": 4,
+        "p50": 11798.667,
+        "p95": 13973.207,
+        "p99": 14260.66,
+        "max": 14332.523
+      }
+    }
+  },
+  "note": "Rates and stage percentiles measured in same post-warmup wall window. File backpressure/media lag explicitly reported. No TPU inference in local mode."
+}

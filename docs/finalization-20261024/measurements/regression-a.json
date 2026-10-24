@@ -1,0 +1,218 @@
+{
+  "source_sha256": "b8b58b8100a81600bc42ee7ee082ced777b12a32a3619139ef289d27cbdcd284",
+  "config": {
+    "name": "Intel A — проход мимо",
+    "owner": null,
+    "helmet": false,
+    "vest": false,
+    "mask": false,
+    "smoking": false,
+    "zone_enabled": true,
+    "zone_name": "Демонстрационная зона рядом с проходом",
+    "zone": [
+      [
+        0.6,
+        0.84
+      ],
+      [
+        0.88,
+        0.84
+      ],
+      [
+        0.88,
+        0.97
+      ],
+      [
+        0.6,
+        0.97
+      ]
+    ],
+    "zones": [
+      {
+        "id": "control",
+        "name": "Демонстрационная зона рядом с проходом",
+        "enabled": true,
+        "points": [
+          [
+            0.6,
+            0.84
+          ],
+          [
+            0.88,
+            0.84
+          ],
+          [
+            0.88,
+            0.97
+          ],
+          [
+            0.6,
+            0.97
+          ]
+        ]
+      }
+    ],
+    "running_enabled": false,
+    "running_speed": 1.8,
+    "running_min_seconds": 0.8,
+    "confirm_seconds": 0.6,
+    "clear_seconds": 0.6,
+    "temporal_window": 4,
+    "temporal_required": 3
+  },
+  "provider_requested": "local_onnx",
+  "git_sha": "84ee9473d6d7a3a64c0bb97d685482ede1df64de",
+  "git_dirty": false,
+  "cameras": [
+    {
+      "camera_id": "0f6ebc99b7a244e2bc50f36246b7865f",
+      "frames_observed": 61,
+      "wall_seconds": 12.147471819998827,
+      "metrics": {
+        "window_seconds": 12.126,
+        "rates": {
+          "capture": {
+            "fps": 60.448,
+            "window_count": 733,
+            "total": 733
+          },
+          "sampled_out": {
+            "fps": 55.336,
+            "window_count": 671,
+            "total": 671
+          },
+          "person": {
+            "fps": 5.031,
+            "window_count": 61,
+            "total": 61
+          },
+          "radar": {
+            "fps": 5.031,
+            "window_count": 61,
+            "total": 61
+          },
+          "analytics": {
+            "fps": 5.031,
+            "window_count": 61,
+            "total": 61
+          }
+        },
+        "stages": {
+          "capture_decode_ms": {
+            "samples": 733,
+            "p50": 2.149,
+            "p95": 6.854,
+            "p99": 12.429,
+            "max": 34.633
+          },
+          "capture_retrieve_ms": {
+            "samples": 61,
+            "p50": 0.933,
+            "p95": 1.599,
+            "p99": 2.917,
+            "max": 3.066
+          },
+          "cpu_person_ms": {
+            "samples": 61,
+            "p50": 90.774,
+            "p95": 112.394,
+            "p99": 132.641,
+            "max": 143.361
+          },
+          "inference_ms": {
+            "samples": 61,
+            "p50": 90.795,
+            "p95": 112.414,
+            "p99": 132.663,
+            "max": 143.384
+          },
+          "tracking_ms": {
+            "samples": 61,
+            "p50": 0.035,
+            "p95": 0.056,
+            "p99": 0.059,
+            "max": 0.06
+          },
+          "radar_ms": {
+            "samples": 61,
+            "p50": 0.423,
+            "p95": 0.786,
+            "p99": 1.363,
+            "max": 2.032
+          },
+          "jpeg_annotated_ms": {
+            "samples": 61,
+            "p50": 5.314,
+            "p95": 7.43,
+            "p99": 8.955,
+            "max": 9.73
+          },
+          "jpeg_raw_ms": {
+            "samples": 61,
+            "p50": 4.455,
+            "p95": 5.461,
+            "p99": 5.752,
+            "max": 5.847
+          },
+          "analytics_ms": {
+            "samples": 61,
+            "p50": 11.671,
+            "p95": 14.287,
+            "p99": 17.093,
+            "max": 18.175
+          },
+          "end_to_end_ms": {
+            "samples": 61,
+            "p50": 105.97,
+            "p95": 128.404,
+            "p99": 145.888,
+            "max": 157.346
+          }
+        }
+      },
+      "measurement_window": null,
+      "last_source_seconds": 12.012,
+      "terminal_state": "stopped",
+      "error": null,
+      "events": [],
+      "incidents": [],
+      "statistics": {
+        "incidents": [],
+        "warnings": [],
+        "note": "Counts of recorded observations, not accident probabilities."
+      },
+      "ppe_observations": 0,
+      "tracks_issued": 1,
+      "max_people": 1,
+      "running_history_ready_frames": 0,
+      "radar_history_ready_frames": 45,
+      "maximum_data_age_ms": 158.9,
+      "unique_ppe_source_frames": 0
+    }
+  ],
+  "status": "MEASURED",
+  "worker_verified": false,
+  "provider": {
+    "provider": "local_onnx",
+    "mode": "local_onnx",
+    "requested_providers": [],
+    "active_providers": [
+      "CPUExecutionProvider"
+    ],
+    "supported_classes": [
+      "helmet",
+      "mask",
+      "no_helmet",
+      "no_mask",
+      "no_vest",
+      "person",
+      "vest"
+    ],
+    "model": "ppe.onnx",
+    "inference_threads": 2,
+    "allow_spinning": false,
+    "ppe_roi_mode": "auto"
+  },
+  "independent_motion": true,
+  "replay": []
+}

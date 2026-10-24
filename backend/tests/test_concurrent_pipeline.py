@@ -524,6 +524,9 @@ def test_one_camera_ppe_window_really_publishes_multiple_amqp_requests(
         while len(peer.ids) < limit and time.monotonic() < deadline:
             time.sleep(0.005)
         assert len(peer.ids) == limit
+        print(
+            f"CONTROLLED AMQP: per-camera limit={limit}; actual peak publishes awaiting replies={peer.maximum}; input shapes={peer.input_shapes}"
+        )
         assert peer.maximum == limit
         assert peer.input_shapes == [(1, 3, 640, 640)] * limit
         assert len(cam.independent_ppe.pending) == limit

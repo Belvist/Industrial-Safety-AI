@@ -129,3 +129,13 @@ python run.py            # one-command local start (installs vision+linq extras)
   Demo polygons were chosen on that footage, not independent holdout validation.
 - Requested YouTube clip was proxy-blocked. No configured VPN/LinQ in this session.
   New remote TPU acceptance remains BLOCKED. See docs/acceptance/RESULTS.md.
+
+## Bounded PPE window and finalization follow-up
+
+- See docs/finalization-20261024/RESULTS.md. Prior f27f391 A/B/tag/assets remain intact.
+- PPE_MAX_IN_FLIGHT_PER_CAMERA defaults 1; effective cap also respects LINQ_MAX_IN_FLIGHT.
+- Pending replies ordered by source time, expired heads quarantined; global FIFO has N workers/8 queue slots, daemon workers with explicit shutdown.
+- Session metrics are captured at admission; old work cannot inflate new session FPS.
+- ONNX idle spinning disabled; Replay directly encodes JPEG to H.264. TARGET_FPS=6 is measured CPU headroom, not TPU FPS.
+- Same-target 3-repeat before/after measurements, actual replay/reentry/two-zone/negative-walking cases are published. Positive running, real overlap/physical ID-switch accuracy and LinQ remain unverified.
+- Provisional manual PPE evaluation is evaluation-only (never ROI input); substantial FN, no claimed model-accuracy fix; 72px guard uncalibrated.

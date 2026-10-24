@@ -1,0 +1,557 @@
+{
+  "source_sha256": "b8b58b8100a81600bc42ee7ee082ced777b12a32a3619139ef289d27cbdcd284",
+  "config": {
+    "name": "Повторный вход — реальный проход",
+    "owner": null,
+    "helmet": false,
+    "vest": false,
+    "mask": false,
+    "smoking": false,
+    "zone_enabled": true,
+    "zone_name": "U — один полигон, два входа",
+    "zone": [
+      [
+        0.34,
+        0.45
+      ],
+      [
+        0.85,
+        0.45
+      ],
+      [
+        0.85,
+        0.8
+      ],
+      [
+        0.55,
+        0.8
+      ],
+      [
+        0.55,
+        0.5
+      ],
+      [
+        0.46,
+        0.5
+      ],
+      [
+        0.46,
+        1.0
+      ],
+      [
+        0.34,
+        1.0
+      ]
+    ],
+    "zones": [
+      {
+        "id": "u",
+        "name": "U — один полигон, два входа",
+        "enabled": true,
+        "points": [
+          [
+            0.34,
+            0.45
+          ],
+          [
+            0.85,
+            0.45
+          ],
+          [
+            0.85,
+            0.8
+          ],
+          [
+            0.55,
+            0.8
+          ],
+          [
+            0.55,
+            0.5
+          ],
+          [
+            0.46,
+            0.5
+          ],
+          [
+            0.46,
+            1.0
+          ],
+          [
+            0.34,
+            1.0
+          ]
+        ]
+      }
+    ],
+    "running_enabled": false,
+    "running_speed": 1.8,
+    "running_min_seconds": 0.8,
+    "confirm_seconds": 0.6,
+    "clear_seconds": 0.6,
+    "temporal_window": 4,
+    "temporal_required": 3
+  },
+  "provider_requested": "local_onnx",
+  "git_sha": "84ee9473d6d7a3a64c0bb97d685482ede1df64de",
+  "git_dirty": false,
+  "cameras": [
+    {
+      "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+      "frames_observed": 73,
+      "wall_seconds": 12.424515577999045,
+      "metrics": {
+        "window_seconds": 12.406,
+        "rates": {
+          "capture": {
+            "fps": 59.731,
+            "window_count": 741,
+            "total": 741
+          },
+          "sampled_out": {
+            "fps": 53.685,
+            "window_count": 666,
+            "total": 666
+          },
+          "person": {
+            "fps": 5.884,
+            "window_count": 73,
+            "total": 73
+          },
+          "radar": {
+            "fps": 5.884,
+            "window_count": 73,
+            "total": 73
+          },
+          "analytics": {
+            "fps": 5.884,
+            "window_count": 73,
+            "total": 73
+          }
+        },
+        "stages": {
+          "capture_decode_ms": {
+            "samples": 741,
+            "p50": 2.531,
+            "p95": 12.071,
+            "p99": 41.37,
+            "max": 54.161
+          },
+          "capture_retrieve_ms": {
+            "samples": 75,
+            "p50": 1.225,
+            "p95": 4.736,
+            "p99": 19.255,
+            "max": 27.54
+          },
+          "cpu_person_ms": {
+            "samples": 73,
+            "p50": 113.025,
+            "p95": 193.883,
+            "p99": 241.827,
+            "max": 310.824
+          },
+          "inference_ms": {
+            "samples": 73,
+            "p50": 113.042,
+            "p95": 193.903,
+            "p99": 241.847,
+            "max": 310.846
+          },
+          "tracking_ms": {
+            "samples": 73,
+            "p50": 0.034,
+            "p95": 0.051,
+            "p99": 0.089,
+            "max": 0.124
+          },
+          "radar_ms": {
+            "samples": 73,
+            "p50": 0.455,
+            "p95": 0.712,
+            "p99": 0.842,
+            "max": 0.844
+          },
+          "jpeg_annotated_ms": {
+            "samples": 73,
+            "p50": 5.307,
+            "p95": 11.073,
+            "p99": 34.064,
+            "max": 38.252
+          },
+          "jpeg_raw_ms": {
+            "samples": 73,
+            "p50": 4.469,
+            "p95": 5.782,
+            "p99": 17.579,
+            "max": 34.991
+          },
+          "analytics_ms": {
+            "samples": 73,
+            "p50": 11.856,
+            "p95": 30.574,
+            "p99": 46.489,
+            "max": 46.502
+          },
+          "end_to_end_ms": {
+            "samples": 73,
+            "p50": 364.633,
+            "p95": 533.908,
+            "p99": 557.994,
+            "max": 560.298
+          },
+          "event_delay_ms": {
+            "samples": 6,
+            "p50": 245.637,
+            "p95": 493.42,
+            "p99": 505.01,
+            "max": 507.907
+          }
+        }
+      },
+      "measurement_window": null,
+      "last_source_seconds": 12.012,
+      "terminal_state": "stopped",
+      "error": null,
+      "events": [
+        {
+          "id": 1,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": 1,
+          "zone_name": "U — один полигон, два входа",
+          "kind": "warning",
+          "source_seconds": 3.1698333333333335,
+          "occurred_at": "2026-10-24T12:27:24.183688+00:00",
+          "recorded_at": "2026-10-24T12:27:24.307347+00:00",
+          "episode_id": "319c7000b3394c73a1e60fe521795402",
+          "incident_id": null,
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_3169_9f5329.mp4",
+          "payload": "{\"lead_time_seconds\": null, \"predicted_entry_seconds\": 0.2971, \"event_delay_ms\": 111.997}"
+        },
+        {
+          "id": 2,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": 1,
+          "zone_name": "U — один полигон, два входа",
+          "kind": "critical",
+          "source_seconds": 3.6703333333333332,
+          "occurred_at": "2026-10-24T12:27:24.684188+00:00",
+          "recorded_at": "2026-10-24T12:27:24.795724+00:00",
+          "episode_id": "319c7000b3394c73a1e60fe521795402",
+          "incident_id": null,
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_3670_df57eb.mp4",
+          "payload": "{\"lead_time_seconds\": 0.5005, \"predicted_entry_seconds\": null, \"event_delay_ms\": 99.881}"
+        },
+        {
+          "id": 3,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": 1,
+          "zone_name": "U — один полигон, два входа",
+          "kind": "confirmed",
+          "source_seconds": 4.337666666666666,
+          "occurred_at": "2026-10-24T12:27:25.351521+00:00",
+          "recorded_at": "2026-10-24T12:27:25.485699+00:00",
+          "episode_id": "319c7000b3394c73a1e60fe521795402",
+          "incident_id": "8fcc9b4e94cd41df948e646cfc46fd7d",
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_3670_df57eb.mp4",
+          "payload": "{\"type\": \"danger_zone\"}"
+        },
+        {
+          "id": 4,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 3.1698333333333335,
+          "occurred_at": "2026-10-24T12:27:27.476505+00:00",
+          "recorded_at": "2026-10-24T12:27:27.476513+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_3169_9f5329.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 5,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": 1,
+          "zone_name": "U — один полигон, два входа",
+          "kind": "warning",
+          "source_seconds": 6.006,
+          "occurred_at": "2026-10-24T12:27:27.019854+00:00",
+          "recorded_at": "2026-10-24T12:27:27.653668+00:00",
+          "episode_id": "325594c184b546368d73a3a9bcee9726",
+          "incident_id": null,
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_6006_109dad.mp4",
+          "payload": "{\"lead_time_seconds\": null, \"predicted_entry_seconds\": 0.5277, \"event_delay_ms\": 507.466}"
+        },
+        {
+          "id": 6,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": 1,
+          "zone_name": "U — один полигон, два входа",
+          "kind": "resolved",
+          "source_seconds": 6.006,
+          "occurred_at": "2026-10-24T12:27:27.019854+00:00",
+          "recorded_at": "2026-10-24T12:27:27.654574+00:00",
+          "episode_id": "319c7000b3394c73a1e60fe521795402",
+          "incident_id": "8fcc9b4e94cd41df948e646cfc46fd7d",
+          "evidence": null,
+          "payload": "{\"reason\": \"violation_cleared\"}"
+        },
+        {
+          "id": 7,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": 1,
+          "zone_name": "U — один полигон, два входа",
+          "kind": "critical",
+          "source_seconds": 6.5065,
+          "occurred_at": "2026-10-24T12:27:27.520354+00:00",
+          "recorded_at": "2026-10-24T12:27:28.057012+00:00",
+          "episode_id": "325594c184b546368d73a3a9bcee9726",
+          "incident_id": null,
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_6506_ed07b8.mp4",
+          "payload": "{\"lead_time_seconds\": 0.5005, \"predicted_entry_seconds\": null, \"event_delay_ms\": 366.734}"
+        },
+        {
+          "id": 8,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 3.6703333333333332,
+          "occurred_at": "2026-10-24T12:27:28.676012+00:00",
+          "recorded_at": "2026-10-24T12:27:28.676029+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_3670_df57eb.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 9,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": 1,
+          "zone_name": "U — один полигон, два входа",
+          "kind": "confirmed",
+          "source_seconds": 7.1738333333333335,
+          "occurred_at": "2026-10-24T12:27:28.187688+00:00",
+          "recorded_at": "2026-10-24T12:27:28.694911+00:00",
+          "episode_id": "325594c184b546368d73a3a9bcee9726",
+          "incident_id": "b9302f60328f456b81d6603b29a9460c",
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_6506_ed07b8.mp4",
+          "payload": "{\"type\": \"danger_zone\"}"
+        },
+        {
+          "id": 10,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": 1,
+          "zone_name": "U — один полигон, два входа",
+          "kind": "resolved",
+          "source_seconds": 8.675333333333333,
+          "occurred_at": "2026-10-24T12:27:29.689188+00:00",
+          "recorded_at": "2026-10-24T12:27:30.162315+00:00",
+          "episode_id": "325594c184b546368d73a3a9bcee9726",
+          "incident_id": "b9302f60328f456b81d6603b29a9460c",
+          "evidence": null,
+          "payload": "{\"reason\": \"violation_cleared\"}"
+        },
+        {
+          "id": 11,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 6.006,
+          "occurred_at": "2026-10-24T12:27:31.477780+00:00",
+          "recorded_at": "2026-10-24T12:27:31.477794+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_6006_109dad.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 12,
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 6.5065,
+          "occurred_at": "2026-10-24T12:27:32.480007+00:00",
+          "recorded_at": "2026-10-24T12:27:32.480021+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_6506_ed07b8.mp4",
+          "payload": "{}"
+        }
+      ],
+      "incidents": [
+        {
+          "id": "b9302f60328f456b81d6603b29a9460c",
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "camera_name": "Повторный вход — реальный проход",
+          "track_id": 1,
+          "type": "danger_zone",
+          "severity": "critical",
+          "status": "resolved",
+          "started_at": "2026-10-24T12:27:27.520354+00:00",
+          "resolved_at": "2026-10-24T12:27:29.689188+00:00",
+          "confidence": 0.911262035369873,
+          "duration": 2.002,
+          "snapshot": "b9302f60328f456b81d6603b29a9460c.jpg",
+          "feedback": "unreviewed",
+          "resolution_reason": "violation_cleared",
+          "notification": "disabled",
+          "zone_name": "U — один полигон, два входа",
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_6506_ed07b8.mp4",
+          "ended_at": "2026-10-24T12:27:29.689188+00:00",
+          "episode_id": "325594c184b546368d73a3a9bcee9726",
+          "source_seconds": 6.5065
+        },
+        {
+          "id": "8fcc9b4e94cd41df948e646cfc46fd7d",
+          "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+          "camera_name": "Повторный вход — реальный проход",
+          "track_id": 1,
+          "type": "danger_zone",
+          "severity": "critical",
+          "status": "resolved",
+          "started_at": "2026-10-24T12:27:24.684188+00:00",
+          "resolved_at": "2026-10-24T12:27:27.019854+00:00",
+          "confidence": 0.9266360998153687,
+          "duration": 2.168833333333333,
+          "snapshot": "8fcc9b4e94cd41df948e646cfc46fd7d.jpg",
+          "feedback": "unreviewed",
+          "resolution_reason": "violation_cleared",
+          "notification": "disabled",
+          "zone_name": "U — один полигон, два входа",
+          "evidence": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_3670_df57eb.mp4",
+          "ended_at": "2026-10-24T12:27:27.019854+00:00",
+          "episode_id": "319c7000b3394c73a1e60fe521795402",
+          "source_seconds": 3.6703333333333332
+        }
+      ],
+      "statistics": {
+        "incidents": [
+          {
+            "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+            "type": "danger_zone",
+            "zone_name": "U — один полигон, два входа",
+            "day": "2026-10-24",
+            "count": 2,
+            "confirmed": 0,
+            "false_positive": 0
+          }
+        ],
+        "warnings": [
+          {
+            "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+            "zone_name": "U — один полигон, два входа",
+            "kind": "critical",
+            "day": "2026-10-24",
+            "count": 2
+          },
+          {
+            "camera_id": "fcb69c4930d74e01aeaea92aa4d9b8f7",
+            "zone_name": "U — один полигон, два входа",
+            "kind": "warning",
+            "day": "2026-10-24",
+            "count": 2
+          }
+        ],
+        "note": "Counts of recorded observations, not accident probabilities."
+      },
+      "ppe_observations": 0,
+      "tracks_issued": 1,
+      "max_people": 1,
+      "running_history_ready_frames": 0,
+      "radar_history_ready_frames": 54,
+      "maximum_data_age_ms": 561.8,
+      "unique_ppe_source_frames": 0
+    }
+  ],
+  "status": "MEASURED",
+  "worker_verified": false,
+  "provider": {
+    "provider": "local_onnx",
+    "mode": "local_onnx",
+    "requested_providers": [],
+    "active_providers": [
+      "CPUExecutionProvider"
+    ],
+    "supported_classes": [
+      "helmet",
+      "mask",
+      "no_helmet",
+      "no_mask",
+      "no_vest",
+      "person",
+      "vest"
+    ],
+    "model": "ppe.onnx",
+    "inference_threads": 2,
+    "allow_spinning": false,
+    "ppe_roi_mode": "auto"
+  },
+  "independent_motion": true,
+  "replay": [
+    {
+      "file": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_3169_9f5329.mp4",
+      "bytes": 1736331,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.166667",
+            "nb_frames": "25"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_3670_df57eb.mp4",
+      "bytes": 1776231,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.166667",
+            "nb_frames": "25"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_6006_109dad.mp4",
+      "bytes": 1766190,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.166667",
+            "nb_frames": "25"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_fcb69c4930d74e01aeaea92aa4d9b8f7_6506_ed07b8.mp4",
+      "bytes": 1801769,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.166667",
+            "nb_frames": "25"
+          }
+        ]
+      }
+    }
+  ]
+}

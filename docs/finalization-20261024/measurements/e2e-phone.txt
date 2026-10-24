@@ -1,0 +1,7 @@
+pairing code minted for camera b3feb955
+exchange ok, phone token stored
+phone streaming, backend returns results
+operator sees running camera, seq=1
+phone stop ends session; token revoked, restart denied:
+revoked token rejected with 401
+E2E phone flow: PASS (mock media, not a physical phone)

@@ -1,0 +1,65 @@
+{
+  "note": "Repeated display observations, not independent model predictions. Body IoU > .2 is a conservative identity guard, not proof of an actual ID switch.",
+  "groups": {
+    "overlap": {
+      "track_display_observations": 0,
+      "helmet_unknown": 0,
+      "vest_unknown": 0,
+      "both_known": 0
+    },
+    "non_overlap": {
+      "track_display_observations": 328,
+      "helmet_unknown": 130,
+      "vest_unknown": 324,
+      "both_known": 0
+    }
+  },
+  "metrics": {
+    "capture": {
+      "fps": 47.283,
+      "window_count": 2837,
+      "total": 3618
+    },
+    "sampled_out": {
+      "fps": 42.55,
+      "window_count": 2553,
+      "total": 3255
+    },
+    "person": {
+      "fps": 4.733,
+      "window_count": 284,
+      "total": 361
+    },
+    "radar": {
+      "fps": 4.733,
+      "window_count": 284,
+      "total": 361
+    },
+    "analytics": {
+      "fps": 4.733,
+      "window_count": 284,
+      "total": 361
+    },
+    "ppe_submitted": {
+      "fps": 0.6,
+      "window_count": 36,
+      "total": 45
+    },
+    "ppe": {
+      "fps": 0.6,
+      "window_count": 36,
+      "total": 44
+    },
+    "ppe_applied": {
+      "fps": 0.55,
+      "window_count": 33,
+      "total": 40
+    },
+    "ppe_identity_rejected": {
+      "fps": 0.05,
+      "window_count": 3,
+      "total": 4
+    }
+  },
+  "unique_ppe_sources": 40
+}
