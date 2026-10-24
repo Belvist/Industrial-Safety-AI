@@ -363,12 +363,10 @@ export default function App() {
       route={route}
       cameras={safety.cameras}
       info={safety.info}
-      result={result}
       online={online}
       connecting={safety.connection === "connecting"}
       firstRun={firstRun}
       onNavigate={(page, id) => request(() => navigate(page, id))}
-      onConnect={() => openConnection(firstRun ? safety.cameras[0] : undefined)}
       onHelp={() => setHelp(true)}
     >
       {!online && safety.connection === "offline" && (

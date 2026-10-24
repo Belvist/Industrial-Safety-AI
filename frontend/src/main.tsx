@@ -4,8 +4,10 @@ import App from "./App";
 import ConnectPage from "./ConnectPage";
 import PhoneCapturePage from "./PhoneCapturePage";
 import { bootstrapOperatorAuth } from "./api";
+import "./fonts.css";
 import "./styles.css";
 import "./application.css";
+import "./operator.css";
 
 bootstrapOperatorAuth();
 

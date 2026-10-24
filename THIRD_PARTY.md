@@ -84,3 +84,12 @@ license decision; this file does not resolve it.
 ## Development validation asset
 
 A public Ultralytics `bus.jpg` sample (https://ultralytics.com/images/bus.jpg) was used for real-inference smoke testing. It and derived test videos are not committed or included in the product. Application tests generate their own synthetic frames.
+
+## Interface typeface
+
+Manrope by the Manrope Project authors (Mikhail Sharanda, Mirko Velimirovic),
+SIL Open Font License 1.1: https://github.com/google/fonts/tree/main/ofl/manrope.
+Unmodified variable WOFF2 subsets (Latin, Latin Extended, Cyrillic and Cyrillic
+Extended) are self-hosted in `frontend/src/assets/fonts/`. The license is kept
+beside the files and included in the production bundle as `MANROPE_LICENSE.txt`.
+The interface makes no runtime requests to a font CDN.

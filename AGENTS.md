@@ -102,3 +102,15 @@ python run.py            # one-command local start (installs vision+linq extras)
   10,000, and spreadsheet formula protection.
 - Browser tests use simulated media or explicitly labelled isolated incident
   fixtures; never describe those as real hardware, real incidents or model recall.
+
+
+## Softer product identity (latest UI direction, 24 Oct 2026)
+
+- User clarified that Cursor/OpenCode were usability references, not a request
+  to copy an IDE. The activity rail, editor tabs and bottom status strip are gone.
+- `WorkspaceShell` now uses one rounded sidebar with three main destinations.
+  Camera shortcuts are collapsed by default. Ctrl/Meta B toggles navigation.
+- Preserve generous spacing and rounded controls/cards/dialogs. Final skin is in
+  `frontend/src/operator.css`; shared radius tokens live in `application.css`.
+- Manrope variable WOFF2 is bundled locally with Latin/Cyrillic subsets. No
+  runtime font CDN requests. Keep its OFL notice in source and distribution.

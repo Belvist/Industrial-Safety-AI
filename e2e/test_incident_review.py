@@ -143,7 +143,7 @@ def main():
                     "document.querySelector('video')?.currentTime > 0.1"
                 )
                 page.screenshot(
-                    path=str(args.artifacts / "evidence-desktop.png"), full_page=True
+                    path=str(args.artifacts / "evidence-desktop.png"), full_page=False
                 )
                 dialog.get_by_role("button", name="Снимок", exact=True).click()
                 expect(dialog.locator("img")).to_be_visible()
@@ -195,7 +195,7 @@ def main():
                     "document.querySelector('video')?.readyState >= 2"
                 )
                 page.screenshot(
-                    path=str(args.artifacts / "evidence-mobile.png"), full_page=True
+                    path=str(args.artifacts / "evidence-mobile.png"), full_page=False
                 )
                 assert page.evaluate(
                     "document.documentElement.scrollWidth <= innerWidth"

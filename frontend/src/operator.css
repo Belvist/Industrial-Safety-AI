@@ -1,0 +1,990 @@
+/* Product shell: a quiet navigation column and a generous work surface. */
+.p-operator-shell {
+  --sidebar: 272px;
+  --radius-small: 8px;
+  --radius-control: 12px;
+  --radius-panel: 20px;
+  --radius-dialog: 24px;
+  min-height: 100dvh;
+  padding: 16px 0;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.p-operator-shell .p-workspace {
+  margin-left: var(--sidebar);
+  margin-right: 16px;
+  min-height: calc(100dvh - 32px);
+  padding: 0;
+  max-width: none;
+}
+.p-operator-shell.p-navigation-closed {
+  --sidebar: 16px;
+}
+.p-operator-shell .p-workspace-header {
+  height: 68px;
+  border: 0;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  position: sticky;
+  top: 0;
+  background: var(--tone9);
+  z-index: 25;
+}
+.p-operator-shell .p-app-breadcrumb {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--tone4);
+}
+.p-app-breadcrumb > strong {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--tone2);
+}
+.p-app-breadcrumb > svg {
+  flex-shrink: 0;
+}
+.p-app-breadcrumb > span {
+  white-space: nowrap;
+}
+.p-operator-shell .p-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+.p-app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+.p-workspace-label {
+  color: var(--tone5);
+  font-size: 11px;
+  letter-spacing: 0.1px;
+}
+.p-mobile-system {
+  display: none !important;
+}
+.p-navigation-scrim {
+  display: none;
+}
+.p-app-sidebar {
+  position: fixed;
+  inset: 16px auto 16px 16px;
+  width: 236px;
+  padding: 25px 13px 19px;
+  display: flex;
+  flex-direction: column;
+  background: var(--tone8);
+  border: 1px solid var(--tone7);
+  border-radius: 24px;
+  z-index: 35;
+  min-height: 0;
+}
+.p-navigation-closed .p-app-sidebar {
+  display: none;
+}
+.p-app-brand {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  text-align: left;
+  border: 0;
+  background: none;
+  color: var(--tone1);
+  padding: 0 10px 0 8px;
+  min-height: 43px;
+  flex-shrink: 0;
+}
+.p-app-brand > span {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--tone6);
+  border-radius: 14px;
+  background: var(--tone9);
+  flex-shrink: 0;
+}
+.p-app-brand strong {
+  font-size: 24px;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  font-weight: 650;
+  display: block;
+}
+.p-app-brand strong > span {
+  color: var(--tone4);
+  font-weight: 450;
+  margin-left: 3px;
+}
+.p-app-brand small {
+  display: block;
+  font-size: 8px;
+  color: var(--tone5);
+  margin-top: 7px;
+  letter-spacing: 0;
+}
+.p-app-nav-label {
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  color: var(--tone5);
+  padding: 0 14px;
+  margin: 43px 0 14px;
+}
+.p-main-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.p-main-navigation > button {
+  border: 1px solid transparent;
+  background: none;
+  color: var(--tone3);
+  min-height: 49px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  text-align: left;
+  font-size: 13px;
+}
+.p-main-navigation > button > svg {
+  flex-shrink: 0;
+}
+.p-main-navigation > button > span {
+  flex: 1;
+}
+.p-main-navigation > button:hover {
+  background: var(--tone7);
+  color: var(--tone0);
+}
+.p-main-navigation > button[aria-current="page"] {
+  background: var(--tone9);
+  border-color: var(--tone7);
+  color: var(--tone0);
+  font-weight: 600;
+  box-shadow: 0 3px 10px #0000000a;
+}
+.p-main-navigation b {
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  background: var(--tone7);
+  color: var(--tone2);
+  border-radius: 8px;
+  padding: 0 4px;
+}
+.p-camera-shortcuts {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--tone7);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.p-camera-shortcuts-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  padding: 9px 13px;
+  color: var(--tone4);
+  font-size: 11px;
+  text-align: left;
+}
+.p-camera-shortcuts-heading > svg {
+  flex-shrink: 0;
+}
+.p-camera-shortcuts-heading:hover {
+  color: var(--tone1);
+}
+.p-quick-camera-list {
+  overflow-y: auto;
+  min-height: 0;
+  padding-top: 9px;
+}
+.p-quick-camera-list > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  background: none;
+  color: var(--tone4);
+  border-radius: 12px;
+  text-align: left;
+}
+.p-quick-camera-list > button:hover,
+.p-quick-camera-list > button.selected {
+  background: var(--tone7);
+}
+.p-quick-camera-list > button > span {
+  min-width: 0;
+  flex: 1;
+}
+.p-quick-camera-list strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--tone2);
+}
+.p-quick-camera-list small {
+  display: block;
+  font-size: 9px;
+  line-height: 1.7;
+  margin-top: 3px;
+  color: var(--tone5);
+}
+.p-quick-camera-list i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--tone6);
+  flex-shrink: 0;
+}
+.p-quick-camera-list i.live {
+  background: #9aaea0;
+}
+.p-quick-camera-list i.attention {
+  background: #c79c72;
+}
+.p-app-sidebar-bottom {
+  margin-top: auto;
+  padding-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.p-app-sidebar-bottom > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 43px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--tone4);
+  font-size: 12px;
+  text-align: left;
+}
+.p-app-sidebar-bottom > button:hover,
+.p-app-sidebar-bottom > button.selected {
+  background: var(--tone7);
+  color: var(--tone1);
+}
+.p-app-sidebar-bottom > .p-local-mark {
+  font-size: 9px;
+  margin: 21px 14px 1px;
+  gap: 7px;
+  color: var(--tone5);
+}
+.p-mobile-navigation {
+  display: none;
+}
+.p-operator-shell .p-page-content {
+  padding: 30px 32px 42px;
+  max-width: 1440px;
+  margin: auto;
+}
+.p-operator-shell .p-kicker {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 550;
+  letter-spacing: 1.35px;
+  color: var(--tone5);
+  margin-bottom: 13px;
+}
+.p-operator-shell h1 {
+  font-size: 31px;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  font-weight: 600;
+}
+.p-operator-shell h2 {
+  font-weight: 600;
+  letter-spacing: -0.45px;
+}
+.p-operator-shell .p-page-heading {
+  margin-bottom: 38px;
+  gap: 24px;
+}
+.p-operator-shell .p-page-heading p {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--tone4);
+  margin-top: 12px;
+}
+.p-operator-shell .p-button {
+  min-height: 42px;
+  padding: 10px 17px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.p-operator-shell .p-button.p-large {
+  min-height: 48px;
+  padding: 13px 22px;
+  font-size: 13px;
+}
+.p-operator-shell .p-button.p-primary {
+  font-weight: 650;
+}
+.p-operator-shell input:not([type="checkbox"]):not([type="file"]),
+.p-operator-shell select {
+  border-radius: 12px;
+  min-height: 46px;
+  font-size: 13px;
+  padding: 12px 14px;
+}
+.p-operator-shell .p-field > label {
+  font-size: 12px;
+  font-weight: 550;
+}
+.p-operator-shell .p-link {
+  font-size: 12px;
+}
+.p-operator-shell .p-hint {
+  font-size: 11px;
+  line-height: 1.9;
+}
+.p-operator-shell .p-camera-card,
+.p-operator-shell .p-camera-settings,
+.p-operator-shell .p-inspector,
+.p-operator-shell .p-system-checks,
+.p-operator-shell .p-incident-table,
+.p-operator-shell .p-welcome-visual,
+.p-operator-shell .p-video-surface {
+  border-radius: 20px;
+  overflow: hidden;
+}
+.p-operator-shell .p-camera-card-bottom {
+  padding: 23px 24px;
+}
+.p-operator-shell .p-camera-card-bottom strong {
+  font-size: 15px;
+  font-weight: 550;
+}
+.p-operator-shell .p-camera-card-bottom small {
+  font-size: 11px;
+  margin-top: 7px;
+}
+.p-operator-shell .p-camera-badge {
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+.p-operator-shell .p-welcome {
+  padding-top: 30px;
+  gap: 40px 48px;
+}
+.p-operator-shell .p-welcome h1 {
+  font-size: clamp(39px, 3.7vw, 52px);
+  line-height: 1.15;
+  font-weight: 550;
+  letter-spacing: -1.8px;
+}
+.p-operator-shell .p-welcome-copy > p {
+  font-size: 14px;
+  line-height: 1.95;
+  max-width: 460px;
+  color: var(--tone4);
+  margin-top: 25px;
+}
+.p-operator-shell .p-welcome-actions {
+  gap: 18px 24px;
+  margin-top: 32px;
+}
+.p-operator-shell .p-welcome-visual {
+  background: var(--tone8);
+  height: 315px;
+  border-color: var(--tone7);
+}
+.p-operator-shell .p-visual-result {
+  border-radius: 16px;
+  padding: 16px 21px;
+}
+.p-operator-shell .p-visual-result strong {
+  font-size: 12px;
+}
+.p-operator-shell .p-welcome-steps {
+  margin-top: 24px;
+  padding-top: 36px;
+  gap: 36px;
+}
+.p-operator-shell .p-welcome-steps h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.p-operator-shell .p-welcome-steps p {
+  font-size: 12px;
+  line-height: 1.8;
+  max-width: 250px;
+}
+.p-operator-shell .p-privacy-line {
+  font-size: 10px;
+  gap: 8px;
+}
+.p-operator-shell .p-settings-layout {
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 26px;
+}
+.p-operator-shell .p-camera-settings {
+  max-width: 1000px;
+}
+.p-operator-shell .p-camera-settings > header {
+  padding: 28px 30px;
+}
+.p-operator-shell .p-settings-content {
+  padding: 30px;
+}
+.p-operator-shell .p-settings-tabs {
+  gap: 25px;
+}
+.p-operator-shell .p-setting-section > p {
+  font-size: 12px;
+  line-height: 1.9;
+}
+.p-operator-shell .p-rule-choice strong {
+  font-size: 13px;
+}
+.p-operator-shell .p-rule-choice small {
+  font-size: 11px;
+}
+.p-operator-shell .p-settings-cameras > button {
+  border-radius: 14px;
+}
+.p-operator-shell .p-settings-cameras strong {
+  font-size: 12px;
+}
+.p-operator-shell .p-review-tabs > button {
+  min-height: 40px;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+.p-operator-shell .p-review-state,
+.p-operator-shell .p-lifecycle {
+  border-radius: 8px;
+  padding: 5px 9px;
+}
+.p-operator-shell .p-incident-table th {
+  font-size: 11px;
+}
+.p-operator-shell .p-incident-table td {
+  font-size: 12px;
+  padding-top: 22px;
+  padding-bottom: 22px;
+}
+.p-operator-shell .p-incident-table small {
+  font-size: 11px;
+  line-height: 1.8;
+}
+.p-operator-shell .p-event-mark {
+  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+}
+.p-operator-shell .p-event-title strong {
+  font-size: 13px;
+}
+.p-operator-shell .p-monitor-heading {
+  margin-bottom: 27px;
+}
+.p-operator-shell .p-monitor-heading h1 {
+  font-size: 28px;
+  font-weight: 550;
+}
+.p-operator-shell .p-monitor .video-stage {
+  width: min(100%, calc((100dvh - 480px) * 16 / 9));
+}
+.p-operator-shell .p-observation-status {
+  border: 0;
+  background: var(--tone8);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 23px;
+}
+.p-operator-shell .p-observation-status strong {
+  font-size: 12px;
+}
+.p-operator-shell .p-observation-status span {
+  font-size: 11px;
+}
+.p-operator-shell .p-monitor-tools {
+  padding: 14px 0;
+  gap: 12px;
+}
+.p-operator-shell .p-monitor-tools button {
+  min-height: 40px;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-size: 12px;
+}
+.p-operator-shell .p-camera-context {
+  font-size: 11px;
+}
+.p-operator-shell .p-worker-list strong,
+.p-operator-shell .p-inspector-events strong {
+  font-size: 13px;
+}
+.p-operator-shell .p-worker-list dl > div {
+  font-size: 11px;
+}
+.p-operator-shell .p-focus-mode .video-stage {
+  width: min(100%, calc((100dvh - 250px) * 16 / 9));
+}
+.p-operator-shell .p-focus-mode .p-observation-status {
+  background: #222;
+}
+.p-operator-shell .p-focus-mode .p-monitor-heading h1 {
+  font-size: 23px;
+}
+.p-operator-shell .p-dialog {
+  border-radius: 24px;
+  box-shadow: 0 24px 100px #0006;
+  border: 1px solid var(--tone7);
+  overflow: hidden;
+}
+.p-operator-shell .p-dialog-heading {
+  padding: 26px 30px;
+}
+.p-operator-shell .p-dialog-heading h2 {
+  font-size: 23px;
+  font-weight: 550;
+  letter-spacing: -0.7px;
+}
+.p-operator-shell .p-dialog-heading p {
+  font-size: 11px;
+}
+.p-operator-shell .p-dialog-body {
+  padding: 28px 30px;
+}
+.p-operator-shell .p-dialog-footer {
+  padding: 21px 30px;
+}
+.p-operator-shell .p-source-choices > button {
+  border-radius: 16px;
+  padding: 20px 16px;
+}
+.p-operator-shell .p-source-choices strong {
+  font-size: 13px;
+  font-weight: 550;
+}
+.p-operator-shell .p-source-choices small {
+  font-size: 10px;
+}
+.p-operator-shell .p-source-input {
+  border-radius: 16px;
+  padding: 22px;
+}
+.p-operator-shell .p-inform,
+.p-operator-shell .p-inline-error {
+  border-radius: 14px;
+}
+.p-operator-shell .p-evidence-media {
+  border-radius: 16px;
+}
+.p-operator-shell .p-evidence-facts > div {
+  font-size: 12px;
+  gap: 22px;
+}
+.p-operator-shell .p-evidence-tabs > button {
+  font-size: 12px;
+}
+.p-operator-shell .p-evidence-facts dd > .p-link {
+  font-size: 12px;
+}
+.p-operator-shell .p-evidence-drawer {
+  padding: 12px;
+}
+.p-operator-shell .p-evidence-drawer .p-dialog {
+  height: calc(100dvh - 24px);
+  max-height: calc(100dvh - 24px);
+  border-radius: 24px;
+  width: min(660px, 100%);
+}
+.p-operator-shell .p-verdict-footer > .p-review-saved {
+  font-size: 11px;
+}
+.p-operator-shell .p-verdict-footer .p-button {
+  font-size: 11px;
+}
+.p-operator-shell .p-zone-list > button,
+.p-operator-shell .p-diagnostic-grid > div {
+  border-radius: 12px;
+}
+.p-operator-shell .p-toast {
+  border-radius: 16px;
+  bottom: 24px;
+  left: calc(var(--sidebar) + 32px);
+  max-width: calc(100vw - var(--sidebar) - 64px);
+  box-shadow: 0 8px 40px #0003;
+}
+@media (min-width: 901px) {
+  .p-operator-shell.p-quick-open .p-settings-cameras {
+    display: none;
+  }
+  .p-operator-shell.p-quick-open .p-settings-layout {
+    display: block;
+  }
+}
+@media (max-width: 1150px) {
+  .p-operator-shell {
+    --sidebar: 250px;
+  }
+  .p-app-sidebar {
+    width: 218px;
+  }
+  .p-operator-shell .p-page-content {
+    padding: 25px;
+  }
+  .p-operator-shell .p-workspace-header {
+    padding-inline: 22px;
+  }
+  .p-operator-shell .p-settings-layout {
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: 20px;
+  }
+  .p-operator-shell .p-welcome {
+    gap: 30px;
+  }
+  .p-operator-shell .p-welcome h1 {
+    font-size: 39px;
+  }
+}
+@media (max-width: 900px) {
+  .p-operator-shell {
+    --sidebar: 16px;
+  }
+  .p-app-sidebar {
+    z-index: 60;
+    width: 256px;
+    inset: 12px auto 12px 12px;
+  }
+  .p-navigation-open .p-navigation-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    border: 0;
+    background: #0008;
+    backdrop-filter: blur(2px);
+    z-index: 59;
+  }
+  .p-operator-shell .p-welcome {
+    grid-template-columns: 1fr;
+  }
+  .p-operator-shell .p-welcome-visual {
+    display: none;
+  }
+  .p-app-brand small {
+    font-size: 9px;
+  }
+  .p-operator-shell .p-settings-layout {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .p-operator-shell,
+  .p-operator-shell.p-navigation-closed {
+    --sidebar: 0px;
+    padding: 0 0 90px;
+  }
+  .p-operator-shell .p-workspace {
+    margin: 0;
+    min-height: calc(100dvh - 90px);
+  }
+  .p-operator-shell .p-workspace-header {
+    height: 64px;
+    padding: 0 17px;
+    gap: 12px;
+  }
+  .p-operator-shell .p-app-breadcrumb {
+    font-size: 11px;
+    gap: 8px;
+  }
+  .p-app-breadcrumb > strong,
+  .p-app-breadcrumb > svg {
+    display: none;
+  }
+  .p-app-header-actions {
+    gap: 5px;
+  }
+  .p-workspace-label {
+    display: none;
+  }
+  .p-mobile-system {
+    display: inline-flex !important;
+  }
+  .p-operator-shell .p-page-content {
+    padding: 25px 20px 35px;
+  }
+  .p-operator-shell h1 {
+    font-size: 29px;
+  }
+  .p-operator-shell .p-page-heading {
+    margin-bottom: 29px;
+    gap: 18px;
+  }
+  .p-operator-shell .p-page-heading p {
+    font-size: 12px;
+    line-height: 1.9;
+  }
+  .p-operator-shell .p-kicker {
+    font-size: 9px;
+  }
+  .p-mobile-navigation {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    position: fixed;
+    inset: auto 12px calc(12px + env(safe-area-inset-bottom));
+    height: 68px;
+    padding: 5px;
+    background: var(--tone8);
+    border: 1px solid var(--tone7);
+    border-radius: 22px;
+    box-shadow: 0 5px 25px #0003;
+    z-index: 35;
+  }
+  .p-mobile-navigation > button {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 0;
+    border-radius: 16px;
+    background: none;
+    color: var(--tone4);
+    font-size: 10px;
+  }
+  .p-mobile-navigation > button[aria-current="page"] {
+    background: var(--tone7);
+    color: var(--tone0);
+    font-weight: 600;
+  }
+  .p-mobile-navigation b {
+    position: absolute;
+    top: 4px;
+    right: calc(50% - 28px);
+    font-size: 9px;
+    min-width: 16px;
+    padding: 0 3px;
+    background: var(--tone1);
+    color: var(--tone9);
+    border-radius: 6px;
+  }
+  .p-navigation-open .p-mobile-navigation {
+    display: none;
+  }
+  .p-operator-shell .p-welcome {
+    padding-top: 11px;
+    gap: 32px;
+  }
+  .p-operator-shell .p-welcome h1 {
+    font-size: 38px;
+    letter-spacing: -1.4px;
+  }
+  .p-operator-shell .p-welcome-copy > p {
+    font-size: 13px;
+    line-height: 1.95;
+  }
+  .p-operator-shell .p-welcome-actions {
+    gap: 16px;
+    margin-top: 27px;
+  }
+  .p-operator-shell .p-welcome-steps {
+    margin-top: 0;
+    padding-top: 30px;
+    gap: 29px;
+  }
+  .p-operator-shell .p-welcome-steps h2 {
+    font-size: 15px;
+  }
+  .p-operator-shell .p-welcome-steps p {
+    font-size: 12px;
+  }
+  .p-operator-shell .p-privacy-line {
+    font-size: 9px;
+  }
+  .p-operator-shell .p-settings-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 23px;
+  }
+  .p-operator-shell .p-settings-content {
+    padding: 23px 20px;
+  }
+  .p-operator-shell .p-camera-settings > header {
+    padding: 23px 20px;
+  }
+  .p-operator-shell .p-settings-tabs {
+    gap: 20px;
+    padding-inline: 20px;
+  }
+  .p-operator-shell .p-rule-choice {
+    gap: 18px;
+  }
+  .p-operator-shell .p-rule-choice small {
+    font-size: 11px;
+  }
+  .p-operator-shell .p-camera-settings {
+    width: 100%;
+  }
+  .p-operator-shell .p-settings-cameras {
+    width: 100%;
+  }
+  .p-operator-shell .p-monitor-heading h1 {
+    font-size: 25px;
+  }
+  .p-operator-shell .p-monitor .video-stage {
+    width: 100%;
+  }
+  .p-operator-shell .p-monitor-tools > div {
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+  .p-operator-shell .p-monitor-tools button {
+    font-size: 10px;
+    padding: 8px;
+    gap: 6px;
+    min-height: 36px;
+  }
+  .p-operator-shell .p-observation-status {
+    padding: 14px 15px;
+  }
+  .p-operator-shell .p-observation-status strong {
+    font-size: 12px;
+  }
+  .p-operator-shell .p-camera-context {
+    font-size: 10px;
+  }
+  .p-operator-shell .p-focus-mode .video-stage {
+    width: 100%;
+  }
+  .p-operator-shell .p-focus-mode {
+    z-index: 55;
+  }
+  .p-operator-shell .p-button {
+    min-height: 40px;
+    padding: 9px 13px;
+    font-size: 11px;
+  }
+  .p-operator-shell .p-button.p-large {
+    min-height: 47px;
+    font-size: 12px;
+  }
+  .p-operator-shell .p-review-tabs > button {
+    font-size: 11px;
+    padding: 9px 11px;
+  }
+  .p-operator-shell .p-dialog {
+    border-radius: 24px 24px 0 0;
+  }
+  .p-operator-shell .p-dialog-heading {
+    padding: 23px 21px;
+  }
+  .p-operator-shell .p-dialog-heading h2 {
+    font-size: 22px;
+  }
+  .p-operator-shell .p-dialog-body {
+    padding: 24px 21px;
+  }
+  .p-operator-shell .p-dialog-footer {
+    padding: 19px 21px;
+  }
+  .p-operator-shell .p-source-choices > button {
+    padding: 17px 11px;
+  }
+  .p-operator-shell .p-source-choices strong {
+    font-size: 11px;
+  }
+  .p-operator-shell .p-source-choices small {
+    font-size: 9px;
+  }
+  .p-operator-shell .p-source-input {
+    padding: 20px 16px;
+  }
+  .p-operator-shell .p-evidence-drawer {
+    padding: 0;
+  }
+  .p-operator-shell .p-evidence-drawer .p-dialog {
+    border-radius: 24px 24px 0 0;
+    height: calc(100dvh - 12px);
+    max-height: calc(100dvh - 12px);
+    margin-top: 12px;
+    width: 100%;
+  }
+  .p-operator-shell .p-evidence-drawer .p-dialog-heading {
+    padding: 23px 21px;
+  }
+  .p-operator-shell .p-evidence-drawer .p-dialog-body {
+    padding: 22px 21px;
+  }
+  .p-operator-shell .p-evidence-drawer .p-dialog-footer {
+    padding: 18px 21px;
+  }
+  .p-operator-shell .p-evidence-facts > div {
+    font-size: 11px;
+  }
+  .p-operator-shell .p-evidence-tabs > button {
+    font-size: 10px;
+  }
+  .p-operator-shell .p-evidence-facts dd > .p-link {
+    font-size: 11px;
+  }
+  .p-operator-shell .p-evidence-media {
+    min-height: 195px;
+  }
+  .p-operator-shell .p-verdict-footer .p-button {
+    font-size: 10px;
+  }
+  .p-operator-shell .p-toast {
+    left: 16px;
+    right: 16px;
+    bottom: calc(94px + env(safe-area-inset-bottom));
+    max-width: none;
+    font-size: 11px;
+  }
+  .p-operator-shell input:not([type="checkbox"]):not([type="file"]),
+  .p-operator-shell select {
+    font-size: 16px;
+  }
+}
+.p-sidebar-close {
+  display: none;
+}
+@media (max-width: 900px) {
+  .p-operator-shell .p-sidebar-close {
+    display: inline-flex;
+    position: absolute;
+    right: 12px;
+    top: 24px;
+    width: 32px;
+    height: 32px;
+  }
+}

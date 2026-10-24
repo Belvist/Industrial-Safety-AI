@@ -104,10 +104,10 @@ The existing `demo-stable-c809154` tag is retained.
 
 ## Operator workspace (24 Oct 2026)
 
-The default UI is now a dark monochrome workspace with a camera explorer,
+The default UI is now a rounded monochrome product workspace with simple navigation,
 focused video, optional People/Radar/Events panels and a separate review queue.
-Light theme is available. Start with **«Подключить первую камеру»** and follow
-source → checks → observation. Ctrl/⌘ B toggles the explorer; F opens focus mode.
+Manrope is bundled locally, with Cyrillic support. Light theme is available. Start with **«Подключить первую камеру»** and follow
+source → checks → observation. Ctrl/⌘ B toggles navigation; F opens focus mode.
 See [the operator journey](docs/PRODUCT_WORKSPACE.md) and
 [the three-minute demo](docs/DEMO_SCRIPT.md).
 
