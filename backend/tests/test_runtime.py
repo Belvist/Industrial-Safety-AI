@@ -302,7 +302,11 @@ def test_snapshot_failure_does_not_create_incident_or_notification(runtime, monk
 
 
 def test_weak_no_helmet_below_threshold_never_confirms(tmp_path):
-    """End-to-end F2: weak 0.45 stays visible in output yet creates zero incidents."""
+    """End-to-end F2: a score below the calibrated threshold never confirms.
+
+    no_helmet is calibrated at 0.30 on labelled real frames, so 0.28 is the
+    below-threshold value here (0.45 used to be below the old 0.60).
+    """
     config = Settings(
         _env_file=None,
         database_url=f"sqlite:///{tmp_path}/weak.db",
@@ -310,8 +314,8 @@ def test_weak_no_helmet_below_threshold_never_confirms(tmp_path):
         telegram_enabled=False,
     )
     inner = ControlledProvider()
-    inner.ppe_confidence = 0.45
-    assert 0.45 < config.class_thresholds["no_helmet"]
+    inner.ppe_confidence = 0.28
+    assert 0.28 < config.class_thresholds["no_helmet"]
     runtime = Runtime(config, ThresholdEnforcingProvider(inner, config.class_thresholds))
     try:
         camera = next(iter(runtime.sessions.values()))

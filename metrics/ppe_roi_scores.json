@@ -1,0 +1,172 @@
+[
+ {
+  "id": "worker-zone-detection-6-person",
+  "gt_helmet": "present",
+  "gt_vest": "present",
+  "roi": "254x787",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0.68,
+  "vest": 0.32
+ },
+ {
+  "id": "worker-zone-detection-25-person",
+  "gt_helmet": "present",
+  "gt_vest": "present",
+  "roi": "325x744",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0.818,
+  "vest": 0.32
+ },
+ {
+  "id": "worker-zone-detection-40-left",
+  "gt_helmet": "present",
+  "gt_vest": "present",
+  "roi": "221x603",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0.818,
+  "vest": 0
+ },
+ {
+  "id": "worker-zone-detection-40-right",
+  "gt_helmet": "present",
+  "gt_vest": "present",
+  "roi": "257x571",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0.68,
+  "vest": 0
+ },
+ {
+  "id": "worker-zone-detection-55-person",
+  "gt_helmet": "present",
+  "gt_vest": "present",
+  "roi": "257x593",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0.5,
+  "vest": 0
+ },
+ {
+  "id": "worker-zone-detection-65-person",
+  "gt_helmet": "present",
+  "gt_vest": "present",
+  "roi": "303x773",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0.68,
+  "vest": 0
+ },
+ {
+  "id": "worker-zone-detection-72-person",
+  "gt_helmet": "present",
+  "gt_vest": "present",
+  "roi": "396x656",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0.818,
+  "vest": 0
+ },
+ {
+  "id": "one-by-one-person-detection-8-person",
+  "gt_helmet": "missing",
+  "gt_vest": "missing",
+  "roi": "201x413",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0,
+  "vest": 0
+ },
+ {
+  "id": "one-by-one-person-detection-10-person",
+  "gt_helmet": "missing",
+  "gt_vest": "missing",
+  "roi": "182x413",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0,
+  "vest": 0
+ },
+ {
+  "id": "one-by-one-person-detection-40-person",
+  "gt_helmet": "missing",
+  "gt_vest": "missing",
+  "roi": "205x408",
+  "no_helmet": 0.32,
+  "no_vest": 0,
+  "helmet": 0,
+  "vest": 0
+ },
+ {
+  "id": "one-by-one-person-detection-60-person",
+  "gt_helmet": "unknown",
+  "gt_vest": "missing",
+  "roi": "196x416",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0,
+  "vest": 0
+ },
+ {
+  "id": "one-by-one-person-detection-80-person",
+  "gt_helmet": "missing",
+  "gt_vest": "missing",
+  "roi": "176x405",
+  "no_helmet": 0.5,
+  "no_vest": 0,
+  "helmet": 0,
+  "vest": 0
+ },
+ {
+  "id": "one-by-one-person-detection-100-person",
+  "gt_helmet": "missing",
+  "gt_vest": "missing",
+  "roi": "185x396",
+  "no_helmet": 0.32,
+  "no_vest": 0,
+  "helmet": 0,
+  "vest": 0
+ },
+ {
+  "id": "person-bicycle-car-detection-3-person",
+  "gt_helmet": "unknown",
+  "gt_vest": "missing",
+  "roi": "83x124",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0,
+  "vest": 0
+ },
+ {
+  "id": "person-bicycle-car-detection-4-person",
+  "gt_helmet": "unknown",
+  "gt_vest": "missing",
+  "roi": "75x121",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0,
+  "vest": 0
+ },
+ {
+  "id": "person-bicycle-car-detection-5-person",
+  "gt_helmet": "unknown",
+  "gt_vest": "missing",
+  "roi": "69x110",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0,
+  "vest": 0
+ },
+ {
+  "id": "person-bicycle-car-detection-6-person",
+  "gt_helmet": "unknown",
+  "gt_vest": "missing",
+  "roi": "75x116",
+  "no_helmet": 0,
+  "no_vest": 0,
+  "helmet": 0,
+  "vest": 0
+ }
+]

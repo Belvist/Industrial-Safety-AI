@@ -99,9 +99,17 @@ class Settings(BaseSettings):
     # classes are intentionally stricter: claiming "no helmet" needs confidence.
     person_threshold: float = Field(default=0.45, ge=0.05, le=0.95)
     helmet_threshold: float = Field(default=0.50, ge=0.05, le=0.95)
-    no_helmet_threshold: float = Field(default=0.60, ge=0.05, le=0.95)
-    vest_threshold: float = Field(default=0.50, ge=0.05, le=0.95)
-    no_vest_threshold: float = Field(default=0.60, ge=0.05, le=0.95)
+    # Calibrated on 17 labelled real frames (docs/finalization-20261024):
+    # no_helmet scores are 0.32-0.50, so 0.60 discarded every true miss.
+    # 0.30 gives 3/5 TP, 0 FP; 0.35 collapses to 1/5.
+    no_helmet_threshold: float = Field(default=0.30, ge=0.05, le=0.95)
+    # vest presence scored 0.32 on only 2/7 labelled positives; 0.30 keeps
+    # those two and adds no false positives on the 10 negatives.
+    vest_threshold: float = Field(default=0.30, ge=0.05, le=0.95)
+    # no_vest never scored above 0.32 on the labelled set, including 10
+    # real misses. Lowering the threshold would not help; keep it and let
+    # the UI show UNKNOWN instead of inventing a violation.
+    no_vest_threshold: float = Field(default=0.30, ge=0.05, le=0.95)
     mask_threshold: float = Field(default=0.50, ge=0.05, le=0.95)
     no_mask_threshold: float = Field(default=0.60, ge=0.05, le=0.95)
     smoking_threshold: float = Field(default=0.55, ge=0.05, le=0.95)

@@ -125,6 +125,9 @@ class LinqProvider(InferenceProvider):
         self.tpu_output_is_logits = tpu_output_is_logits
         self.allow_spinning = allow_spinning
         self.last_ppe_route: dict = {}
+        # ROI crops measurably beat full-frame for distant workers on the
+        # labelled set, so allow several workers per request instead of 1-2.
+        self.roi_max_people = 4
         # Vendor EP name may differ from the guess — override via LINQ_PROVIDERS.
         self.requested_providers = list(providers) if providers else ["LinQExecutionProvider"]
         self.thresholds = dict(thresholds) if thresholds else {}
@@ -405,8 +408,8 @@ class LinqProvider(InferenceProvider):
         rois: list[tuple[int, int, int, int]] = []
         if self.roi_mode != "auto":
             reason = f"roi_mode={self.roi_mode}"
-        elif not 1 <= len(strong) <= 2:
-            reason = f"people={len(strong)} (roi needs 1-2)"
+        elif not 1 <= len(strong) <= self.roi_max_people:
+            reason = f"people={len(strong)} (roi max {self.roi_max_people})"
         else:
             rois = [person_roi_pixels(d.bbox, width, height) for d in strong]
             if not all(
