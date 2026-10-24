@@ -1,0 +1,10 @@
+{
+  "name": "Обычная ходьба — отрицательный пример",
+  "helmet": false,
+  "vest": false,
+  "running_enabled": true,
+  "running_speed": 1.8,
+  "running_min_seconds": 0.8,
+  "confirm_seconds": 2,
+  "clear_seconds": 2
+}

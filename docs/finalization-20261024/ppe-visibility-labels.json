@@ -1,0 +1,535 @@
+{
+  "annotation_method": "Agent manual visual review of source frames on a 640x360 coordinate grid, before PPE evaluation. Approximate region boundaries (about 5 grid pixels), no independent second annotator. GT is evaluation-only and never provided as detector/ROI input. These selected samples do not estimate deployment accuracy.",
+  "sources": {
+    "one-by-one-person-detection.mp4": {
+      "sha256": "a5964aa259099a482a8b360ffc2c57b5a30f84d5919236a4dad01f8e929ac07c",
+      "license": "CC BY 4.0",
+      "repository_revision": "57978890822836f2b4743852f04f62fc511757e4",
+      "url": "https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/57978890822836f2b4743852f04f62fc511757e4/one-by-one-person-detection.mp4"
+    },
+    "person-bicycle-car-detection.mp4": {
+      "sha256": "452b11b7e0efbd019f1d9570d0c790e90416ad4ad29eec6003872d08443140ef",
+      "license": "CC BY 4.0",
+      "repository_revision": "57978890822836f2b4743852f04f62fc511757e4",
+      "url": "https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/57978890822836f2b4743852f04f62fc511757e4/person-bicycle-car-detection.mp4"
+    },
+    "worker-zone-detection.mp4": {
+      "sha256": "b8b58b8100a81600bc42ee7ee082ced777b12a32a3619139ef289d27cbdcd284",
+      "license": "CC BY 4.0",
+      "repository_revision": "57978890822836f2b4743852f04f62fc511757e4",
+      "url": "https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/57978890822836f2b4743852f04f62fc511757e4/worker-zone-detection.mp4"
+    }
+  },
+  "samples": [
+    {
+      "id": "worker-zone-detection-6-person",
+      "video": "worker-zone-detection.mp4",
+      "seconds": 6,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        278,
+        57,
+        346,
+        279
+      ],
+      "head": [
+        300,
+        57,
+        331,
+        95
+      ],
+      "torso": [
+        284,
+        93,
+        333,
+        173
+      ],
+      "helmet": "present",
+      "vest": "present",
+      "note": ""
+    },
+    {
+      "id": "worker-zone-detection-25-person",
+      "video": "worker-zone-detection.mp4",
+      "seconds": 25,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        115,
+        70,
+        202,
+        280
+      ],
+      "head": [
+        134,
+        70,
+        165,
+        111
+      ],
+      "torso": [
+        124,
+        108,
+        189,
+        183
+      ],
+      "helmet": "present",
+      "vest": "present",
+      "note": ""
+    },
+    {
+      "id": "worker-zone-detection-40-left",
+      "video": "worker-zone-detection.mp4",
+      "seconds": 40,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        248,
+        77,
+        307,
+        247
+      ],
+      "head": [
+        263,
+        77,
+        292,
+        112
+      ],
+      "torso": [
+        254,
+        111,
+        296,
+        173
+      ],
+      "helmet": "present",
+      "vest": "present",
+      "note": ""
+    },
+    {
+      "id": "worker-zone-detection-40-right",
+      "video": "worker-zone-detection.mp4",
+      "seconds": 40,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        370,
+        63,
+        439,
+        224
+      ],
+      "head": [
+        390,
+        63,
+        418,
+        95
+      ],
+      "torso": [
+        377,
+        91,
+        416,
+        161
+      ],
+      "helmet": "present",
+      "vest": "present",
+      "note": ""
+    },
+    {
+      "id": "worker-zone-detection-55-person",
+      "video": "worker-zone-detection.mp4",
+      "seconds": 55,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        537,
+        71,
+        606,
+        238
+      ],
+      "head": [
+        572,
+        71,
+        602,
+        102
+      ],
+      "torso": [
+        554,
+        98,
+        591,
+        165
+      ],
+      "helmet": "present",
+      "vest": "present",
+      "note": ""
+    },
+    {
+      "id": "worker-zone-detection-65-person",
+      "video": "worker-zone-detection.mp4",
+      "seconds": 65,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        187,
+        94,
+        268,
+        312
+      ],
+      "head": [
+        213,
+        94,
+        249,
+        138
+      ],
+      "torso": [
+        195,
+        135,
+        260,
+        233
+      ],
+      "helmet": "present",
+      "vest": "present",
+      "note": ""
+    },
+    {
+      "id": "worker-zone-detection-72-person",
+      "video": "worker-zone-detection.mp4",
+      "seconds": 72,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        285,
+        86,
+        391,
+        271
+      ],
+      "head": [
+        334,
+        86,
+        366,
+        124
+      ],
+      "torso": [
+        314,
+        122,
+        370,
+        211
+      ],
+      "helmet": "present",
+      "vest": "present",
+      "note": ""
+    },
+    {
+      "id": "one-by-one-person-detection-8-person",
+      "video": "one-by-one-person-detection.mp4",
+      "seconds": 8,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        311,
+        14,
+        445,
+        328
+      ],
+      "head": [
+        359,
+        14,
+        418,
+        80
+      ],
+      "torso": [
+        335,
+        80,
+        435,
+        243
+      ],
+      "helmet": "missing",
+      "vest": "missing",
+      "note": ""
+    },
+    {
+      "id": "one-by-one-person-detection-10-person",
+      "video": "one-by-one-person-detection.mp4",
+      "seconds": 10,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        317,
+        11,
+        438,
+        328
+      ],
+      "head": [
+        355,
+        11,
+        411,
+        80
+      ],
+      "torso": [
+        332,
+        79,
+        427,
+        245
+      ],
+      "helmet": "missing",
+      "vest": "missing",
+      "note": ""
+    },
+    {
+      "id": "one-by-one-person-detection-40-person",
+      "video": "one-by-one-person-detection.mp4",
+      "seconds": 40,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        317,
+        5,
+        454,
+        324
+      ],
+      "head": [
+        358,
+        5,
+        407,
+        65
+      ],
+      "torso": [
+        342,
+        65,
+        432,
+        186
+      ],
+      "helmet": "missing",
+      "vest": "missing",
+      "note": ""
+    },
+    {
+      "id": "one-by-one-person-detection-60-person",
+      "video": "one-by-one-person-detection.mp4",
+      "seconds": 60,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        343,
+        0,
+        474,
+        330
+      ],
+      "head": [
+        370,
+        0,
+        439,
+        80
+      ],
+      "torso": [
+        365,
+        80,
+        467,
+        244
+      ],
+      "helmet": "unknown",
+      "vest": "missing",
+      "note": "Top of head cropped; helmet absence is not ground-truthed."
+    },
+    {
+      "id": "one-by-one-person-detection-80-person",
+      "video": "one-by-one-person-detection.mp4",
+      "seconds": 80,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        301,
+        25,
+        419,
+        322
+      ],
+      "head": [
+        341,
+        25,
+        388,
+        89
+      ],
+      "torso": [
+        314,
+        87,
+        407,
+        207
+      ],
+      "helmet": "missing",
+      "vest": "missing",
+      "note": ""
+    },
+    {
+      "id": "one-by-one-person-detection-100-person",
+      "video": "one-by-one-person-detection.mp4",
+      "seconds": 100,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        315,
+        8,
+        439,
+        314
+      ],
+      "head": [
+        351,
+        8,
+        413,
+        84
+      ],
+      "torso": [
+        325,
+        84,
+        427,
+        229
+      ],
+      "helmet": "missing",
+      "vest": "missing",
+      "note": ""
+    },
+    {
+      "id": "person-bicycle-car-detection-3-person",
+      "video": "person-bicycle-car-detection.mp4",
+      "seconds": 3,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        452,
+        210,
+        507,
+        297
+      ],
+      "head": [
+        477,
+        210,
+        497,
+        231
+      ],
+      "torso": [
+        458,
+        229,
+        501,
+        262
+      ],
+      "helmet": "unknown",
+      "vest": "missing",
+      "note": "Small pale head; hair/cap/helmet cannot be distinguished reliably by visual annotation."
+    },
+    {
+      "id": "person-bicycle-car-detection-4-person",
+      "video": "person-bicycle-car-detection.mp4",
+      "seconds": 4,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        488,
+        167,
+        538,
+        252
+      ],
+      "head": [
+        510,
+        167,
+        530,
+        185
+      ],
+      "torso": [
+        494,
+        184,
+        534,
+        217
+      ],
+      "helmet": "unknown",
+      "vest": "missing",
+      "note": "Small pale head; helmet ground truth UNKNOWN."
+    },
+    {
+      "id": "person-bicycle-car-detection-5-person",
+      "video": "person-bicycle-car-detection.mp4",
+      "seconds": 5,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        534,
+        141,
+        580,
+        218
+      ],
+      "head": [
+        557,
+        141,
+        575,
+        160
+      ],
+      "torso": [
+        542,
+        158,
+        577,
+        186
+      ],
+      "helmet": "unknown",
+      "vest": "missing",
+      "note": "Small pale head; helmet ground truth UNKNOWN."
+    },
+    {
+      "id": "person-bicycle-car-detection-6-person",
+      "video": "person-bicycle-car-detection.mp4",
+      "seconds": 6,
+      "annotation_canvas": [
+        640,
+        360
+      ],
+      "person": [
+        578,
+        113,
+        628,
+        194
+      ],
+      "head": [
+        602,
+        113,
+        621,
+        132
+      ],
+      "torso": [
+        584,
+        131,
+        620,
+        163
+      ],
+      "helmet": "unknown",
+      "vest": "missing",
+      "note": "Small pale head; helmet ground truth UNKNOWN."
+    }
+  ]
+}

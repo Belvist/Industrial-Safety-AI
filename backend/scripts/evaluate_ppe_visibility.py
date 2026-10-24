@@ -98,12 +98,15 @@ for video, t in sorted({(r["video"], r["seconds"]) for r in labels["samples"]}):
         gt = BoundingBox(
             *(v / (640 if i % 2 == 0 else 360) for i, v in enumerate(sample["person"]))
         )
-        pixel = lambda box: [
-            round(box[0] * w / 640, 1),
-            round(box[1] * h / 360, 1),
-            round(box[2] * w / 640, 1),
-            round(box[3] * h / 360, 1),
-        ]
+
+        def pixel(box, width=w, height=h):
+            return [
+                round(box[0] * width / 640, 1),
+                round(box[1] * height / 360, 1),
+                round(box[2] * width / 640, 1),
+                round(box[3] * height / 360, 1),
+            ]
+
         pb, hb, tb = map(pixel, [sample["person"], sample["head"], sample["torso"]])
         scale = min(640 / w, 640 / h)
         for mode, data in actual.items():

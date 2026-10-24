@@ -1,0 +1,57 @@
+{
+  "name": "Две зоны — реальный проход",
+  "helmet": false,
+  "vest": false,
+  "confirm_seconds": 0.6,
+  "clear_seconds": 0.6,
+  "temporal_window": 4,
+  "temporal_required": 3,
+  "zones": [
+    {
+      "id": "first",
+      "name": "Первая демонстрационная зона",
+      "enabled": true,
+      "points": [
+        [
+          0.34,
+          0.5
+        ],
+        [
+          0.46,
+          0.5
+        ],
+        [
+          0.46,
+          1
+        ],
+        [
+          0.34,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "marked",
+      "name": "Демонстрационная зона пересечения",
+      "enabled": true,
+      "points": [
+        [
+          0.55,
+          0.5
+        ],
+        [
+          0.85,
+          0.5
+        ],
+        [
+          0.85,
+          0.8
+        ],
+        [
+          0.55,
+          0.8
+        ]
+      ]
+    }
+  ]
+}
