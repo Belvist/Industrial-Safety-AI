@@ -97,14 +97,20 @@ def test_reset_invalidates_snapshots_and_cancels_waiting_work():
     assert ppe.last_result is None
 
 
-def test_global_running_slot_survives_camera_reset():
+def test_global_running_limit_and_fifo_survive_camera_reset():
     ppe, s, t, frame, q = scene()
     pool = BoundedPpeExecutor(1)
     entered, release = threading.Event(), threading.Event()
+    active = 0
+    peak = 0
 
     def work(*_):
+        nonlocal active, peak
+        active += 1
+        peak = max(peak, active)
         entered.set()
         release.wait(2)
+        active -= 1
         return []
 
     try:
@@ -116,13 +122,41 @@ def test_global_running_slot_survives_camera_reset():
         s.generation += 1
         s.sequence += 1
         ppe.observe_tracks([t], 0.2)
-        assert not ppe.submit(s, frame, [t], q, 0.2, 0.2, pool, work, 0.2)
-        released = threading.Event()
-        future.add_done_callback(lambda _: released.set())
+        assert ppe.submit(s, frame, [t], q, 0.2, 0.2, pool, work, 0.2)
+        new = next(iter(ppe.pending.values()))[0]
+        assert not new.running()
+        assert ppe.describe(0.2, 2.5)["queued"] == 1
         release.set()
         future.result(timeout=1)
-        assert released.wait(1)
-        assert ppe.submit(s, frame, [t], q, 0.4, 0.4, pool, work, 0.2)
+        new.result(timeout=1)
+        assert peak == 1
+        assert ppe.take(s, 0.4, 2.5).generation == 1
+    finally:
+        release.set()
+        pool.shutdown()
+
+
+def test_global_queue_is_bounded_and_fifo_across_owners():
+    pool = BoundedPpeExecutor(1, queue_capacity=3)
+    entered, release = threading.Event(), threading.Event()
+    order = []
+
+    def held():
+        entered.set()
+        release.wait(2)
+
+    try:
+        old = pool.try_submit(held)
+        assert entered.wait(0.5)
+        futures = [pool.try_submit(lambda value=i: order.append(value)) for i in range(3)]
+        assert all(futures)
+        assert pool.try_submit(lambda: None) is None
+        assert pool.queue.qsize() == 3
+        release.set()
+        old.result(timeout=1)
+        for future in futures:
+            future.result(timeout=1)
+        assert order == [0, 1, 2]
     finally:
         release.set()
         pool.shutdown()

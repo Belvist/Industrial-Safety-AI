@@ -825,10 +825,11 @@ class Runtime:
                 CameraState.STALE,
             }:
                 raise DiscardedFrame("Устаревший кадр: камера остановлена.")
+            metrics = session.metrics
             captured = time.monotonic()
             if source_frame_id is not None:
                 if source_frame_id <= session.source_frame_id:
-                    session.metrics.mark("stale")
+                    metrics.mark("stale")
                     raise DiscardedFrame("Устаревший кадр: нарушен порядок источника.")
                 session.source_frame_id = source_frame_id
                 if session.browser_origin is None:
@@ -838,10 +839,10 @@ class Runtime:
                     raise DiscardedFrame("Устаревший кадр: время источника не возрастает.")
             session.input_sequence += 1
             ticket = session.input_sequence
-        session.metrics.mark("capture")
+        metrics.mark("capture")
         error = None
         try:
-            prepared, detections, inference_ms = self._infer(frame, session.metrics)
+            prepared, detections, inference_ms = self._infer(frame, metrics)
         except Exception as exc:
             error = exc
         with session.condition:
@@ -857,7 +858,7 @@ class Runtime:
                 or generation != session.generation
                 or session.stop.is_set()
             ):
-                session.metrics.mark("stale")
+                metrics.mark("stale")
                 raise DiscardedFrame("Устаревший результат кадра отклонён.")
             try:
                 if error is not None:
@@ -958,7 +959,7 @@ class Runtime:
                 now,
                 captured,
                 self._ppe_pool,
-                lambda f, t: self._predict_ppe(f, t, session.metrics),
+                lambda f, t, metrics=session.metrics: self._predict_ppe(f, t, metrics),
                 self.settings.ppe_interval_seconds,
                 limit=min(
                     self.settings.ppe_max_in_flight_per_camera, self.settings.linq_max_in_flight

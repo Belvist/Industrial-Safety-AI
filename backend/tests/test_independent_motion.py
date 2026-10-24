@@ -147,3 +147,47 @@ def test_ppe_failure_leaves_person_and_radar_available(tmp_path):
         assert latest["tracks"][0]["ppe"]["helmet"] == "unknown"
     finally:
         rt.close()
+
+
+def test_restart_does_not_attribute_old_frame_inference_to_new_session(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+
+    import pytest
+
+    from app.services.runtime import DiscardedFrame
+
+    provider = SplitProvider()
+    provider.release.set()
+    rt = runtime(tmp_path, provider)
+    cam = next(iter(rt.sessions.values()))
+    rt.start(cam.id, "browser")
+    old = cam.metrics
+    entered, release = threading.Event(), threading.Event()
+    mark = old.mark
+
+    def paused_capture(name, count=1):
+        if name == "capture":
+            entered.set()
+            release.wait(2)
+        mark(name, count)
+
+    old.mark = paused_capture
+    try:
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(rt.process, cam, image(), 0)
+            assert entered.wait(0.5)
+            rt.stop(cam.id)
+            rt.start(cam.id, "browser")
+            new = cam.metrics
+            assert new is not old
+            release.set()
+            with pytest.raises(DiscardedFrame):
+                future.result(timeout=1)
+            assert all(
+                new.snapshot()["rates"].get(k, {}).get("total", 0) == 0
+                for k in ["capture", "person", "analytics"]
+            )
+            assert old.snapshot()["rates"]["person"]["total"] == 1
+    finally:
+        release.set()
+        rt.close()

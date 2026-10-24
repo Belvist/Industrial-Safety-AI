@@ -2,8 +2,9 @@
 
 import copy
 import math
+import queue
 import threading
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future
 from dataclasses import dataclass, field
 from uuid import uuid4
 
@@ -61,38 +62,72 @@ class PpePacket:
 
 
 class BoundedPpeExecutor:
-    """Non-blocking global admission, including work from stopped generations.
+    """Bounded FIFO admission across cameras, including old generations.
 
-    A running remote request cannot be interrupted by cancelling a Python
-    Future. Its slot remains occupied until it returns or the transport times
-    out. Repeated camera restarts cannot build an unbounded executor queue.
+    At most `limit` jobs run; at most eight wait (the configured-camera cap).
+    A busy camera cannot repeatedly steal every newly released worker slot.
+    Cancelled queued items remain inside the bounded queue until drained, so
+    rapid stop/restart cannot grow an unbounded ThreadPoolExecutor work queue.
     """
 
-    def __init__(self, limit):
-        self.slots = threading.BoundedSemaphore(limit)
+    def __init__(self, limit, queue_capacity=8):
+        if limit < 1 or queue_capacity < 1:
+            raise ValueError("PPE worker and queue limits must be positive")
+        self.queue = queue.Queue(maxsize=queue_capacity)
         self.lock = threading.Lock()
         self.closed = False
-        self.pool = ThreadPoolExecutor(max_workers=limit, thread_name_prefix="independent-ppe")
+        self.stopping = threading.Event()
+        self.workers = [
+            threading.Thread(target=self._run, name=f"independent-ppe-{i}", daemon=True)
+            for i in range(limit)
+        ]
+        for worker in self.workers:
+            worker.start()
 
     def try_submit(self, work):
-        if not self.slots.acquire(blocking=False):
-            return None
         with self.lock:
             if self.closed:
-                self.slots.release()
                 return None
+            future = Future()
             try:
-                future = self.pool.submit(work)
-            except BaseException:
-                self.slots.release()
-                raise
-        future.add_done_callback(lambda _: self.slots.release())
-        return future
+                self.queue.put_nowait((future, work))
+            except queue.Full:
+                return None
+            return future
+
+    def _run(self):
+        while not self.stopping.is_set() or not self.queue.empty():
+            try:
+                future, work = self.queue.get(timeout=0.05)
+            except queue.Empty:
+                continue
+            try:
+                if not future.set_running_or_notify_cancel():
+                    continue
+                try:
+                    result = work()
+                except BaseException as error:
+                    future.set_exception(error)
+                else:
+                    future.set_result(result)
+            finally:
+                self.queue.task_done()
 
     def shutdown(self, wait=True, cancel_futures=True):
         with self.lock:
             self.closed = True
-        self.pool.shutdown(wait=wait, cancel_futures=cancel_futures)
+            self.stopping.set()
+            if cancel_futures:
+                while True:
+                    try:
+                        future, _ = self.queue.get_nowait()
+                    except queue.Empty:
+                        break
+                    future.cancel()
+                    self.queue.task_done()
+        if wait:
+            for worker in self.workers:
+                worker.join()
 
 
 class IndependentPpe:
@@ -277,7 +312,8 @@ class IndependentPpe:
             "pending": bool(packets),
             "pending_count": len(self.pending),
             "retired_count": len(self.retired),
-            "in_flight": sum(not future.done() for future, _ in packets),
+            "in_flight": sum(future.running() for future, _ in packets),
+            "queued": sum(not future.done() and not future.running() for future, _ in packets),
             "completed_waiting": sum(future.done() for future, _ in self.pending.values()),
             "maximum_in_flight_per_camera": self.limit,
             "oldest_request_age_seconds": round(

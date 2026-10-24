@@ -22,6 +22,7 @@ class Peer:
         self.callback = None
         self.replies = []
         self.ids = []
+        self.input_shapes = []
         self.threads = set()
         self.maximum = 0
         self.drop = False
@@ -42,6 +43,7 @@ class Peer:
             self.fail = False
             raise ConnectionError("controlled disconnect")
         data, _, _ = deserialize(body)
+        self.input_shapes.append(tuple(data["images"].shape))
         marker = float(data["images"].flat[0])
         task_id = properties.headers["tpu_pycloud_message_id"]
         self.ids.append(task_id)
@@ -508,11 +510,6 @@ def test_one_camera_ppe_window_really_publishes_multiple_amqp_requests(
     person = Detection("person", 0.99, BoundingBox(0.1, 0.1, 0.5, 0.9))
     provider._person = SimpleNamespace(predict_sync=lambda _: [person])
 
-    def remote(frame):
-        provider._send_tensor(np.full((1, 3, 8, 8), float(frame[0, 0, 0]), np.float32))
-        return []
-
-    monkeypatch.setattr(provider, "_predict_remote", remote)
     rt = Runtime(
         settings(tmp_path, linq_max_in_flight=limit, ppe_max_in_flight_per_camera=limit), provider
     )
@@ -528,6 +525,7 @@ def test_one_camera_ppe_window_really_publishes_multiple_amqp_requests(
             time.sleep(0.005)
         assert len(peer.ids) == limit
         assert peer.maximum == limit
+        assert peer.input_shapes == [(1, 3, 640, 640)] * limit
         assert len(cam.independent_ppe.pending) == limit
         assert len({p.request_id for _, p in cam.independent_ppe.pending.values()}) == limit
         # Drain without scheduling extra work, observing the real temporal order.
