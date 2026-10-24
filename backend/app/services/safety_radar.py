@@ -94,6 +94,7 @@ class SafetyRadar:
         self._warning_since = {}
         self._episode_ids = {}
         self._outside_streak = {}
+        self._episode_inside = {}
 
     # -- configuration ---------------------------------------------------
 
@@ -123,6 +124,7 @@ class SafetyRadar:
         self._warning_since.clear()
         self._episode_ids.clear()
         self._outside_streak.clear()
+        self._episode_inside.clear()
         self._events.clear()
         self._last_notified.clear()
 
@@ -141,6 +143,7 @@ class SafetyRadar:
         self._warning_since.clear()
         self._episode_ids.clear()
         self._outside_streak.clear()
+        self._episode_inside.clear()
 
     # -- per-frame update ------------------------------------------------
 
@@ -189,12 +192,17 @@ class SafetyRadar:
                     level, kind = NORMAL, ""
                 levels.append(level)
                 self._zone_state[key] = level
+                confirmed_exit = self._episode_inside.get(key, False) and level in {NORMAL, WARNING}
+                if level == CRITICAL:
+                    self._episode_inside[key] = True
+                elif confirmed_exit:
+                    self._episode_inside[key] = False
                 if level not in {WARNING, CRITICAL}:
                     self._warning_since.pop(key, None)
                     continue
                 if level == WARNING and previous != WARNING:
                     self._warning_since[key] = frame_time
-                if previous == NORMAL or key not in self._episode_ids:
+                if previous == NORMAL or confirmed_exit or key not in self._episode_ids:
                     self._episode_ids[key] = uuid4().hex
                 # State transitions, not every notification interval, define episodes.
                 # An actual re-entry bypasses the old notification cooldown.
@@ -241,7 +249,12 @@ class SafetyRadar:
                     self._trajectories.pop(tid, None)
                     self._last_seen.pop(tid, None)
                     self._state.pop(tid, None)
-                    for mapping in (self._zone_state, self._episode_ids, self._outside_streak):
+                    for mapping in (
+                        self._zone_state,
+                        self._episode_ids,
+                        self._outside_streak,
+                        self._episode_inside,
+                    ):
                         for key in list(mapping):
                             if key[0] == tid:
                                 mapping.pop(key, None)

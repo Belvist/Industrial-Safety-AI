@@ -121,10 +121,12 @@ class LocalOnnxProvider(InferenceProvider):
         thresholds: dict[str, float] | None = None,
         floor: float = 0.25,
         roi_mode: str = "auto",
+        allow_spinning: bool = False,
     ) -> None:
         self.model_path = Path(model_path)
         self.confidence = confidence
         self.threads = threads
+        self.allow_spinning = allow_spinning
         self._session = None
         self._lock = Lock()
         self.classes: dict[int, str] = {}
@@ -159,6 +161,7 @@ class LocalOnnxProvider(InferenceProvider):
                 thresholds=self.thresholds,
                 floor=self.floor,
                 roi_mode="off",
+                allow_spinning=allow_spinning,
             )
             if person_model_path
             else None
@@ -188,6 +191,8 @@ class LocalOnnxProvider(InferenceProvider):
             "active_providers": list(self.active_providers),
             "supported_classes": self.supported_classes(),
             "model": Path(self.model_path).name,
+            "inference_threads": self.threads,
+            "allow_spinning": self.allow_spinning,
             "ppe_roi_mode": self.roi_mode if self.person_detector else "off",
         }
 
@@ -203,6 +208,15 @@ class LocalOnnxProvider(InferenceProvider):
 
             options = ort.SessionOptions()
             options.intra_op_num_threads = self.threads
+            options.inter_op_num_threads = 1
+            # Busy-waiting worker threads consume a shared/container CPU quota
+            # between frames and while the other model or evidence encoder runs.
+            options.add_session_config_entry(
+                "session.intra_op.allow_spinning", "1" if self.allow_spinning else "0"
+            )
+            options.add_session_config_entry(
+                "session.inter_op.allow_spinning", "1" if self.allow_spinning else "0"
+            )
             available = set(ort.get_available_providers())
             chosen = [p for p in self.requested_providers if p in available]
             if "CPUExecutionProvider" not in chosen:

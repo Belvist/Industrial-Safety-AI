@@ -1,8 +1,6 @@
 import asyncio
 import queue
-import shutil
 import sqlite3
-import subprocess
 import threading
 import time
 from collections import deque
@@ -22,11 +20,11 @@ from app.services.engine import (
     cleared_assigned,
     evaluate_assigned,
 )
-from app.services.independent_ppe import IndependentPpe, observation_quality
+from app.services.independent_ppe import BoundedPpeExecutor, IndependentPpe, observation_quality
 from app.services.metrics import Metrics
 from app.services.notifications import Notifier
 from app.services.pairing import PairingStore
-from app.services.replay import replay_frames
+from app.services.replay import encode_replay, replay_frames
 from app.services.safety_radar import SafetyRadar
 from app.services.schemas import CameraConfig
 from app.services.state_machine import CameraEvent, CameraMachine, CameraState
@@ -174,6 +172,7 @@ class Runtime:
                     thresholds=settings.class_thresholds,
                     floor=settings.display_floor,
                     roi_mode=settings.ppe_roi_mode,
+                    allow_spinning=settings.onnx_allow_spinning,
                     amqp_host=settings.linq_amqp_host,
                     amqp_port=settings.linq_amqp_port,
                     amqp_user=settings.linq_amqp_user,
@@ -210,6 +209,7 @@ class Runtime:
                     thresholds=settings.class_thresholds,
                     floor=settings.display_floor,
                     roi_mode=settings.ppe_roi_mode,
+                    allow_spinning=settings.onnx_allow_spinning,
                 )
                 try:
                     self.provider.load()
@@ -220,10 +220,7 @@ class Runtime:
             and callable(getattr(self.provider, "motion_capable", None))
             and self.provider.motion_capable()
         )
-        self._ppe_pool = ThreadPoolExecutor(
-            max_workers=max(1, min(2, settings.linq_max_in_flight)),
-            thread_name_prefix="independent-ppe",
-        )
+        self._ppe_pool = BoundedPpeExecutor(settings.linq_max_in_flight)
         self.sessions = {}
         self.sessions_lock = threading.RLock()
         self.shutdown = threading.Event()
@@ -490,8 +487,6 @@ class Runtime:
 
     def _write_evidence(self, name, pre_frames, session, expected_session=None, event_time=None):
         """Write pre/post frames to MP4 on a worker thread."""
-        import cv2
-
         final_path = self.data / "evidence" / name
         staging = self.data / "evidence" / ".pending"
         staging.mkdir(exist_ok=True)
@@ -511,67 +506,7 @@ class Runtime:
             )
             if not frames:
                 return
-            first = cv2.imdecode(np.frombuffer(frames[0][1], np.uint8), cv2.IMREAD_COLOR)
-            if first is None:
-                return
-            h, w = first.shape[:2]
-            writer = cv2.VideoWriter(
-                str(path),
-                cv2.VideoWriter_fourcc(*"avc1"),
-                max(1.0, float(self.settings.target_fps)),
-                (w, h),
-            )
-            transcode = False
-            if not writer.isOpened():
-                transcode = True
-                # Some OpenCV builds lack H.264; fall back to MPEG-4 Part 2.
-                writer = cv2.VideoWriter(
-                    str(path),
-                    cv2.VideoWriter_fourcc(*"mp4v"),
-                    max(1.0, float(self.settings.target_fps)),
-                    (w, h),
-                )
-            if not writer.isOpened():
-                path.unlink(missing_ok=True)
-                return
-            try:
-                for entry in frames:
-                    img = cv2.imdecode(np.frombuffer(entry[1], np.uint8), cv2.IMREAD_COLOR)
-                    if img is not None:
-                        writer.write(img)
-            finally:
-                writer.release()
-            if transcode and shutil.which("ffmpeg"):
-                converted = path.with_name(path.stem + ".h264.mp4")
-                try:
-                    subprocess.run(
-                        [
-                            "ffmpeg",
-                            "-nostdin",
-                            "-v",
-                            "error",
-                            "-y",
-                            "-i",
-                            str(path),
-                            "-an",
-                            "-c:v",
-                            "libx264",
-                            "-threads",
-                            "1",
-                            "-pix_fmt",
-                            "yuv420p",
-                            "-movflags",
-                            "+faststart",
-                            str(converted),
-                        ],
-                        check=True,
-                        timeout=30,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                    )
-                    converted.replace(path)
-                finally:
-                    converted.unlink(missing_ok=True)
+            encode_replay(frames, max(1.0, float(self.settings.target_fps)), path)
             path.replace(final_path)
             self._purge_evidence(keep_name=name)
         except Exception:  # noqa: BLE001 - evidence failure must not crash a worker
@@ -655,8 +590,11 @@ class Runtime:
                     state.last - state.since,
                 )
         session.engine = TemporalEngine()
-        if session.independent_ppe.pending:
-            session.metrics.mark("ppe_cancelled_on_source_end")
+        if session.independent_ppe.pending or session.independent_ppe.retired:
+            session.metrics.mark(
+                "ppe_cancelled_on_source_end",
+                len(session.independent_ppe.pending) + len(session.independent_ppe.retired),
+            )
         session.independent_ppe.reset()
         session.behavior.reset()
         session.radar.reset()
@@ -1022,6 +960,10 @@ class Runtime:
                 self._ppe_pool,
                 lambda f, t: self._predict_ppe(f, t, session.metrics),
                 self.settings.ppe_interval_seconds,
+                limit=min(
+                    self.settings.ppe_max_in_flight_per_camera, self.settings.linq_max_in_flight
+                ),
+                max_age=self.settings.ppe_max_age_seconds,
             )
         return events, packet
 
@@ -1359,7 +1301,9 @@ class Runtime:
                     "violation_cleared",
                     state.last - state.since,
                     session,
-                    now,
+                    ppe_packet.timestamp
+                    if id(state) in ppe_state_ids and ppe_packet is not None
+                    else now,
                 )
             elif action == "interrupted":
                 self._finish(
@@ -1443,7 +1387,10 @@ class Runtime:
             "frame_url": f"/api/v1/cameras/{session.id}/frame.jpg?raw=true&session_id={session.session_id}&sequence={session.sequence}",
             "rules": session.engine.describe(now, session.config.confirm_seconds)
             + session.independent_ppe.engine.describe(
-                session.independent_ppe.last_result or now, session.config.confirm_seconds
+                session.independent_ppe.last_result
+                if session.independent_ppe.last_result is not None
+                else now,
+                session.config.confirm_seconds,
             ),
             "tracks": [asdict(t) for t in tracks],
             "detections": [asdict(d) for d in display_detections],

@@ -85,3 +85,29 @@ def test_temporary_unknown_does_not_invent_a_new_entry_episode():
     assert r.get_current_risk_level(1, 1.1) == "UNKNOWN"
     again = r.update([track(0.55)], "c", 1.2)
     assert next(e.episode_id for e in again if e.level == "CRITICAL") == episode
+
+
+def test_exit_into_warning_starts_a_new_episode_without_needing_normal():
+    r = SafetyRadar()
+    r.set_zones(
+        {
+            "U": [
+                (0.34, 0.45),
+                (0.85, 0.45),
+                (0.85, 0.8),
+                (0.55, 0.8),
+                (0.55, 0.5),
+                (0.46, 0.5),
+                (0.46, 1),
+                (0.34, 1),
+            ]
+        }
+    )
+    events = []
+    for i in range(13):
+        events.extend(r.update([track(0.38 + i * 0.02, 0.7)], "camera", i * 0.2))
+    critical = [e for e in events if e.level == "CRITICAL"]
+    assert len(critical) == 2
+    assert critical[0].episode_id != critical[1].episode_id
+    warning = next(e for e in events if e.level == "WARNING")
+    assert warning.episode_id == critical[1].episode_id

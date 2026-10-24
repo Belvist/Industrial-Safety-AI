@@ -1,7 +1,11 @@
 """Bounded, source-associated PPE results; motion never waits for this branch."""
 
 import copy
-from dataclasses import dataclass
+import math
+import threading
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from uuid import uuid4
 
 import cv2
 
@@ -35,7 +39,9 @@ def observation_quality(frame, tracks):
         "minimum_person_model_pixels": 72,
         "reasons": reasons,
         "tracks": people,
-        "note": "Heuristic observation checks, not a calibrated accuracy estimate.",
+        "note": "Uncalibrated conservative admission heuristics; a hold does not prove the model cannot detect PPE.",
+        "guard_calibrated": False,
+        "failure_cause_proven": False,
     }
 
 
@@ -51,25 +57,67 @@ class PpePacket:
     session_id: str
     generation: int
     detections: list | None = None
+    request_id: str = field(default_factory=lambda: uuid4().hex)
+
+
+class BoundedPpeExecutor:
+    """Non-blocking global admission, including work from stopped generations.
+
+    A running remote request cannot be interrupted by cancelling a Python
+    Future. Its slot remains occupied until it returns or the transport times
+    out. Repeated camera restarts cannot build an unbounded executor queue.
+    """
+
+    def __init__(self, limit):
+        self.slots = threading.BoundedSemaphore(limit)
+        self.lock = threading.Lock()
+        self.closed = False
+        self.pool = ThreadPoolExecutor(max_workers=limit, thread_name_prefix="independent-ppe")
+
+    def try_submit(self, work):
+        if not self.slots.acquire(blocking=False):
+            return None
+        with self.lock:
+            if self.closed:
+                self.slots.release()
+                return None
+            try:
+                future = self.pool.submit(work)
+            except BaseException:
+                self.slots.release()
+                raise
+        future.add_done_callback(lambda _: self.slots.release())
+        return future
+
+    def shutdown(self, wait=True, cancel_futures=True):
+        with self.lock:
+            self.closed = True
+        self.pool.shutdown(wait=wait, cancel_futures=cancel_futures)
 
 
 class IndependentPpe:
     def __init__(self):
         self.engine = TemporalEngine()
-        self.pending = None
+        # Insertion order is strictly increasing source time. Completed replies
+        # wait here for their predecessors, never for motion processing.
+        self.pending = {}
+        self.retired = {}
+        self.limit = 1
         self.versions = {}
         self.last_seen = {}
         self.serial = 0
         self.values = {}
         self.last_submitted = None
+        self.next_due = None
+        self.last_submission_frame_id = None
         self.last_result = None
         self.last_frame_id = None
         self.status = "unknown"
         self.error = None
 
     def reset(self):
-        if self.pending:
-            self.pending[0].cancel()
+        for future, _ in list(self.pending.values()) + list(self.retired.values()):
+            future.cancel()
         self.__init__()
 
     def observe_tracks(self, tracks, now):
@@ -94,45 +142,90 @@ class IndependentPpe:
         return invalid
 
     def take(self, session, now, max_age):
-        if not self.pending or not self.pending[0].done():
-            return None
-        future, packet = self.pending
-        self.pending = None
-        try:
-            packet.detections = future.result()
-        except Exception:
-            self.status, self.error = "unavailable", "PPE inference unavailable"
-            session.metrics.mark("ppe_failures")
-            return None
-        if (
-            packet.session_id != session.session_id
-            or packet.generation != session.generation
-            or now - packet.timestamp > max_age
-        ):
-            self.status = "stale"
-            session.metrics.mark("ppe_stale")
-            return None
-        packet.tracks = [
-            t for t in packet.tracks if self.versions.get(t.id) == packet.versions[t.id]
-        ]
-        if not packet.tracks:
-            self.status = "identity_uncertain"
-            session.metrics.mark("ppe_identity_rejected")
-            return None
-        self.last_frame_id = packet.frame_id
-        self.last_result = packet.timestamp
-        self.status, self.error = "current", None
-        return packet
+        """Return at most one valid result per ordered motion commit.
 
-    def submit(self, session, frame, tracks, quality, now, captured, pool, predict, interval):
-        if self.pending is not None or not tracks:
-            return
-        if self.last_submitted is not None and now - self.last_submitted < interval:
-            return
+        Expired heads do not block newer completed results. An expired running
+        Future is quarantined, still counting against admission until finished;
+        its late answer is never applied. At most one packet is applied per
+        commit so incident state/snapshot remains tied to that exact packet.
+        """
+        for key, (future, _) in list(self.retired.items()):
+            if future.done():
+                self.retired.pop(key)
+                session.metrics.mark("ppe_late_discarded")
+        while self.pending:
+            key = next(iter(self.pending))
+            future, packet = self.pending[key]
+            invalid = (
+                packet.session_id != session.session_id or packet.generation != session.generation
+            )
+            expired = now - packet.timestamp > max_age
+            if invalid or expired:
+                self.pending.pop(key)
+                future.cancel()
+                if not future.done():
+                    self.retired[key] = (future, packet)
+                session.metrics.mark("ppe_invalid_generation" if invalid else "ppe_stale")
+                self.status = "stale"
+                continue
+            if not future.done():
+                return None
+            self.pending.pop(key)
+            try:
+                packet.detections = future.result()
+            except Exception:
+                self.status, self.error = "unavailable", "PPE inference unavailable"
+                session.metrics.mark("ppe_failures")
+                continue
+            if self.last_result is not None and packet.timestamp <= self.last_result:
+                session.metrics.mark("ppe_out_of_order_discarded")
+                continue
+            packet.tracks = [
+                t for t in packet.tracks if self.versions.get(t.id) == packet.versions[t.id]
+            ]
+            if not packet.tracks:
+                self.status = "identity_uncertain"
+                session.metrics.mark("ppe_identity_rejected")
+                continue
+            self.last_frame_id = packet.frame_id
+            self.last_result = packet.timestamp
+            self.status, self.error = "current", None
+            session.metrics.mark("ppe_applied")
+            session.metrics.observe("ppe_applied_age_ms", max(0, now - packet.timestamp) * 1000)
+            return packet
+        return None
+
+    def submit(
+        self,
+        session,
+        frame,
+        tracks,
+        quality,
+        now,
+        captured,
+        pool,
+        predict,
+        interval,
+        limit=1,
+        max_age=2.5,
+    ):
+        self.limit = limit
+        if len(self.pending) + len(self.retired) >= limit or not tracks:
+            return False
+        frame_id = session.sequence + 1
+        if (
+            self.last_submission_frame_id is not None
+            and frame_id <= self.last_submission_frame_id
+            or self.last_submitted is not None
+            and now <= self.last_submitted
+        ):
+            return False
+        if self.next_due is not None and now + 1e-6 < self.next_due:
+            return False
         if not any(quality["tracks"][t.id]["ppe_observable"] for t in tracks):
             self.status = "insufficient_image_quality"
             session.metrics.mark("ppe_quality_skips")
-            return
+            return False
         packet = PpePacket(
             frame.copy(),
             copy.deepcopy(tracks),
@@ -140,7 +233,7 @@ class IndependentPpe:
             quality,
             now,
             captured,
-            session.sequence + 1,
+            frame_id,
             session.session_id,
             session.generation,
         )
@@ -152,21 +245,46 @@ class IndependentPpe:
                 or session.generation != packet.generation
             ):
                 raise RuntimeError("Cancelled source generation")
+            if (
+                session.last_timestamp is not None
+                and session.last_timestamp - packet.timestamp > max_age
+            ):
+                raise RuntimeError("PPE frame expired before inference")
             return predict(packet.frame, packet.tracks)
 
-        self.pending = (pool.submit(work), packet)
+        future = pool.try_submit(work)
+        if future is None:
+            session.metrics.mark("ppe_backpressure")
+            return False
+        self.pending[packet.frame_id] = (future, packet)
         self.last_submitted = now
+        self.last_submission_frame_id = packet.frame_id
+        due = self.next_due if self.next_due is not None else now
+        self.next_due = due + max(1, math.floor((now - due + 1e-6) / interval) + 1) * interval
+        session.metrics.mark("ppe_submitted")
         if self.last_result is None and self.error is None:
             self.status = "pending"
+        return True
 
     def describe(self, now, max_age):
         age = max(0, now - self.last_result) if self.last_result is not None else None
+        packets = list(self.pending.values()) + list(self.retired.values())
         return {
             "independent_motion": True,
             "state": self.status,
             "age_seconds": round(age, 3) if age is not None else None,
             "maximum_age_seconds": max_age,
-            "pending": self.pending is not None,
+            "pending": bool(packets),
+            "pending_count": len(self.pending),
+            "retired_count": len(self.retired),
+            "in_flight": sum(not future.done() for future, _ in packets),
+            "completed_waiting": sum(future.done() for future, _ in self.pending.values()),
+            "maximum_in_flight_per_camera": self.limit,
+            "oldest_request_age_seconds": round(
+                max(0, now - min(p.timestamp for _, p in packets)), 3
+            )
+            if packets
+            else None,
             "source_timestamp": self.last_result,
             "source_frame_id": self.last_frame_id,
             "error": self.error,

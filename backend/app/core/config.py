@@ -73,6 +73,7 @@ class Settings(BaseSettings):
 
     # Motion and remote PPE have independent clocks and bounded work queues.
     independent_motion_enabled: bool = True
+    ppe_max_in_flight_per_camera: int = Field(default=1, ge=1, le=12)
     ppe_interval_seconds: float = Field(default=0.2, ge=0.1, le=30)
     ppe_max_age_seconds: float = Field(default=2.5, ge=0.5, le=10)
     file_realtime_motion: bool = True
@@ -122,9 +123,10 @@ class Settings(BaseSettings):
             "smoking": self.smoking_threshold,
         }
 
+    onnx_allow_spinning: bool = False
     inference_threads: int = Field(default=2, ge=1, le=32)
     capture_decode_threads: int = Field(default=2, ge=1, le=8)
-    target_fps: float = Field(default=5.0, ge=0.5, le=30)
+    target_fps: float = Field(default=6.0, ge=0.5, le=30)
     data_dir: str = "data"
 
     database_url: str = "sqlite:///./data/safety.db"

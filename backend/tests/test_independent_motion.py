@@ -74,7 +74,7 @@ def test_delayed_ppe_does_not_block_motion_and_retains_original_age(tmp_path):
         assert latest["tracks"][0]["ppe"]["helmet"] == "unknown"
         assert provider.started.wait(0.5)
         provider.release.set()
-        cam.independent_ppe.pending[0].result(timeout=1)
+        next(iter(cam.independent_ppe.pending.values()))[0].result(timeout=1)
         latest = rt.process(cam, image(80), 1.6)
         assert latest["tracks"][0]["ppe"]["helmet"] == "present"
         assert latest["tracks"][0]["ppe_age_seconds"] == 1.6
@@ -97,7 +97,7 @@ def test_late_ppe_after_a_missing_person_cannot_attach_to_reappearing_track(tmp_
         provider.people = True
         rt.process(cam, image(), 0.4)
         provider.release.set()
-        cam.independent_ppe.pending[0].result(timeout=1)
+        next(iter(cam.independent_ppe.pending.values()))[0].result(timeout=1)
         latest = rt.process(cam, image(), 0.6)
         assert latest["tracks"][0]["ppe"]["helmet"] == "unknown"
     finally:
@@ -135,7 +135,7 @@ def test_ppe_failure_leaves_person_and_radar_available(tmp_path):
     rt.start(cam.id, "browser")
     try:
         rt.process(cam, image(), 0)
-        future = cam.independent_ppe.pending[0]
+        future = next(iter(cam.independent_ppe.pending.values()))[0]
         try:
             future.result(timeout=1)
         except RuntimeError:

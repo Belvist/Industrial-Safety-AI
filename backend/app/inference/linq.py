@@ -99,10 +99,12 @@ class LinqProvider(InferenceProvider):
         tpu_cache_dir: str = "/auto/cache/hackathon93154",
         tpu_output_is_logits: bool = True,
         max_in_flight: int = 1,
+        allow_spinning: bool = False,
     ) -> None:
         self.model_path = Path(model_path)
         self.confidence = confidence
         self.threads = threads
+        self.allow_spinning = allow_spinning
         self.person_model_path = person_model_path
         # ``endpoint`` is kept for backward compatibility and means the AMQP
         # host when set (e.g. LINQ_ENDPOINT=10.0.114.30). It never triggers the
@@ -185,6 +187,7 @@ class LinqProvider(InferenceProvider):
             thresholds=self.thresholds,
             floor=self.floor,
             roi_mode=self.roi_mode,
+            allow_spinning=self.allow_spinning,
         )
         try:
             self._local.load()
@@ -237,6 +240,7 @@ class LinqProvider(InferenceProvider):
                 floor=self.floor,
                 roi_mode="off",
                 required_classes={"person"},
+                allow_spinning=self.allow_spinning,
             )
             self._person.load()
         except Exception:  # noqa: BLE001 - PPE/TPU path still works without it

@@ -474,24 +474,16 @@ def test_evidence_is_not_public_until_encoding_completes(tmp_path, monkeypatch):
     assert ok
     frames = [(1, encoded.tobytes(), encoded.tobytes(), 0.0)]
     entered, release = threading.Event(), threading.Event()
-    factory = cv2.VideoWriter
+    import app.services.runtime as runtime_module
 
-    class HeldWriter:
-        def __init__(self, *args):
-            self.inner = factory(*args)
+    encoder = runtime_module.encode_replay
 
-        def isOpened(self):
-            return self.inner.isOpened()
+    def held_encoder(*args):
+        entered.set()
+        release.wait(3)
+        encoder(*args)
 
-        def write(self, frame):
-            entered.set()
-            release.wait(3)
-            self.inner.write(frame)
-
-        def release(self):
-            self.inner.release()
-
-    monkeypatch.setattr(cv2, "VideoWriter", HeldWriter)
+    monkeypatch.setattr(runtime_module, "encode_replay", held_encoder)
     thread = threading.Thread(target=runtime._write_evidence, args=(name, frames, cam))
     thread.start()
     try:
@@ -503,3 +495,60 @@ def test_evidence_is_not_public_until_encoding_completes(tmp_path, monkeypatch):
         runtime.close()
     assert not thread.is_alive()
     assert (runtime.data / "evidence" / name).is_file()
+
+
+@pytest.mark.parametrize("limit", [1, 4])
+def test_one_camera_ppe_window_really_publishes_multiple_amqp_requests(
+    wired, tmp_path, monkeypatch, limit
+):
+    """Actual scheduler + actual AMQP owner, with an explicitly controlled peer."""
+    from app.domain.models import BoundingBox, Detection
+
+    provider, peer = wired(limit, timeout=2)
+    person = Detection("person", 0.99, BoundingBox(0.1, 0.1, 0.5, 0.9))
+    provider._person = SimpleNamespace(predict_sync=lambda _: [person])
+
+    def remote(frame):
+        provider._send_tensor(np.full((1, 3, 8, 8), float(frame[0, 0, 0]), np.float32))
+        return []
+
+    monkeypatch.setattr(provider, "_predict_remote", remote)
+    rt = Runtime(
+        settings(tmp_path, linq_max_in_flight=limit, ppe_max_in_flight_per_camera=limit), provider
+    )
+    cam = next(iter(rt.sessions.values()))
+    rt.start(cam.id, "browser")
+    peer.drop = True
+    frame = np.random.default_rng(8).integers(40, 220, size=(120, 160, 3), dtype=np.uint8)
+    try:
+        for i in range(limit):
+            rt.process(cam, frame, i * 0.2)
+        deadline = time.monotonic() + 1
+        while len(peer.ids) < limit and time.monotonic() < deadline:
+            time.sleep(0.005)
+        assert len(peer.ids) == limit
+        assert peer.maximum == limit
+        assert len(cam.independent_ppe.pending) == limit
+        assert len({p.request_id for _, p in cam.independent_ppe.pending.values()}) == limit
+        # Drain without scheduling extra work, observing the real temporal order.
+        cam.config.helmet = cam.config.vest = False
+        engine = cam.independent_ppe.engine
+        applied = []
+        update = engine.update
+
+        def ordered(observed, timestamp, *args):
+            applied.append(timestamp)
+            return update(observed, timestamp, *args)
+
+        monkeypatch.setattr(engine, "update", ordered)
+        peer.drop = False
+        for future, _ in list(cam.independent_ppe.pending.values()):
+            future.result(timeout=1)
+        for i in range(limit):
+            rt.process(cam, frame, (limit + i) * 0.2)
+        assert applied == [i * 0.2 for i in range(limit)]
+        assert provider.stats.remote_calls == limit
+        assert peer.threads == {"linq-amqp-io"}
+    finally:
+        peer.drop = False
+        rt.close()
