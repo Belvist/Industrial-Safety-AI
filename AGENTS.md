@@ -114,3 +114,18 @@ python run.py            # one-command local start (installs vision+linq extras)
   `frontend/src/operator.css`; shared radius tokens live in `application.css`.
 - Manrope variable WOFF2 is bundled locally with Latin/Cyrillic subsets. No
   runtime font CDN requests. Keep its OFL notice in source and distribution.
+
+## Critical real-video acceptance (24 October 2026)
+
+- Stop cosmetic work. CPU person/tracking/Radar are independent from PPE by default.
+- IndependentPpe snapshots source frame/tracks/continuity version; no old PPE boxes
+  are appended to the current scene. Occlusion/crossing invalidates PPE continuity.
+- WARNING uses reliable predicted nearest boundary entry; stop/parallel cancel it.
+  Actual warning-to-entry lead is distinct from predicted ETA and end-to-end delay.
+- Incidents use per-worker/per-zone/per-entry keys. UNKNOWN never proves clearance.
+- New SQLite observation_events back timeline and camera/zone/date counts; scopes tested.
+- Replay is published atomically after encoding/transcode; temporary MPEG-4 is never public.
+- Real source is Intel CC BY footage, with source/model checksums in docs/acceptance.
+  Demo polygons were chosen on that footage, not independent holdout validation.
+- Requested YouTube clip was proxy-blocked. No configured VPN/LinQ in this session.
+  New remote TPU acceptance remains BLOCKED. See docs/acceptance/RESULTS.md.

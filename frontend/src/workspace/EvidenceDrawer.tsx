@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   ArrowRight,
@@ -11,8 +11,9 @@ import {
   X,
 } from "lucide-react";
 import Dialog from "./Dialog";
+import { api } from "../api";
 import { useEvidence } from "../hooks/useEvidence";
-import type { Incident } from "../types";
+import type { Incident, TimelineEvent } from "../types";
 import { date, percentage } from "../types";
 import { friendlyError, lifecycleNames, reviewNames, ruleTitle } from "./model";
 
@@ -35,6 +36,37 @@ export default function EvidenceDrawer({
       incident.evidence ? "video" : "snapshot",
     ),
     [error, setError] = useState("");
+  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
+  const [timelineError, setTimelineError] = useState("");
+  useEffect(() => {
+    const controller = new AbortController();
+    const load = () =>
+      api<{ items: TimelineEvent[] }>(`/incidents/${incident.id}/timeline`, {
+        signal: controller.signal,
+      })
+        .then((r) => {
+          setTimeline(r.items);
+          setTimelineError("");
+        })
+        .catch((e) => {
+          if (!controller.signal.aborted) setTimelineError(friendlyError(e));
+        });
+    void load();
+    const timer = setInterval(load, 3000);
+    return () => {
+      controller.abort();
+      clearInterval(timer);
+    };
+  }, [incident.id, incident.feedback]);
+  const phases: Record<string, string> = {
+    warning: "Раннее предупреждение",
+    critical: "Вход в зону",
+    confirmed: "Нарушение подтверждено",
+    resolved: "Наблюдение завершено",
+    interrupted: "Наблюдение прервано",
+    evidence_ready: "Видео сохранено",
+    operator_review: "Решение оператора",
+  };
   const path =
     tab === "video" && incident.evidence
       ? `/api/v1/cameras/${incident.camera_id}/evidence/${incident.evidence}`
@@ -234,6 +266,34 @@ export default function EvidenceDrawer({
           <dd>{percentage(incident.confidence)}</dd>
         </div>
       </dl>
+      <details className="p-advanced">
+        <summary>Временная шкала происшествия</summary>
+        {timelineError ? (
+          <p role="alert">{timelineError}</p>
+        ) : timeline.length ? (
+          <ol className="p-timeline">
+            {timeline.map((event) => (
+              <li key={event.id}>
+                <strong>{phases[event.kind] ?? event.kind}</strong>
+                <span>
+                  {event.source_seconds == null
+                    ? date(event.occurred_at)
+                    : `${event.source_seconds.toFixed(2)} с исходного видео`}
+                  {event.payload.lead_time_seconds != null &&
+                    ` · предупреждение за ${event.payload.lead_time_seconds.toFixed(2)} с до входа`}
+                  {event.payload.verdict &&
+                    ` · ${reviewNames[event.payload.verdict] ?? event.payload.verdict}`}
+                </span>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p>
+            Для этой записи нет сохранённых этапов. Исторические события не
+            восстанавливаются предположениями.
+          </p>
+        )}
+      </details>
       <details className="p-advanced">
         <summary>Как интерпретировать событие</summary>
         <p>

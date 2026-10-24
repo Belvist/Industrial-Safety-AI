@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass, field
+from uuid import uuid4
 
 import numpy as np
 from shapely.geometry import LineString, Point, Polygon
@@ -48,6 +49,9 @@ class RiskEvent:
     zone_name: str | None = None
     other_track_id: int | None = None
     evidence: str | None = None
+    episode_id: str | None = None
+    lead_time_seconds: float | None = None
+    predicted_entry_seconds: float | None = None
 
 
 class SafetyRadar:
@@ -86,6 +90,10 @@ class SafetyRadar:
         # Smoothed direction per track (unit vector) for cautious prediction.
         self._direction: dict[int, tuple[float, float]] = {}
         self._speed: dict[int, float] = {}
+        self._zone_state = {}
+        self._warning_since = {}
+        self._episode_ids = {}
+        self._outside_streak = {}
 
     # -- configuration ---------------------------------------------------
 
@@ -106,9 +114,17 @@ class SafetyRadar:
         self._zones = new
 
     def _invalidate_state(self) -> None:
-        # Geometry changed: old conclusions are not valid evidence.
-        for track_id in list(self._state):
+        for track_id in self._state:
             self._state[track_id] = UNKNOWN
+        self._trajectories.clear()
+        self._direction.clear()
+        self._speed.clear()
+        self._zone_state.clear()
+        self._warning_since.clear()
+        self._episode_ids.clear()
+        self._outside_streak.clear()
+        self._events.clear()
+        self._last_notified.clear()
 
     def reset(self) -> None:
         self._trajectories.clear()
@@ -121,76 +137,114 @@ class SafetyRadar:
         self._zones.clear()
         self._direction.clear()
         self._speed.clear()
+        self._zone_state.clear()
+        self._warning_since.clear()
+        self._episode_ids.clear()
+        self._outside_streak.clear()
 
     # -- per-frame update ------------------------------------------------
 
     def update(self, tracks: list[Track], camera_id: str, frame_time: float) -> list[RiskEvent]:
-        active: set[int] = set()
-        new_events: list[RiskEvent] = []
-
+        active, new_events = set(), []
         for track in tracks:
             active.add(track.id)
+            previous_seen = self._last_seen.get(track.id)
+            if previous_seen is not None and frame_time <= previous_seen:
+                continue
+            if previous_seen is not None and frame_time - previous_seen > self.lost_grace_seconds:
+                self._trajectories.pop(track.id, None)
+                for key in list(self._zone_state):
+                    if key[0] == track.id:
+                        self._zone_state[key] = UNKNOWN
+                        self._warning_since.pop(key, None)
             self._last_seen[track.id] = frame_time
             x, y = self._foot_point(track)
-
             traj = self._trajectories.setdefault(track.id, deque())
             traj.append(TrajectoryPoint(x, y, frame_time, track.id))
-            cutoff = frame_time - self.history_seconds
-            while traj and traj[0].t < cutoff:
+            while traj and traj[0].t < frame_time - self.history_seconds:
                 traj.popleft()
-
-            level, risk_type, zone_name, dist = self._classify(traj)
-            previous = self._state.get(track.id, UNKNOWN)
-            if level == NORMAL:
-                self._safe_streak[track.id] = self._safe_streak.get(track.id, 0) + 1
-                # Keep WARNING through brief direction jitter.
-                if previous == WARNING and self._safe_streak[track.id] < self.clear_frames:
-                    level = WARNING
-                    risk_type, zone_name, dist = self._previous_type.get(
-                        track.id, ("zone_approach", None, 0.0)
-                    )
-            else:
-                self._safe_streak[track.id] = 0
-            self._state[track.id] = level
-
-            # UNKNOWN is a state, not a notifiable event.
-            if level == WARNING:
-                self._previous_type[track.id] = (risk_type, zone_name, dist)
-            if level not in (WARNING, CRITICAL):
-                continue
-            # Notify on first detection, on escalation, or after cooldown.
-            key = (track.id, risk_type)
-            last = self._last_notified.get(key)
-            escalated = level == CRITICAL and previous != CRITICAL
-            if last is None or escalated or frame_time - last >= self.cooldown_seconds:
-                self._last_notified[key] = frame_time
+            prediction = self.predict(track.id, frame_time)
+            point = Point(x, y)
+            levels = []
+            for name, polygon in self._zones.items():
+                key = (track.id, name)
+                previous = self._zone_state.get(key, UNKNOWN)
+                if polygon.covers(point):
+                    self._outside_streak[key] = 0
+                    level, kind = CRITICAL, "zone_cross"
+                elif previous == CRITICAL and (
+                    point.distance(polygon) < 0.005 or self._outside_streak.get(key, 0) < 1
+                ):
+                    self._outside_streak[key] = self._outside_streak.get(key, 0) + 1
+                    level, kind = CRITICAL, "zone_cross"
+                elif len(traj) < self.min_history_points:
+                    level, kind = UNKNOWN, ""
+                elif (
+                    prediction
+                    and prediction.get("zone_name") == name
+                    and prediction["confidence"] >= 0.5
+                ):
+                    level, kind = WARNING, "zone_approach"
+                else:
+                    level, kind = NORMAL, ""
+                levels.append(level)
+                self._zone_state[key] = level
+                if level not in {WARNING, CRITICAL}:
+                    self._warning_since.pop(key, None)
+                    continue
+                if level == WARNING and previous != WARNING:
+                    self._warning_since[key] = frame_time
+                if previous == NORMAL or key not in self._episode_ids:
+                    self._episode_ids[key] = uuid4().hex
+                # State transitions, not every notification interval, define episodes.
+                # An actual re-entry bypasses the old notification cooldown.
+                if level == previous:
+                    continue
+                warned = self._warning_since.get(key)
+                lead = (
+                    frame_time - warned
+                    if level == CRITICAL and previous == WARNING and warned is not None
+                    else None
+                )
+                distance = float(point.distance(polygon))
                 event = RiskEvent(
-                    track_id=track.id,
-                    camera_id=camera_id,
-                    risk_type=risk_type,
-                    level=level,
-                    timestamp=frame_time,
-                    message=self._message(track.id, level, risk_type, zone_name, dist),
+                    track.id,
+                    camera_id,
+                    kind,
+                    level,
+                    frame_time,
+                    self._message(track.id, level, kind, name, distance),
                     trajectory=[(p.x, p.y) for p in traj],
-                    zone_name=zone_name,
+                    zone_name=name,
+                    episode_id=self._episode_ids.get(key),
+                    lead_time_seconds=round(lead, 4) if lead is not None else None,
+                    predicted_entry_seconds=prediction.get("time_to_boundary_seconds")
+                    if prediction and level == WARNING
+                    else None,
                 )
                 self._events.append(event)
                 new_events.append(event)
                 if len(self._events) > self.max_events:
                     del self._events[: len(self._events) - self.max_events]
-
-        # Lost observations become UNKNOWN after a short grace period; the
-        # state is never silently reported as NORMAL.
-        for track_id, seen in list(self._last_seen.items()):
-            if track_id in active:
-                continue
-            if frame_time - seen > self.lost_grace_seconds:
-                self._state[track_id] = UNKNOWN
-                traj = self._trajectories.get(track_id)
-                if traj is not None and (not traj or frame_time - traj[-1].t > self.history_seconds):
-                    del self._trajectories[track_id]
-                    self._last_seen.pop(track_id, None)
-
+            self._state[track.id] = next(
+                (v for v in (CRITICAL, WARNING, UNKNOWN) if v in levels),
+                NORMAL if levels else UNKNOWN,
+            )
+        for tid, seen in list(self._last_seen.items()):
+            if tid not in active and frame_time - seen > self.lost_grace_seconds:
+                self._state[tid] = UNKNOWN
+                for key in list(self._zone_state):
+                    if key[0] == tid:
+                        self._zone_state[key] = UNKNOWN
+                        self._warning_since.pop(key, None)
+                if frame_time - seen > self.history_seconds:
+                    self._trajectories.pop(tid, None)
+                    self._last_seen.pop(tid, None)
+                    self._state.pop(tid, None)
+                    for mapping in (self._zone_state, self._episode_ids, self._outside_streak):
+                        for key in list(mapping):
+                            if key[0] == tid:
+                                mapping.pop(key, None)
         return new_events
 
     # -- geometry --------------------------------------------------------
@@ -201,40 +255,17 @@ class SafetyRadar:
         return (box.x1 + box.x2) / 2.0, box.y2
 
     def _classify(self, traj: deque[TrajectoryPoint]) -> tuple[str, str, str | None, float]:
-        if not self._zones:
-            # No active zone geometry: safety cannot be confirmed.
+        if not self._zones or not traj:
             return UNKNOWN, "", None, 0.0
-        if len(traj) < self.min_history_points:
-            return UNKNOWN, "", None, 0.0
-
         point = Point(traj[-1].x, traj[-1].y)
-        best_warning: tuple[str, float] | None = None
         for name, polygon in self._zones.items():
-            if polygon.contains(point) or polygon.touches(point):
+            if polygon.covers(point):
                 return CRITICAL, "zone_cross", name, 0.0
-            distance = point.distance(polygon)
-            if distance <= self.zone_threshold_norm and self._moving_towards(traj, polygon):
-                if best_warning is None or distance < best_warning[1]:
-                    best_warning = (name, distance)
-        if best_warning:
-            return WARNING, "zone_approach", best_warning[0], best_warning[1]
-        return NORMAL, "", None, 0.0
-
-    @staticmethod
-    def _moving_towards(traj: deque[TrajectoryPoint], zone: Polygon) -> bool:
-        if len(traj) < 2:
-            return False
-        p1, p2 = traj[-2], traj[-1]
-        vx, vy = p2.x - p1.x, p2.y - p1.y
-        if vx == 0 and vy == 0:
-            return False
-        center = zone.centroid
-        ux, uy = center.x - p2.x, center.y - p2.y
-        norm_v = float(np.hypot(vx, vy))
-        norm_u = float(np.hypot(ux, uy))
-        if norm_v == 0 or norm_u == 0:
-            return False
-        return (vx * ux + vy * uy) / (norm_v * norm_u) > 0.3
+        prediction = self.predict(traj[-1].track_id, traj[-1].t)
+        if prediction and prediction.get("zone_name"):
+            name = prediction["zone_name"]
+            return WARNING, "zone_approach", name, float(point.distance(self._zones[name]))
+        return (NORMAL if len(traj) >= self.min_history_points else UNKNOWN), "", None, 0.0
 
     def _message(
         self,
@@ -253,6 +284,28 @@ class SafetyRadar:
 
     # -- short-horizon prediction ---------------------------------------
 
+    @staticmethod
+    def _entry(line, polygon):
+        if polygon.covers(Point(line.coords[0])) or not line.crosses(polygon):
+            return None
+        hit = line.intersection(polygon.boundary)
+        geometries = list(hit.geoms) if hasattr(hit, "geoms") else [hit]
+        candidates = []
+        for geometry in geometries:
+            points = (
+                [geometry]
+                if geometry.geom_type == "Point"
+                else [Point(c) for c in geometry.coords]
+                if hasattr(geometry, "coords")
+                else []
+            )
+            for point in points:
+                distance = line.project(point)
+                after = line.interpolate(min(line.length, distance + 1e-6))
+                if distance > 1e-9 and polygon.contains(after):
+                    candidates.append((distance, (float(point.x), float(point.y))))
+        return min(candidates, default=None)
+
     def predict(
         self,
         track_id: int,
@@ -261,68 +314,56 @@ class SafetyRadar:
         min_speed: float = 0.01,
         max_gap_seconds: float = 1.5,
     ) -> dict | None:
-        """Cautious constant-velocity projection of the foot point.
-
-        Returns None when the observation is too sparse, too slow, or stale.
-        This is normalized-image geometry only: no metres, m/s or TTC.
-        """
         traj = self._trajectories.get(track_id)
-        if traj is None or len(traj) < self.min_history_points:
+        if not traj or len(traj) < self.min_history_points:
             return None
         last = traj[-1]
         if frame_time - last.t > max_gap_seconds:
             return None
-
-        # Use a short window to smooth jitter (up to ~1 s).
-        window = [p for p in traj if last.t - p.t <= 1.0] or list(traj)
-        first = window[0]
-        dt = last.t - first.t
-        if dt <= 0:
+        window = [p for p in traj if last.t - p.t <= 1.0]
+        if len(window) < self.min_history_points:
+            window = list(traj)[-self.min_history_points :]
+        times = np.array([p.t for p in window], dtype=float)
+        gaps = np.diff(times)
+        if not len(gaps) or np.any(gaps <= 0) or max(gaps) > max_gap_seconds:
             return None
-        vx = (last.x - first.x) / dt
-        vy = (last.y - first.y) / dt
-        speed = float(np.hypot(vx, vy))
-        if speed < min_speed:
+        points = np.array([(p.x, p.y) for p in window])
+        # Stop/reversal gate uses the latest real observation, so old smoothed
+        # velocity cannot continue predicting an entry after stopping.
+        recent = float(np.linalg.norm(points[-1] - points[-2]) / gaps[-1])
+        if recent < min_speed:
             return None
-
-        # Exponential smoothing against the previous direction.
-        ux, uy = vx / speed, vy / speed
-        prev = self._direction.get(track_id)
-        if prev is not None:
-            ux = 0.6 * ux + 0.4 * prev[0]
-            uy = 0.6 * uy + 0.4 * prev[1]
-            norm = float(np.hypot(ux, uy)) or 1.0
-            ux, uy = ux / norm, uy / norm
-        self._direction[track_id] = (ux, uy)
-        self._speed[track_id] = speed
-
-        end = (last.x + ux * speed * horizon_seconds,
-               last.y + uy * speed * horizon_seconds)
-        predicted = [(last.x, last.y), end]
-
-        intersection = None
-        for polygon in self._zones.values():
-            line = LineString(predicted)
-            if line.intersects(polygon.boundary):
-                hit = line.intersection(polygon.boundary)
-                if hit.is_empty:
-                    continue
-                pt = hit.geoms[0] if hasattr(hit, "geoms") else hit
-                intersection = (float(pt.x), float(pt.y))
-                break
-
-        # Reliability falls with sparse history and long gaps.
-        freshness = max(0.0, 1.0 - (frame_time - last.t) / max_gap_seconds)
-        density = min(1.0, len(window) / max(1, self.min_history_points * 4))
-        confidence = round(min(1.0, 0.5 * freshness + 0.5 * density), 2)
-
+        centered = times - times.mean()
+        denom = float(centered @ centered)
+        if denom <= 1e-10:
+            return None
+        velocity = (centered[:, None] * (points - points.mean(axis=0))).sum(axis=0) / denom
+        speed = float(np.linalg.norm(velocity))
+        path = float(np.linalg.norm(np.diff(points, axis=0), axis=1).sum())
+        net = float(np.linalg.norm(points[-1] - points[0]))
+        straightness = net / path if path > 1e-9 else 0.0
+        if speed < min_speed or straightness < 0.65:
+            return None
+        fit = points.mean(axis=0) + centered[:, None] * velocity
+        residual = float(np.linalg.norm(points - fit, axis=1).mean())
+        confidence = round(max(0.0, min(1.0, straightness * (1 - residual / max(net, 0.001)))), 3)
+        end = points[-1] + velocity * horizon_seconds
+        line = LineString([tuple(points[-1]), tuple(end)])
+        entries = []
+        for name, polygon in self._zones.items():
+            entry = self._entry(line, polygon)
+            if entry:
+                entries.append((entry[0], name, entry[1]))
+        nearest = min(entries, default=None)
         return {
             "track_id": track_id,
             "trajectory": [(p.x, p.y) for p in traj][-20:],
-            "predicted": predicted,
-            "direction": (ux, uy),
+            "predicted": [tuple(points[-1]), tuple(end)],
+            "direction": tuple(velocity / speed),
             "speed_norm": round(speed, 4),
-            "intersection": intersection,
+            "intersection": nearest[2] if nearest else None,
+            "zone_name": nearest[1] if nearest else None,
+            "time_to_boundary_seconds": round(nearest[0] / speed, 4) if nearest else None,
             "confidence": confidence,
         }
 
@@ -331,18 +372,25 @@ class SafetyRadar:
         tracks = []
         for track_id in list(self._trajectories):
             prediction = self.predict(track_id, frame_time)
-            tracks.append({
-                "track_id": track_id,
-                "level": self.get_current_risk_level(track_id),
-                "trajectory": (
-                    prediction["trajectory"] if prediction
-                    else [(p.x, p.y) for p in self._trajectories[track_id]][-20:]
-                ),
-                "predicted": prediction["predicted"] if prediction else [],
-                "direction": prediction["direction"] if prediction else None,
-                "intersection": prediction["intersection"] if prediction else None,
-                "confidence": prediction["confidence"] if prediction else 0.0,
-            })
+            tracks.append(
+                {
+                    "track_id": track_id,
+                    "level": self.get_current_risk_level(track_id, frame_time),
+                    "trajectory": (
+                        prediction["trajectory"]
+                        if prediction
+                        else [(p.x, p.y) for p in self._trajectories[track_id]][-20:]
+                    ),
+                    "predicted": prediction["predicted"] if prediction else [],
+                    "direction": prediction["direction"] if prediction else None,
+                    "intersection": prediction["intersection"] if prediction else None,
+                    "confidence": prediction["confidence"] if prediction else 0.0,
+                    "predicted_zone": prediction["zone_name"] if prediction else None,
+                    "time_to_boundary_seconds": prediction["time_to_boundary_seconds"]
+                    if prediction
+                    else None,
+                }
+            )
         zones = [
             {"name": name, "points": list(polygon.exterior.coords)[:-1]}
             for name, polygon in self._zones.items()
@@ -353,6 +401,11 @@ class SafetyRadar:
 
     def get_current_risk_level(self, track_id: int, frame_time: float | None = None) -> str:
         """Continuous state; cooldown never downgrades it."""
+        if (
+            frame_time is not None
+            and frame_time - self._last_seen.get(track_id, frame_time) > self.lost_grace_seconds
+        ):
+            return UNKNOWN
         return self._state.get(track_id, UNKNOWN)
 
     def get_events(self, since: float = 0) -> list[RiskEvent]:
@@ -360,8 +413,21 @@ class SafetyRadar:
         latest: dict[tuple[int, str], RiskEvent] = {}
         for event in self._events:
             if event.timestamp >= since:
-                latest[(event.track_id, event.risk_type)] = event
+                latest[(event.track_id, event.risk_type, event.zone_name)] = event
         return sorted(latest.values(), key=lambda e: e.timestamp)
+
+    def zone_level(self, track_id, zone_name):
+        return self._zone_state.get((track_id, zone_name), UNKNOWN)
+
+    def episode_id(self, track_id, zone_name):
+        return self._episode_ids.get((track_id, zone_name))
+
+    def current_risks(self, frame_time):
+        return {
+            tid: self.get_current_risk_level(tid, frame_time)
+            for tid, seen in self._last_seen.items()
+            if frame_time - seen <= self.history_seconds
+        }
 
     def all_events(self) -> list[RiskEvent]:
         return list(self._events)

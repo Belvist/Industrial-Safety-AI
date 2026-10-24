@@ -131,6 +131,8 @@ export default function SystemPage({
         <div className="p-diagnostic-grid">
           {[
             ["Захват", result?.metrics?.rates.capture?.fps],
+            ["Люди · CPU", result?.metrics?.rates.person?.fps],
+            ["Safety Radar", result?.metrics?.rates.radar?.fps],
             ["LinQ TPU", result?.metrics?.rates.tpu?.fps],
             ["Аналитика", result?.metrics?.rates.analytics?.fps],
             ["Экран", uiRate(camera?.id)?.fps],

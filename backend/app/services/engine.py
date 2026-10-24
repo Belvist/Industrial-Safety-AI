@@ -110,8 +110,11 @@ class SimpleIoUTracker(TrackerProvider):
         for key, track in self.tracks.items():
             age = max(0.0, now - track.seen)
             predicted[key] = clamp_predicted(
-                track.bbox.x1 + track.vx * age, track.bbox.y1 + track.vy * age,
-                track.bbox.x2 + track.vx * age, track.bbox.y2 + track.vy * age)
+                track.bbox.x1 + track.vx * age,
+                track.bbox.y1 + track.vy * age,
+                track.bbox.x2 + track.vx * age,
+                track.bbox.y2 + track.vy * age,
+            )
         matched: dict[int, int] = {}
         used: set[int] = set()
         candidates = []
@@ -154,16 +157,17 @@ class SimpleIoUTracker(TrackerProvider):
             else:
                 dt = now - prev.seen
                 if dt > 1e-6:
-                    nvx = ((person.bbox.x1 + person.bbox.x2) / 2
-                           - (prev.bbox.x1 + prev.bbox.x2) / 2) / dt
-                    nvy = ((person.bbox.y1 + person.bbox.y2) / 2
-                           - (prev.bbox.y1 + prev.bbox.y2) / 2) / dt
+                    nvx = (
+                        (person.bbox.x1 + person.bbox.x2) / 2 - (prev.bbox.x1 + prev.bbox.x2) / 2
+                    ) / dt
+                    nvy = (
+                        (person.bbox.y1 + person.bbox.y2) / 2 - (prev.bbox.y1 + prev.bbox.y2) / 2
+                    ) / dt
                     vx = 0.6 * prev.vx + 0.4 * nvx
                     vy = 0.6 * prev.vy + 0.4 * nvy
                 else:
                     vx, vy = prev.vx, prev.vy
-                track = Track(key, person.bbox, now, person.confidence,
-                              vx=vx, vy=vy)
+                track = Track(key, person.bbox, now, person.confidence, vx=vx, vy=vy)
             self.tracks[key] = track
             current.append(track)
         return current
@@ -378,8 +382,14 @@ class TemporalEngine:
         self.previous: float | None = None
 
     def update(
-        self, observed, now, confirm_seconds, clear_seconds,
-        window=4, required=3, cleared=None,
+        self,
+        observed,
+        now,
+        confirm_seconds,
+        clear_seconds,
+        window=4,
+        required=3,
+        cleared=None,
     ):
         """Update with optional positive `cleared` evidence {key: confidence}.
 
@@ -446,11 +456,7 @@ class TemporalEngine:
                 state.phase = ViolationPhase.ACTIVE
                 events.append(("active", key, state))
         for key in list(self.votes):
-            if (
-                key not in self.states
-                and key not in observed
-                and not any(self.votes[key])
-            ):
+            if key not in self.states and key not in observed and not any(self.votes[key]):
                 del self.votes[key]
         return events
 
@@ -459,6 +465,7 @@ class TemporalEngine:
             {
                 "track_id": key[0],
                 "type": key[1],
+                "zone_name": key[2] if len(key) > 2 else None,
                 "phase": state.phase,
                 "confidence": state.confidence,
                 "elapsed_seconds": round(state.last - state.since, 2),

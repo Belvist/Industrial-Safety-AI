@@ -27,7 +27,7 @@ function Replay({
   return (
     <Dialog
       title="Видеодоказательство"
-      description={`Сотрудник #${event.track_id} · ${event.zone_name ?? "Опасная зона"} · ${event.timestamp.toFixed(1)} с от начала источника`}
+      description={`Сотрудник #${event.track_id} · ${event.zone_name ?? "Опасная зона"} · ${(event.source_seconds ?? event.timestamp).toFixed(1)} с от начала источника`}
       onClose={onClose}
       footer={
         <>
@@ -110,7 +110,21 @@ export default function RadarInspector({
                 Сотрудник #{ev.track_id}
                 {ev.zone_name ? ` · ${ev.zone_name}` : ""}
               </span>
-              <small>{ev.timestamp.toFixed(1)} с от начала источника</small>
+              <small>
+                {(ev.source_seconds ?? ev.timestamp).toFixed(1)} с от начала
+                источника
+              </small>
+              {ev.lead_time_seconds != null && (
+                <small>
+                  Предупреждение за {ev.lead_time_seconds.toFixed(2)} с до входа
+                  · измерено по видео
+                </small>
+              )}
+              {ev.predicted_entry_seconds != null && (
+                <small>
+                  Прогноз входа через {ev.predicted_entry_seconds.toFixed(2)} с
+                </small>
+              )}
               {ev.evidence_url && (
                 <button className="p-link" onClick={() => setEvent(ev)}>
                   <Film size={14} />

@@ -38,6 +38,21 @@ class Storage:
                 db.execute("ALTER TABLE incidents ADD COLUMN zone_name TEXT")
             if "evidence" not in columns:
                 db.execute("ALTER TABLE incidents ADD COLUMN evidence TEXT")
+            for name, kind in [("episode_id", "TEXT"), ("source_seconds", "REAL")]:
+                if name not in columns:
+                    db.execute(f"ALTER TABLE incidents ADD COLUMN {name} {kind}")
+            db.executescript("""
+                CREATE TABLE IF NOT EXISTS observation_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, camera_id TEXT NOT NULL,
+                    track_id INTEGER, zone_name TEXT, kind TEXT NOT NULL,
+                    source_seconds REAL, occurred_at TEXT NOT NULL, recorded_at TEXT NOT NULL,
+                    episode_id TEXT, incident_id TEXT, evidence TEXT,
+                    payload TEXT NOT NULL DEFAULT '{}'
+                );
+                CREATE INDEX IF NOT EXISTS event_camera_time ON observation_events(camera_id, occurred_at);
+                CREATE INDEX IF NOT EXISTS event_episode ON observation_events(episode_id);
+                CREATE INDEX IF NOT EXISTS event_incident ON observation_events(incident_id);
+            """)
             db.execute("CREATE INDEX IF NOT EXISTS incident_zone ON incidents(zone_name)")
             # Legacy rows finished before ended_at existed: end time falls
             # back to resolved_at, then started_at (documented, never invented
@@ -108,6 +123,8 @@ class Storage:
         zone_name=None,
         evidence=None,
         started_at=None,
+        episode_id=None,
+        source_seconds=None,
     ):
         record = {
             "id": incident_id or uuid4().hex,
@@ -123,6 +140,8 @@ class Storage:
             "snapshot": snapshot,
             "zone_name": zone_name,
             "evidence": evidence,
+            "episode_id": episode_id,
+            "source_seconds": source_seconds,
         }
         with self.connection() as db:
             db.execute(
@@ -321,6 +340,10 @@ class Storage:
                         (snapshots_dir / Path(row["snapshot"]).name).unlink(missing_ok=True)
                     db.execute("DELETE FROM incidents WHERE id=?", (row["id"],))
                     removed += 1
+                db.execute(
+                    "DELETE FROM observation_events WHERE recorded_at < ? AND NOT EXISTS (SELECT 1 FROM incidents i WHERE i.status='active' AND i.camera_id=observation_events.camera_id AND (i.id=observation_events.incident_id OR i.episode_id=observation_events.episode_id))",
+                    (cutoff,),
+                )
         with self.connection() as db:
             known = {r["snapshot"] for r in db.execute("SELECT snapshot FROM incidents")}
         if snapshots_dir.is_dir():
@@ -347,3 +370,102 @@ class Storage:
             params = ids
         with self.connection() as db:
             return dict(db.execute(sql, params).fetchone())
+
+    def record_event(
+        self,
+        camera_id,
+        kind,
+        *,
+        track_id=None,
+        zone_name=None,
+        source_seconds=None,
+        occurred_at=None,
+        episode_id=None,
+        incident_id=None,
+        evidence=None,
+        payload=None,
+    ):
+        if kind not in {
+            "warning",
+            "critical",
+            "confirmed",
+            "resolved",
+            "interrupted",
+            "evidence_ready",
+            "operator_review",
+        }:
+            raise ValueError("Unknown observation event")
+        with self.connection() as db:
+            db.execute(
+                "INSERT INTO observation_events(camera_id,track_id,zone_name,kind,source_seconds,occurred_at,recorded_at,episode_id,incident_id,evidence,payload) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    camera_id,
+                    track_id,
+                    zone_name,
+                    kind,
+                    source_seconds,
+                    occurred_at or utcnow(),
+                    utcnow(),
+                    episode_id,
+                    incident_id,
+                    evidence,
+                    json.dumps(payload or {}),
+                ),
+            )
+
+    def timeline(self, incident):
+        with self.connection() as db:
+            rows = db.execute(
+                "SELECT * FROM observation_events WHERE camera_id=? AND (incident_id=? OR (episode_id IS NOT NULL AND episode_id=?) OR (kind='evidence_ready' AND evidence IS NOT NULL AND evidence=?)) ORDER BY recorded_at,id LIMIT 500",
+                (
+                    incident["camera_id"],
+                    incident["id"],
+                    incident.get("episode_id"),
+                    incident.get("evidence"),
+                ),
+            ).fetchall()
+        return [{**dict(row), "payload": json.loads(row["payload"])} for row in rows]
+
+    def risk_statistics(self, camera_ids=None, from_time=None, to_time=None):
+        clauses, params = [], []
+        if camera_ids is not None:
+            ids = sorted(camera_ids)
+            if not ids:
+                return {
+                    "incidents": [],
+                    "warnings": [],
+                    "note": "Counts of recorded observations, not accident probabilities.",
+                }
+            clauses.append("camera_id IN (" + ",".join("?" for _ in ids) + ")")
+            params.extend(ids)
+        if from_time:
+            clauses.append("{time}>=?")
+            params.append(from_time)
+        if to_time:
+            clauses.append("{time}<=?")
+            params.append(to_time)
+        where = " WHERE " + " AND ".join(clauses) if clauses else ""
+        with self.connection() as db:
+            db.execute("BEGIN")
+            incidents = db.execute(
+                "SELECT camera_id,type,coalesce(zone_name,'') AS zone_name,substr(started_at,1,10) AS day,count(*) AS count,sum(feedback='confirmed') AS confirmed,sum(feedback='false_positive') AS false_positive FROM incidents"
+                + where.format(time="started_at")
+                + " GROUP BY camera_id,type,zone_name,day ORDER BY day DESC,camera_id,zone_name",
+                params,
+            ).fetchall()
+            event_where = (
+                where.format(time="occurred_at")
+                + (" AND " if clauses else " WHERE ")
+                + "kind IN ('warning','critical')"
+            )
+            warnings = db.execute(
+                "SELECT camera_id,coalesce(zone_name,'') AS zone_name,kind,substr(occurred_at,1,10) AS day,count(*) AS count FROM observation_events"
+                + event_where
+                + " GROUP BY camera_id,zone_name,kind,day ORDER BY day DESC",
+                params,
+            ).fetchall()
+        return {
+            "incidents": [dict(row) for row in incidents],
+            "warnings": [dict(row) for row in warnings],
+            "note": "Counts of recorded observations, not accident probabilities.",
+        }

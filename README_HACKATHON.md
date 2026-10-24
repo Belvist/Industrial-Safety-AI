@@ -3,13 +3,15 @@
 Video monitoring for industrial safety: cameras → neural detection → worker
 tracking → behaviour rules → confirmed incidents → operator journal.
 
-**Current honest status:** the application and scenario 01 (running) are
-implemented and tested. Real remote LinQ TPU execution is **verified** for the
-compiled `ppe_nosig_p999.tpu` program: the worker returns
-`status_code=0` and its inference time over RabbitMQ. Detection parity is
-good but not perfect (val 20/20; test 11/14). No local CPU/CoreML number is
-presented as LinQ, and no independent hardware counters are claimed. See
-`docs/LINQ_HARDWARE_REPORT.md`.
+**Current acceptance (24 October 2026):** motion tracking and predictive zone
+warnings now run independently from asynchronous PPE. Real licensed industrial
+video, source-bound event timelines, actual camera/zone statistics and a
+reproducible browser journey are documented in [critical acceptance](docs/acceptance/README.md).
+The older remote LinQ worker result in [LINQ_HARDWARE_REPORT.md](docs/LINQ_HARDWARE_REPORT.md)
+is historical. **This new independent pipeline has not been reverified on LinQ;
+real TPU 5 FPS and scenario C remain blocked by missing hardware access.**
+CPU person performance is reported separately. Running has controlled tests;
+real positive running recognition and all eight scenarios are not claimed.
 
 ## One-command start
 

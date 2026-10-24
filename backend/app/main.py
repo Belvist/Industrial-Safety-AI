@@ -43,7 +43,14 @@ def create_app(config: Settings = settings, runtime=None):
         CORSMiddleware,
         allow_origins=sorted(origins),
         allow_methods=["GET", "POST", "PUT", "DELETE"],
-        allow_headers=["Content-Type", "X-Session-Id", "X-API-Token", "Authorization", "X-Frame-Id", "X-Capture-Time"],
+        allow_headers=[
+            "Content-Type",
+            "X-Session-Id",
+            "X-API-Token",
+            "Authorization",
+            "X-Frame-Id",
+            "X-Capture-Time",
+        ],
     )
 
     def caller(request):
@@ -70,11 +77,7 @@ def create_app(config: Settings = settings, runtime=None):
             if paired is None:
                 return False, None
             mark = token_owner_id(token or "")
-            owned = {
-                c["id"]
-                for c in service.storage.cameras()
-                if c.get("owner") == mark
-            }
+            owned = {c["id"] for c in service.storage.cameras() if c.get("owner") == mark}
             scope = owned | ({paired} if paired else set())
         except AttributeError:
             return False, None
@@ -96,7 +99,10 @@ def create_app(config: Settings = settings, runtime=None):
             # The exchange endpoint is open by design: the one-time code,
             # shown only on the operator screen, is the credential.
             # system/info stays open: it carries no secrets (see S1).
-            if not (request.method == "POST" and path == "/api/v1/pairing/exchange") and path != "/api/v1/system/info":
+            if (
+                not (request.method == "POST" and path == "/api/v1/pairing/exchange")
+                and path != "/api/v1/system/info"
+            ):
                 master, scope = caller(request)
                 if not master and scope is None:
                     if config.api_token:
@@ -114,15 +120,31 @@ def create_app(config: Settings = settings, runtime=None):
                     incident_item = (
                         len(parts) == 6
                         and parts[3] == "incidents"
-                        and parts[5] in {"snapshot", "feedback"}
+                        and parts[5] in {"snapshot", "feedback", "timeline"}
                         and request.method in {"GET", "POST"}
                     )
-                    allowed = list_endpoint or incident_item or (
-                        request.method in {"GET", "POST"}
-                        and len(parts) >= 5
-                        and parts[3] == "cameras"
-                        and parts[4] in scope
-                        and ((len(parts) == 5 and request.method == "GET") or (len(parts) == 6 and ((parts[5] in {"start", "stop", "frame"} and request.method == "POST") or (parts[5] == "frame.jpg" and request.method == "GET"))))
+                    allowed = (
+                        list_endpoint
+                        or incident_item
+                        or (
+                            request.method in {"GET", "POST"}
+                            and len(parts) >= 5
+                            and parts[3] == "cameras"
+                            and parts[4] in scope
+                            and (
+                                (len(parts) == 5 and request.method == "GET")
+                                or (
+                                    len(parts) == 6
+                                    and (
+                                        (
+                                            parts[5] in {"start", "stop", "frame"}
+                                            and request.method == "POST"
+                                        )
+                                        or (parts[5] == "frame.jpg" and request.method == "GET")
+                                    )
+                                )
+                            )
+                        )
                     )
                     if not allowed:
                         return JSONResponse(
@@ -137,7 +159,9 @@ def create_app(config: Settings = settings, runtime=None):
         response = await call_next(request)
         service = getattr(request.app.state, "runtime", None)
         if request.url.path.startswith("/api/") and hasattr(service, "metrics"):
-            service.metrics.observe("api_response_headers_ms", (time.perf_counter()-started)*1000)
+            service.metrics.observe(
+                "api_response_headers_ms", (time.perf_counter() - started) * 1000
+            )
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "no-referrer"
@@ -201,7 +225,9 @@ def create_app(config: Settings = settings, runtime=None):
             "telegram_ready": service.notifier.ready,
             "target_fps": config.target_fps,
             "stats": scoped_stats,
-            "api_metrics": service.metrics.snapshot() if master and hasattr(service, "metrics") else None,
+            "api_metrics": service.metrics.snapshot()
+            if master and hasattr(service, "metrics")
+            else None,
         }
 
     @app.post("/api/v1/pairing", status_code=201)
@@ -215,15 +241,15 @@ def create_app(config: Settings = settings, runtime=None):
             # phone gets its own device, history and settings namespace.
             with service.sessions_lock:
                 if len(service.sessions) >= 8:
-                    raise HTTPException(400, "Локальная версия поддерживает до 8 конфигураций камер.")
+                    raise HTTPException(
+                        400, "Локальная версия поддерживает до 8 конфигураций камер."
+                    )
                 code, ttl = service.pairing.create("__pending__")
                 mark = f"pair:{code}"
                 camera_id = service.storage.save_camera(
                     CameraConfig(name=body.new_camera_name, owner=mark)
                 )
-                live = CameraSession(
-                    camera_id, CameraConfig(name=body.new_camera_name, owner=mark)
-                )
+                live = CameraSession(camera_id, CameraConfig(name=body.new_camera_name, owner=mark))
                 service.sessions[camera_id] = live
                 service.pairing.bind(code, camera_id)
                 return {"code": code, "camera_id": camera_id, "expires_in": ttl}
@@ -286,8 +312,10 @@ def create_app(config: Settings = settings, runtime=None):
             bad = service.check_rules_supported(config)
             if bad:
                 raise HTTPException(
-                    422, f"Модель не поддерживает правила: {', '.join(bad)}. "
-                    f"Отключите их или выберите модель с нужными классами.")
+                    422,
+                    f"Модель не поддерживает правила: {', '.join(bad)}. "
+                    f"Отключите их или выберите модель с нужными классами.",
+                )
             camera_id = service.storage.save_camera(config)
             service.sessions[camera_id] = CameraSession(camera_id, config)
             return service.sessions[camera_id].summary()
@@ -300,8 +328,10 @@ def create_app(config: Settings = settings, runtime=None):
             bad = rt(request).check_rules_supported(config)
             if bad:
                 raise HTTPException(
-                    422, f"Модель не поддерживает правила: {', '.join(bad)}. "
-                    f"Отключите их или выберите модель с нужными классами.")
+                    422,
+                    f"Модель не поддерживает правила: {', '.join(bad)}. "
+                    f"Отключите их или выберите модель с нужными классами.",
+                )
             rt(request)._interrupt(current, "rules_changed")
             current.config = config
             rt(request).storage.save_camera(config, camera_id)
@@ -313,11 +343,15 @@ def create_app(config: Settings = settings, runtime=None):
         bad = rt(request).check_rules_supported(cfg)
         if bad:
             raise HTTPException(
-                422, f"Модель не поддерживает включённые правила: {', '.join(bad)}. "
-                f"Отключите их в настройках камеры или выберите модель с нужными классами.")
+                422,
+                f"Модель не поддерживает включённые правила: {', '.join(bad)}. "
+                f"Отключите их в настройках камеры или выберите модель с нужными классами.",
+            )
         master, scope = caller(request)
         if not master and (scope is None or camera_id not in scope or source.kind != "browser"):
-            raise HTTPException(403, "Телефон может запускать только собственную браузерную камеру.")
+            raise HTTPException(
+                403, "Телефон может запускать только собственную браузерную камеру."
+            )
         if source.kind == "rtsp":
             parsed = urlsplit(source.url)
             if parsed.scheme not in {"rtsp", "rtsps", "http", "https"} or not parsed.hostname:
@@ -373,7 +407,11 @@ def create_app(config: Settings = settings, runtime=None):
                 try:
                     source_id = int(request.headers.get("X-Frame-Id", ""))
                     elapsed = float(request.headers.get("X-Capture-Time", ""))
-                    if not 0 < source_id < 2**53 or not math.isfinite(elapsed) or not 0 <= elapsed <= 1e9:
+                    if (
+                        not 0 < source_id < 2**53
+                        or not math.isfinite(elapsed)
+                        or not 0 <= elapsed <= 1e9
+                    ):
                         raise ValueError
                 except ValueError:
                     raise HTTPException(422, "Некорректный ID или время кадра.") from None
@@ -401,12 +439,22 @@ def create_app(config: Settings = settings, runtime=None):
                 if current.stop.is_set():
                     raise HTTPException(409, "Камера остановлена.")
                 try:
-                    return rt(request).process(current, image, expected_session=expected_session, expected_generation=expected_generation, source_frame_id=source_id, source_elapsed=elapsed)
+                    return rt(request).process(
+                        current,
+                        image,
+                        expected_session=expected_session,
+                        expected_generation=expected_generation,
+                        source_frame_id=source_id,
+                        source_elapsed=elapsed,
+                    )
                 except DiscardedFrame as exc:
                     raise HTTPException(409, str(exc)) from None
                 except Exception as exc:  # noqa: BLE001 - camera boundary must fail closed
                     with current.lock:
-                        if current.session_id == expected_session and current.generation == expected_generation:
+                        if (
+                            current.session_id == expected_session
+                            and current.generation == expected_generation
+                        ):
                             rt(request).fail_processing(current)
                     raise RuntimeError(
                         "Обработка кадра остановлена. Проверьте модель и доступ к папке данных."
@@ -447,16 +495,18 @@ def create_app(config: Settings = settings, runtime=None):
 
         session(request, camera_id)  # 404 if the camera is unknown
         # Path traversal guard: only a bare filename from our evidence dir.
-        if ("/" in name or "\\" in name or not name.endswith(".mp4")
-                or not name.startswith(f"radar_{camera_id}_")):
+        if (
+            "/" in name
+            or "\\" in name
+            or not name.endswith(".mp4")
+            or not name.startswith(f"radar_{camera_id}_")
+        ):
             raise HTTPException(404, "Доказательство не найдено.")
         folder = (rt(request).data / "evidence").resolve()
         path = folder / name
         if path.resolve().parent != folder or not path.is_file():
             raise HTTPException(404, "Доказательство не найдено.")
-        return FileResponse(
-            path, media_type="video/mp4", headers={"Cache-Control": "no-store"}
-        )
+        return FileResponse(path, media_type="video/mp4", headers={"Cache-Control": "no-store"})
 
     incident_types = {
         "no_helmet",
@@ -627,6 +677,27 @@ def create_app(config: Settings = settings, runtime=None):
             raise HTTPException(403, "Чужой инцидент недоступен.")
         return record
 
+    @app.get("/api/v1/analytics/risk")
+    def risk_analytics(
+        request: Request,
+        camera_id: Annotated[list[str] | None, Query()] = None,
+        from_time: datetime | None = None,
+        to_time: datetime | None = None,
+    ):
+        master, scope = caller(request)
+        allowed = set(camera_id) if camera_id else None
+        if not master:
+            allowed = (scope or set()) if allowed is None else allowed & (scope or set())
+        start, end = _utc(from_time), _utc(to_time)
+        if start and end and start > end:
+            raise HTTPException(422, "Начало интервала позже окончания.")
+        return rt(request).storage.risk_statistics(allowed, start, end)
+
+    @app.get("/api/v1/incidents/{incident_id}/timeline")
+    def incident_timeline(incident_id: str, request: Request):
+        incident = _own_incident(request, incident_id)
+        return {"items": rt(request).storage.timeline(incident)}
+
     @app.get("/api/v1/incidents/{incident_id}/snapshot")
     def snapshot(incident_id: str, request: Request):
         service = rt(request)
@@ -645,7 +716,17 @@ def create_app(config: Settings = settings, runtime=None):
         service = rt(request)
         _own_incident(request, incident_id)
         service.storage.update(incident_id, feedback=body.verdict)
-        return service.storage.get(incident_id)
+        record = service.storage.get(incident_id)
+        service.storage.record_event(
+            record["camera_id"],
+            "operator_review",
+            incident_id=incident_id,
+            track_id=record["track_id"],
+            zone_name=record["zone_name"],
+            episode_id=record.get("episode_id"),
+            payload={"verdict": body.verdict},
+        )
+        return record
 
     dist = ROOT / "frontend" / "dist"
     if dist.is_dir():

@@ -35,6 +35,7 @@ from app.services.metrics import Metrics
 
 PROTOCOL = "linq-rabbitmq-tpu-v1"
 
+
 @dataclass
 class LinqStats:
     mode: str
@@ -46,6 +47,7 @@ class LinqStats:
     worker_pid: str = ""
     worker_status: int = -1
     worker_error: str = ""
+
 
 class LinqProvider(InferenceProvider):
     """Drop-in inference adapter for LinQ accelerators with dev fallback.
@@ -61,7 +63,16 @@ class LinqProvider(InferenceProvider):
     # connecting: probe in flight; reachable: health answers; inference_verified:
     # a detect round-trip completed; hardware_verified: execution on the
     # required accelerator confirmed; failed: proven broken; fallback: local.
-    READINESS = ("unconfigured", "configured", "connecting", "reachable", "inference_verified", "hardware_verified", "failed", "fallback")
+    READINESS = (
+        "unconfigured",
+        "configured",
+        "connecting",
+        "reachable",
+        "inference_verified",
+        "hardware_verified",
+        "failed",
+        "fallback",
+    )
 
     def __init__(
         self,
@@ -130,7 +141,9 @@ class LinqProvider(InferenceProvider):
         self.max_in_flight = max_in_flight
         self.metrics = Metrics()
         self._transport = None
-        self._person_pool = ThreadPoolExecutor(max_workers=max_in_flight, thread_name_prefix="person")
+        self._person_pool = ThreadPoolExecutor(
+            max_workers=max_in_flight, thread_name_prefix="person"
+        )
 
     @property
     def name(self) -> str:
@@ -296,15 +309,12 @@ class LinqProvider(InferenceProvider):
             "program": self.tpu_program,
             "program_uri": self.program_uri,
             "requested_providers": self.requested_providers,
-            "active_providers": (
-                list(getattr(local, "active_providers", [])) if local else []
-            ),
+            "active_providers": (list(getattr(local, "active_providers", [])) if local else []),
             "supported_classes": self.supported_classes(),
             "model": self.model,
             "protocol": PROTOCOL if self.stats.mode == "linq_remote" else None,
             "person_detector": (
-                "cpu" if self.stats.mode == "linq_remote" and self._person is not None
-                else None
+                "cpu" if self.stats.mode == "linq_remote" and self._person is not None else None
             ),
             "ppe_runtime": "tpu" if self.stats.mode == "linq_remote" else "cpu",
             "hardware_verified": self.readiness == "hardware_verified",
@@ -341,6 +351,30 @@ class LinqProvider(InferenceProvider):
             detections = self._local.predict_sync(frame)
         else:  # pragma: no cover - defensive; load() always sets a mode
             raise RuntimeError("LinQ провайдер не инициализирован.")
+        self.stats.last_latency_ms = (time.perf_counter() - started) * 1000
+        self.stats.frames += 1
+        return detections
+
+    def motion_capable(self):
+        return (
+            self._person is not None
+            if self.mode == "linq_remote"
+            else bool(self._local and self._local.motion_capable())
+        )
+
+    def predict_people(self, frame):
+        return (
+            self._predict_people(frame)
+            if self.mode == "linq_remote"
+            else self._local.predict_people(frame)
+        )
+
+    def predict_ppe(self, frame, people=None):
+        started = time.perf_counter()
+        if self.mode == "linq_remote":
+            detections = [d for d in self._predict_remote(frame) if d.class_name != "person"]
+        else:
+            detections = self._local.predict_ppe(frame, people)
         self.stats.last_latency_ms = (time.perf_counter() - started) * 1000
         self.stats.frames += 1
         return detections
@@ -389,8 +423,12 @@ class LinqProvider(InferenceProvider):
         )
         self._channel = self._connection.channel()
         self._reply_queue = f"linq_{uuid.uuid4().hex[:12]}"
-        self._channel.queue_declare(queue=self._reply_queue, auto_delete=True, exclusive=True,
-                                    arguments={"x-expires": 120000, "x-max-length": self.max_in_flight * 2})
+        self._channel.queue_declare(
+            queue=self._reply_queue,
+            auto_delete=True,
+            exclusive=True,
+            arguments={"x-expires": 120000, "x-max-length": self.max_in_flight * 2},
+        )
         self._channel.queue_bind(
             exchange=self.amqp_exchange,
             queue=self._reply_queue,
@@ -515,6 +553,7 @@ class LinqProvider(InferenceProvider):
             )
             for index, name in enumerate(TPU_CLASSES)
         }
+
 
 TPU_CLASSES = (
     "fall-detected",

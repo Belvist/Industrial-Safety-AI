@@ -988,3 +988,9 @@
     height: 32px;
   }
 }
+
+/* Incident chronology uses persisted observations from the journal. */
+.p-timeline {padding: 12px 0 12px 24px;}
+.p-timeline li {padding: 8px 0 8px 8px;}
+.p-timeline strong, .p-timeline span {display: block;}
+.p-timeline span {font-size: 12px; opacity: .7; margin-top: 5px;}

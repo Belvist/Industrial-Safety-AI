@@ -71,6 +71,12 @@ class Settings(BaseSettings):
     def linq_provider_list(self) -> list[str]:
         return [p.strip() for p in self.linq_providers.split(",") if p.strip()]
 
+    # Motion and remote PPE have independent clocks and bounded work queues.
+    independent_motion_enabled: bool = True
+    ppe_interval_seconds: float = Field(default=0.2, ge=0.1, le=30)
+    ppe_max_age_seconds: float = Field(default=2.5, ge=0.5, le=10)
+    file_realtime_motion: bool = True
+
     # Per-violation defaults for new cameras.
     # MVP scope per project description §11: helmet + vest + danger zone.
     # Mask (respirator) and smoking are post-MVP extensions, off by default.
@@ -115,7 +121,9 @@ class Settings(BaseSettings):
             "no_mask": self.no_mask_threshold,
             "smoking": self.smoking_threshold,
         }
+
     inference_threads: int = Field(default=2, ge=1, le=32)
+    capture_decode_threads: int = Field(default=2, ge=1, le=8)
     target_fps: float = Field(default=5.0, ge=0.5, le=30)
     data_dir: str = "data"
 

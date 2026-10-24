@@ -54,7 +54,6 @@ KNOWN_CLASSES = {
 }
 
 
-
 def person_roi_pixels(b: BoundingBox, w: int, h: int) -> tuple[int, int, int, int]:
     """Pad around a worker, including any helmet above the detected head."""
     bw, bh = b.x2 - b.x1, b.y2 - b.y1
@@ -66,16 +65,23 @@ def person_roi_pixels(b: BoundingBox, w: int, h: int) -> tuple[int, int, int, in
     )
 
 
-def project_roi_detection(d: Detection, roi: tuple[int, int, int, int], w: int, h: int) -> Detection:
+def project_roi_detection(
+    d: Detection, roi: tuple[int, int, int, int], w: int, h: int
+) -> Detection:
     """Project crop-normalized coordinates into full-frame normalized coordinates."""
     x1, y1, x2, y2 = roi
     b = d.bbox
     return Detection(
-        d.class_name, d.confidence,
+        d.class_name,
+        d.confidence,
         BoundingBox(
-            (x1 + b.x1 * (x2 - x1)) / w, (y1 + b.y1 * (y2 - y1)) / h,
-            (x1 + b.x2 * (x2 - x1)) / w, (y1 + b.y2 * (y2 - y1)) / h,
-        ), track_hint=d.track_hint, weak=d.weak,
+            (x1 + b.x1 * (x2 - x1)) / w,
+            (y1 + b.y1 * (y2 - y1)) / h,
+            (x1 + b.x2 * (x2 - x1)) / w,
+            (y1 + b.y2 * (y2 - y1)) / h,
+        ),
+        track_hint=d.track_hint,
+        weak=d.weak,
     )
 
 
@@ -89,9 +95,8 @@ def deduplicate_ppe(detections: list[Detection], threshold: float = 0.55) -> lis
             if d.class_name != other.class_name:
                 continue
             o = other.bbox
-            intersection = (
-                max(0.0, min(b.x2, o.x2) - max(b.x1, o.x1))
-                * max(0.0, min(b.y2, o.y2) - max(b.y1, o.y1))
+            intersection = max(0.0, min(b.x2, o.x2) - max(b.x1, o.x1)) * max(
+                0.0, min(b.y2, o.y2) - max(b.y1, o.y1)
             )
             a1 = (b.x2 - b.x1) * (b.y2 - b.y1)
             a2 = (o.x2 - o.x1) * (o.y2 - o.y1)
@@ -214,9 +219,7 @@ class LocalOnnxProvider(InferenceProvider):
             if isinstance(names, list):
                 names = dict(enumerate(names))
             self.classes = {
-                int(k): ALIASES.get(
-                    v.lower().replace("_", "-"), ALIASES.get(v.lower(), v.lower())
-                )
+                int(k): ALIASES.get(v.lower().replace("_", "-"), ALIASES.get(v.lower(), v.lower()))
                 for k, v in names.items()
             }
             if not self.required_classes <= set(self.classes.values()):
@@ -230,17 +233,30 @@ class LocalOnnxProvider(InferenceProvider):
     async def predict(self, frame: Frame) -> list[Detection]:
         return await asyncio.to_thread(self.predict_sync, frame)
 
+    def motion_capable(self):
+        return self.person_detector is not None
+
+    def predict_people(self, frame):
+        if self.person_detector is None:
+            raise RuntimeError("Independent person model is unavailable")
+        return [d for d in self.person_detector.predict_sync(frame) if d.class_name == "person"]
+
     def predict_sync(self, frame: Frame) -> list[Detection]:
-        # The separate person detector is already needed for worker tracking.
-        # In auto mode, zoom PPE inference into each of <=2 visible workers.
-        people = self.person_detector.predict_sync(frame) if self.person_detector else []
+        if self.person_detector is None:
+            return self._predict_single(frame)
+        people = self.predict_people(frame)
+        return self.predict_ppe(frame, people) + people
+
+    def predict_ppe(self, frame, people=None):
+        people = people or []
         if self.roi_mode == "auto" and self.person_detector:
             strong = [d for d in people if d.class_name == "person" and not d.weak]
             height, width = frame.shape[:2]
             if 1 <= len(strong) <= 2:
                 rois = [person_roi_pixels(d.bbox, width, height) for d in strong]
                 if all(
-                    x2 - x1 >= 72 and y2 - y1 >= 72
+                    x2 - x1 >= 72
+                    and y2 - y1 >= 72
                     and (x2 - x1) * (y2 - y1) <= 0.8 * width * height
                     for x1, y1, x2, y2 in rois
                 ):
@@ -250,12 +266,10 @@ class LocalOnnxProvider(InferenceProvider):
                         for det in self._predict_single(frame[y1:y2, x1:x2]):
                             if det.class_name != "person":
                                 ppe.append(project_roi_detection(det, roi, width, height))
-                    return deduplicate_ppe(ppe) + people
+                    return deduplicate_ppe(ppe)
         # Fallback is byte-for-byte the original full-frame inference pathway.
         ppe = self._predict_single(frame)
-        if self.person_detector:
-            return [d for d in ppe if d.class_name != "person"] + people
-        return ppe
+        return [d for d in ppe if d.class_name != "person"]
 
     def _predict_single(self, frame: Frame) -> list[Detection]:
         """One forward pass with unchanged 640x640 centered letterbox + decode."""

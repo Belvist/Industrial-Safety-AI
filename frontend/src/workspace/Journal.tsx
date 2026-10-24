@@ -1,4 +1,5 @@
 import { useState } from "react";
+import RiskStatistics from "./RiskStatistics";
 import {
   AlertTriangle,
   ArrowRight,
@@ -215,6 +216,12 @@ export default function Journal(props: JournalProps) {
           {props.error || exportError}
         </div>
       )}
+      <RiskStatistics
+        cameras={props.cameras}
+        cameraId={props.cameraId}
+        fromDate={props.fromDate}
+        toDate={props.toDate}
+      />
       <div className="p-journal-results" aria-busy={props.loading}>
         {props.loading ? (
           <div className="p-empty">

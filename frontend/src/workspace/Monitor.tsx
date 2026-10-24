@@ -90,6 +90,33 @@ export default function Monitor({
     setInspector(null);
     setFocus(false);
   }, [camera.id]);
+  const qualityReasons = [
+    ...new Set(
+      Object.values(result?.observation_quality?.tracks ?? {}).flatMap(
+        (t) => t.reasons,
+      ),
+    ),
+  ];
+  const qualityText: Record<string, string> = {
+    person_too_small: "человек слишком мал в кадре",
+    blurred_frame: "изображение размыто",
+    dark_frame: "недостаточно света",
+  };
+  const ppeEnabled =
+    camera.helmet || camera.vest || camera.mask || camera.smoking;
+  const ppeUnknown =
+    ppeEnabled &&
+    fresh &&
+    (result?.tracks.length ?? 0) > 0 &&
+    (qualityReasons.length > 0 ||
+      result?.ppe?.state !== "current" ||
+      result.tracks.some((t) =>
+        [
+          camera.helmet && "helmet",
+          camera.vest && "vest",
+          camera.mask && "mask",
+        ].some((k) => k && t.ppe[k] === "unknown"),
+      ));
   return (
     <section className={`p-monitor ${focus ? "p-focus-mode" : ""}`}>
       <header className="p-monitor-heading">
@@ -161,6 +188,21 @@ export default function Monitor({
           </button>
         )}
       </div>
+      {ppeUnknown && (
+        <div className="p-inform p-warning" role="status">
+          <AlertTriangle size={18} />
+          <p>
+            <strong>СИЗ: недостаточно достоверных данных.</strong>{" "}
+            {qualityReasons.length
+              ? qualityReasons.map((r) => qualityText[r] ?? r).join("; ")
+              : result?.ppe?.state === "unavailable"
+                ? "Модель СИЗ недоступна. Контроль движения продолжается."
+                : result?.ppe?.state === "stale"
+                  ? "Ответ СИЗ устарел. Старый статус не подтверждает новое нарушение."
+                  : "Ожидаем распознавание каски и жилета. Отсутствие результата не означает нарушение."}
+          </p>
+        </div>
+      )}
       <div
         className={`p-observation-layout ${inspector ? "with-inspector" : ""}`}
       >

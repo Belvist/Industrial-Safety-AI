@@ -9,6 +9,7 @@ from app.services.state_machine import CameraState
 
 class Zone(BaseModel):
     """A named danger zone. Points are normalized [0, 1]."""
+
     id: str = Field(default="", max_length=32)
     name: str = Field(default="Опасная зона", min_length=1, max_length=80)
     enabled: bool = True
@@ -141,7 +142,9 @@ class StartSource(BaseModel):
             # inside rtsp(s) URLs stay allowed (cameras need them); probing
             # internal networks is a documented trusted-operator risk.
             if scheme not in {"rtsp", "rtsps", "http", "https"}:
-                raise ValueError("RTSP-источник должен начинаться с rtsp://, rtsps:// или http(s)://.")
+                raise ValueError(
+                    "RTSP-источник должен начинаться с rtsp://, rtsps:// или http(s)://."
+                )
         return self
 
 
@@ -179,10 +182,9 @@ class TrackView(BaseModel):
 
 
 class RuleView(BaseModel):
+    zone_name: str | None = None
     track_id: int
-    type: Literal[
-        "no_helmet", "no_vest", "no_mask", "smoking", "danger_zone", "running"
-    ]
+    type: Literal["no_helmet", "no_vest", "no_mask", "smoking", "danger_zone", "running"]
     phase: Literal["pending", "active", "clearing"]
     confidence: float = Field(ge=0, le=1)
     elapsed_seconds: float = Field(ge=0)
@@ -200,8 +202,15 @@ class RadarEventView(BaseModel):
     zone_name: str | None = None
     other_track_id: int | None = None
     evidence_url: str | None = None
+    episode_id: str | None = None
+    lead_time_seconds: float | None = None
+    predicted_entry_seconds: float | None = None
+    source_seconds: float | None = None
+
 
 class RadarTrackView(BaseModel):
+    predicted_zone: str | None = None
+    time_to_boundary_seconds: float | None = None
     track_id: int
     level: Literal["NORMAL", "WARNING", "CRITICAL", "UNKNOWN"]
     trajectory: list[tuple[float, float]]
@@ -210,18 +219,22 @@ class RadarTrackView(BaseModel):
     intersection: tuple[float, float] | None = None
     confidence: float = 0.0
 
+
 class RadarZoneView(BaseModel):
     name: str
     points: list[tuple[float, float]]
+
 
 class RadarSceneView(BaseModel):
     tracks: list[RadarTrackView]
     zones: list[RadarZoneView]
 
+
 class RadarView(BaseModel):
     track_risks: dict[int, Literal["NORMAL", "WARNING", "CRITICAL", "UNKNOWN"]]
     events: list[RadarEventView]
     scene: RadarSceneView | None = None
+
 
 class FrameResult(BaseModel):
     session_id: str
@@ -240,6 +253,12 @@ class FrameResult(BaseModel):
     metrics: dict | None = None
     source_timestamp: float | None = None
     data_age_ms: float = 0.0
+    motion_history: dict = Field(default_factory=dict)
+    person_fps: float | None = None
+    radar_fps: float | None = None
+    tpu_fps: float | None = None
+    ppe: dict | None = None
+    observation_quality: dict | None = None
 
 
 class CameraView(CameraConfig):

@@ -1,0 +1,14 @@
+{
+  "publisher": "Intel IoT DevKit / sample-videos contributors",
+  "repository": "https://github.com/intel-iot-devkit/sample-videos",
+  "revision": "57978890822836f2b4743852f04f62fc511757e4",
+  "source_url": "https://raw.githubusercontent.com/intel-iot-devkit/sample-videos/57978890822836f2b4743852f04f62fc511757e4/worker-zone-detection.mp4",
+  "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "video_sha256": "b8b58b8100a81600bc42ee7ee082ced777b12a32a3619139ef289d27cbdcd284",
+  "model_sha256": {
+    "ppe.onnx": "b99fed37bae1d111ddb622a0ef9077d42918a4daebd4a0bffbd8faaba273f246",
+    "person.onnx": "190ba5f1e61411a001683e349d6b2cdb0804c0dc67a5e34cd8ff6fd00ee54b4d"
+  },
+  "modifications": "Demo zone boundaries, actual inference overlays, event timestamps, clips and screenshots. No endorsement by Intel is implied."
+}

@@ -30,6 +30,9 @@ export type RadarEvent = {
   risk_type: "zone_approach" | "zone_cross" | "worker_cross";
   level: "WARNING" | "CRITICAL" | "UNKNOWN";
   timestamp: number;
+  source_seconds?: number;
+  lead_time_seconds?: number | null;
+  predicted_entry_seconds?: number | null;
   message: string;
   zone_name?: string | null;
   other_track_id?: number | null;
@@ -73,6 +76,20 @@ export type Result = {
     stages: Record<string, { p50: number; p95: number; p99: number }>;
   };
   data_age_ms?: number;
+  person_fps?: number;
+  radar_fps?: number;
+  tpu_fps?: number;
+  ppe?: {
+    state: string;
+    age_seconds: number | null;
+    pending: boolean;
+    runtime?: "cpu" | "tpu";
+    error?: string | null;
+  } | null;
+  observation_quality?: {
+    reasons: string[];
+    tracks: Record<string, { ppe_observable: boolean; reasons: string[] }>;
+  };
 };
 export type Zone = {
   id: string;
@@ -245,3 +262,16 @@ export function configOf(camera: Camera): Config {
     temporal_required: camera.temporal_required,
   };
 }
+
+export type TimelineEvent = {
+  id: number;
+  kind: string;
+  source_seconds: number | null;
+  occurred_at: string;
+  zone_name: string | null;
+  payload: {
+    lead_time_seconds?: number | null;
+    verdict?: string;
+    reason?: string;
+  };
+};

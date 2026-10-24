@@ -28,6 +28,7 @@ def run_level(video, level, seconds):
     with tempfile.TemporaryDirectory(prefix="linq-benchmark-") as folder:
         cfg = Settings(
             linq_max_in_flight=level,
+            independent_motion_enabled=False,  # This harness measures fully joined TPU analytics.
             inference_provider="linq",
             data_dir=folder,
             database_url=f"sqlite:///{folder}/db.sqlite",

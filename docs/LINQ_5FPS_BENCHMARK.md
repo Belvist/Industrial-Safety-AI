@@ -28,6 +28,16 @@ No conclusion about capacity scaling follows from worker-only inference time.
 **Actual TPU FPS and analytics FPS of the new remote deployment remain unknown.
 Five FPS has not been demonstrated, and this performance task is not closed.**
 
+## Update: 24 October independent motion
+
+See [real-video acceptance](acceptance/README.md) for the new independent CPU
+person/Radar and asynchronous PPE path, exact source/config/model hashes and
+60-second measurements. `analytics_fps` now counts motion analytics; PPE
+completeness is separate. It must not be described as five TPU-complete frames
+per second. The historical joined path remains available through
+`INDEPENDENT_MOTION_ENABLED=false` for comparison. No new remote TPU request
+was possible in this environment.
+
 ## Architecture implemented
 
 - `AmqpPipeline` owns Pika connection/channel in a single I/O thread. Real Pika

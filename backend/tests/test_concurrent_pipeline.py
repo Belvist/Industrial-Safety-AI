@@ -458,3 +458,48 @@ def test_replay_preserves_slow_frame_timing_and_event_frame():
     assert len(output) == 21  # 4 seconds at 5 fps, not 4/5 seconds
     assert output[0][0] == 2 and output[-1][0] == 6
     assert sum(frame[0] == 5 for frame in output) == 5
+
+
+def test_evidence_is_not_public_until_encoding_completes(tmp_path, monkeypatch):
+    """A browser must never fetch the temporary MPEG-4 file before H.264 transcode."""
+    import threading
+
+    import cv2
+
+    runtime = Runtime(settings(tmp_path), SimpleNamespace(name="test"))
+    cam = next(iter(runtime.sessions.values()))
+    name = f"radar_{cam.id}_atomic.mp4"
+    image = np.zeros((64, 64, 3), np.uint8)
+    ok, encoded = cv2.imencode(".jpg", image)
+    assert ok
+    frames = [(1, encoded.tobytes(), encoded.tobytes(), 0.0)]
+    entered, release = threading.Event(), threading.Event()
+    factory = cv2.VideoWriter
+
+    class HeldWriter:
+        def __init__(self, *args):
+            self.inner = factory(*args)
+
+        def isOpened(self):
+            return self.inner.isOpened()
+
+        def write(self, frame):
+            entered.set()
+            release.wait(3)
+            self.inner.write(frame)
+
+        def release(self):
+            self.inner.release()
+
+    monkeypatch.setattr(cv2, "VideoWriter", HeldWriter)
+    thread = threading.Thread(target=runtime._write_evidence, args=(name, frames, cam))
+    thread.start()
+    try:
+        assert entered.wait(2.5)
+        assert not (runtime.data / "evidence" / name).exists()
+    finally:
+        release.set()
+        thread.join(timeout=5)
+        runtime.close()
+    assert not thread.is_alive()
+    assert (runtime.data / "evidence" / name).is_file()

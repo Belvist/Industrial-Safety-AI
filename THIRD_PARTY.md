@@ -93,3 +93,12 @@ Unmodified variable WOFF2 subsets (Latin, Latin Extended, Cyrillic and Cyrillic
 Extended) are self-hosted in `frontend/src/assets/fonts/`. The license is kept
 beside the files and included in the production bundle as `MANROPE_LICENSE.txt`.
 The interface makes no runtime requests to a font CDN.
+
+## Licensed real-video acceptance material
+
+Intel IoT DevKit / sample-videos contributors, `worker-zone-detection.mp4`,
+CC BY 4.0. Exact revision, source URL and checksums: `docs/acceptance/source.json`;
+license: `docs/acceptance/INTEL_SOURCE_LICENSE.txt`. Acceptance screenshots and
+clips add demo boundaries, actual detector/radar overlays and timestamps.
+These derivatives do not imply endorsement by Intel. Original runtime footage
+is downloaded on demand and is not committed.

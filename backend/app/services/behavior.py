@@ -119,9 +119,7 @@ class RunningDetector:
         for current in islice(samples, 1, None):
             path += math.hypot(current.x - previous.x, current.y - previous.y)
             previous = current
-        net = math.hypot(
-            samples[-1].x - samples[0].x, samples[-1].y - samples[0].y
-        )
+        net = math.hypot(samples[-1].x - samples[0].x, samples[-1].y - samples[0].y)
         if path <= 1e-9 or net / path < self.straightness:
             return None
         mean_height = sum(s.height for s in samples) / len(samples)
@@ -129,3 +127,18 @@ class RunningDetector:
 
     def diagnostics(self) -> dict[int, float]:
         return {key: round(motion.last_speed, 3) for key, motion in self._motions.items()}
+
+    def observation_diagnostics(self):
+        """Sampling eligibility, independent of whether speed exceeds the rule."""
+        return {
+            key: {
+                "samples": len(motion.samples),
+                "span_seconds": round(motion.samples[-1].time - motion.samples[0].time, 3)
+                if motion.samples
+                else 0,
+                "history_ready": len(motion.samples) >= self.min_samples
+                and motion.samples[-1].time - motion.samples[0].time >= self.min_span_seconds,
+                "speed_person_heights_per_second": round(motion.last_speed, 3),
+            }
+            for key, motion in self._motions.items()
+        }
