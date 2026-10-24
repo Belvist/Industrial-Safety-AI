@@ -3,9 +3,9 @@
 ## Проверяемая версия
 
 Репозиторий: `https://github.com/Belvist/Industrial-Safety-AI`
-Сдаваемая ветка: `fix/ppe-always-on-accuracy`. Закреплённый релизный тег:
-`linq-defense-20261025` (создаётся на проверенном финальном commit; см. `git rev-parse`).
-`main` намеренно не используется.
+Сдаваемая ветка: `fix/ppe-always-on-accuracy`.
+Закреплённый релизный тег: `linq-defense-20261025-final` (указатель на
+проверенный финальный commit; см. `git rev-parse`). `main` намеренно не используется.
 
 Проверенные локальные изменения перед публикацией: backend Ruff clean,
 281 passed / 1 skipped; frontend Vitest 39 passed; TypeScript и Vite build
@@ -28,20 +28,30 @@ worker приведены отдельно в `ACTUAL_RESULTS.md` и `LINQ_PROOF
 ```bash
 git clone https://github.com/Belvist/Industrial-Safety-AI.git
 cd Industrial-Safety-AI
-git checkout linq-defense-20261025
+git checkout linq-defense-20261025-final
 
 python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -e "./backend[dev,vision,linq]" -c backend/constraints.txt
 cd frontend && npm ci && npm run build && cd ..
 python backend/scripts/download_model.py
+```
+
+Эта команда **только проверяет наличие и SHA-256 моделей**, она не скачивает
+отсутствующие файлы. Для чистой установки используйте `python run.py`, который
+настраивает окружение и собирает UI; если моделей нет, предварительно
+разместите registry-веса по процедуре в `backend/scripts/download_model.py` /
+`THIRD_PARTY.md`. В текущем чистом клоне загрузку модели отдельно подтвердить
+не удалось. `models/ppe-v4.onnx` и `ppe-v4cloud.onnx` — локальные
+экспериментальные веса, не baseline для чистого клона. После размещения и верификации `ppe.onnx` и
+`person.onnx` можно запустить API вручную:
+
+```bash
 python -m uvicorn app.main:app --app-dir backend --port 8000
 ```
 
-Откройте `http://127.0.0.1:8000`. Первый запуск требует доступа к источникам
-пакетов и закреплённым URL моделей. `models/ppe-v4.onnx` и `ppe-v4cloud.onnx`
-не являются скачиваемыми артефактами; воспроизводимый baseline — registry
-модель `ppe.onnx`. Не подменяйте её экспериментальными весами.
+Откройте `http://127.0.0.1:8000`. Не подменяйте baseline локальными
+экспериментальными весами.
 
 ## LinQ режим (только при наличии доступа)
 
