@@ -1001,7 +1001,7 @@
   background: var(--tone0);
 }
 .product-app .p-monitor .video-stage {
-  width: min(100%, calc((100dvh - 480px) * 16 / 9));
+  width: 100%;
 }
 .product-app .video-topline {
   top: 16px;
@@ -1225,6 +1225,11 @@
   margin: 14px 17px;
   font-size: 10px;
 }
+.p-worker-list {
+  max-height: min(62vh, 640px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 .p-worker-list > div {
   padding: 19px 17px;
   border-bottom: 1px solid var(--tone8);
@@ -1301,7 +1306,7 @@
   background: var(--tone0);
 }
 .product-app .p-focus-mode .video-stage {
-  width: min(100%, calc((100dvh - 235px) * 16 / 9));
+  width: 100%;
 }
 .p-focus-mode .p-monitor-tools {
   border-color: color-mix(in srgb, var(--tone9) 6.3%, transparent);
@@ -2050,6 +2055,22 @@
 }
 .p-inform.p-warning p {
   color: var(--tone4);
+}
+.product-app .p-video-surface > .p-inform.p-warning.p-video-warning {
+  position: absolute;
+  z-index: 5;
+  top: 12px;
+  left: 12px;
+  width: min(620px, calc(100% - 24px));
+  margin: 0;
+  padding: 11px 14px;
+  background: #171717ef;
+  border-color: #51483c;
+  color: #e0d5c5;
+  backdrop-filter: blur(8px);
+}
+.product-app .p-video-surface > .p-inform.p-warning.p-video-warning p {
+  color: #e0d5c5;
 }
 .p-zone-dialog .p-dialog {
   width: min(1340px, 100%);
@@ -4571,7 +4592,7 @@
   color: #eee;
 }
 .product-app .p-monitor .video-stage {
-  width: min(100%, calc((100dvh - 400px) * 16 / 9));
+  width: 100%;
 }
 .product-app .p-monitor-heading h1 {
   font-size: 25px;
@@ -4624,7 +4645,7 @@
   color: #aaa;
 }
 .product-app .p-focus-mode .video-stage {
-  width: min(100%, calc((100dvh - 235px) * 16 / 9));
+  width: 100%;
 }
 .product-app .p-focus-mode .p-icon {
   color: #ccc;

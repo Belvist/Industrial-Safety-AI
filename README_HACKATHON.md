@@ -65,15 +65,14 @@ back to local ONNX.
 ## Demo in 60 seconds
 
 1. Open `http://127.0.0.1:8000`.
-2. **Камеры и правила** → check **Контроль бега по цеху**.
-3. Start the browser camera (or upload an MP4).
-4. Walk normally — no incident.
-5. Run across the frame for ~1.5 s — one confirmed **Бег по цеху** incident
-   with snapshot, camera, time and type.
-6. Stop/walk — the incident becomes **Завершён**.
-7. **Журнал инцидентов** → filter by type, camera and status.
+2. Connect a video file and draw a named danger-zone polygon.
+3. Play the selected, previously verified Radar clip.
+4. Show the track and predicted zone-boundary warning, followed by CRITICAL.
+5. Open the single incident and its H.264 Replay in the journal.
+6. State whether `/api/v1/system/info` reports CPU or a live LinQ worker; never infer TPU use from the configured mode alone.
 
-Full script: `docs/DEMO_SCRIPT.md`.
+A positive real running event has not been confirmed and is not part of the demo.
+Full current demo instructions: `submission/final/DEMO_SCRIPT.md`.
 
 ## What is implemented
 
@@ -81,12 +80,12 @@ Full script: `docs/DEMO_SCRIPT.md`.
 |---|---|
 | FastAPI + React, file/browser/RTSP inputs | Implemented; RTSP/physical devices not verified here |
 | ONNX PPE detection, tracking, danger zones | Implemented, existing reports |
-| Scenario 01 — running (trajectory-based) | Implemented + unit/pipeline tests |
-| Temporal confirmation, one alert per event | Implemented + tests |
+| Scenario 01 — running (trajectory-based) | Algorithm + unit/synthetic pipeline tests; positive real-video detection not confirmed; not part of demo |
+| Temporal confirmation, one alert per event | Implemented + tests; physical identity accuracy not independently established |
 | Journal filters type/camera/zone/time | Implemented + tests |
 | Snapshot, feedback, Telegram transport | Snapshot/feedback tested; live Telegram not verified |
-| LinQ TPU | Real RabbitMQ TPU program; `worker_verified`; parity gap on 2 low-confidence test detections; end-to-end 1.4–2.4 s |
-| Scenarios 02–08 | Not implemented; not claimed |
+| LinQ TPU | Historical RabbitMQ worker replies and latency evidence only; this revision not reverified on LinQ |
+| Scenarios 02–08 | Scenario 05: manually drawn zones only; other scenarios not implemented |
 
 ## Tests
 

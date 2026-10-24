@@ -1,6 +1,10 @@
-# LinQ hardware report
+# LinQ hardware report — historical evidence
 
-Status: **REAL REMOTE TPU INFERENCE VERIFIED — PARTIAL for the case.**
+**Scope:** archived remote TPU runs; not a hardware acceptance of the current
+submission revision. No LinQ broker is configured in the current worktree.
+
+Status of those recorded runs: **REAL REMOTE TPU INFERENCE VERIFIED — PARTIAL
+for the case.**
 
 A compiled `.tpu` program was executed by the organizers' TPU worker over
 RabbitMQ. The worker returned `status_code = 0` and its own

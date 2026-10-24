@@ -254,7 +254,7 @@ export default function CameraViewport({
                 />
               ))}
           </svg>
-          {showBoxes && !editing && displayed && !stale && (
+          {showBoxes && !editing && displayed && (
             <div
               className="detection-overlay"
               aria-label="Работники, экипировка и прогноз"
@@ -412,11 +412,8 @@ export default function CameraViewport({
                 );
               })}
 
-              {/* Diagnostics: raw/unassigned detections only in raw mode */}
               {showRaw &&
-                (displayed.detections ?? [])
-                  .filter((d) => d.track_hint == null)
-                  .map((d, index) => (
+                (displayed.detections ?? []).map((d, index) => (
                     <div
                       key={`raw-${index}`}
                       className="detection-box raw"

@@ -198,6 +198,10 @@ def create_app(config: Settings = settings, runtime=None):
         if provider is not None and hasattr(provider, "status"):
             try:
                 provider_status = provider.status()
+                if isinstance(provider_status, dict):
+                    provider_status["independent_motion_active"] = bool(
+                        service.independent_motion
+                    )
             except Exception:  # noqa: BLE001 - info endpoint must not fail
                 provider_status = None
         try:

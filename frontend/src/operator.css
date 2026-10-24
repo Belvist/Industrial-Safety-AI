@@ -518,7 +518,7 @@
   font-weight: 550;
 }
 .p-operator-shell .p-monitor .video-stage {
-  width: min(100%, calc((100dvh - 480px) * 16 / 9));
+  width: 100%;
 }
 .p-operator-shell .p-observation-status {
   border: 0;
@@ -554,7 +554,7 @@
   font-size: 11px;
 }
 .p-operator-shell .p-focus-mode .video-stage {
-  width: min(100%, calc((100dvh - 250px) * 16 / 9));
+  width: 100%;
 }
 .p-operator-shell .p-focus-mode .p-observation-status {
   background: #222;

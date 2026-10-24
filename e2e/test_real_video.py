@@ -23,6 +23,12 @@ def main():
     p.add_argument("--artifacts", type=Path, required=True)
     p.add_argument("--browser-executable", default=None)
     p.add_argument(
+        "--minimum-tracks",
+        type=int,
+        default=0,
+        help="Require this many fresh API tracks and rendered worker boxes instead of zone events",
+    )
+    p.add_argument(
         "--record-video",
         action="store_true",
         help="Record the real browser journey as WebM",
@@ -56,6 +62,7 @@ def main():
     errors = []
     screenshots = set()
     displayed = {}
+    track_observation = None
     try:
         with sync_playwright() as pw:
             browser = pw.chromium.launch(
@@ -99,12 +106,52 @@ def main():
                                 full_page=True,
                             )
                             screenshots.add(level)
+                    if args.minimum_tracks and len(frame.get("tracks", [])) >= args.minimum_tracks:
+                        track_observation = frame
+                        break
                     if (
                         screenshots == {"WARNING", "CRITICAL"}
                         and frame.get("source_timestamp", 0) >= 10
                     ):
                         break
                 page.wait_for_timeout(50)
+            if args.minimum_tracks:
+                assert track_observation is not None, {
+                    "minimum_tracks": args.minimum_tracks,
+                    "observed_track_counts": [len(row.get("tracks", [])) for row in observations],
+                }
+                page.get_by_role("button", name="Люди", exact=False).click()
+                expect(page.locator(".p-worker-list > div")).to_have_count(
+                    args.minimum_tracks, timeout=10000
+                )
+                expect(page.locator(".track-box")).to_have_count(
+                    args.minimum_tracks, timeout=10000
+                )
+                page.screenshot(
+                    path=str(args.artifacts / "tracks.png"), full_page=True
+                )
+                report = {
+                    "status": "PASS",
+                    "mode": api("/system/info")["inference"],
+                    "minimum_tracks": args.minimum_tracks,
+                    "track_count": len(track_observation["tracks"]),
+                    "tracks": track_observation["tracks"],
+                    "detections": track_observation["detections"],
+                    "session_id": track_observation["session_id"],
+                    "sequence": track_observation["sequence"],
+                    "errors": errors,
+                    "source": "real video, no seeded detections/incidents",
+                }
+                assert not errors, errors
+                (args.artifacts / "report.json").write_text(
+                    json.dumps(report, indent=2, ensure_ascii=False)
+                )
+                (args.artifacts / "frames.json").write_text(
+                    json.dumps(observations, indent=2, ensure_ascii=False)
+                )
+                browser.close()
+                print("Real-video multi-track browser E2E PASS:", report["track_count"])
+                return
             assert screenshots == {"WARNING", "CRITICAL"}, screenshots
             incidents = api(f"/incidents?camera_id={cid}")["items"]
             assert len(incidents) == 1, incidents

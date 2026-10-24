@@ -86,6 +86,23 @@ def test_gap_does_not_count_as_observed_violation():
     assert engine.update({key: 0.8}, 11, 2, 2) == []
 
 
+def test_tracker_returns_one_track_per_strong_person_detection():
+    tracker = Tracker()
+    detections = [
+        detection("person", (0.1, 0.1, 0.3, 0.8), 0.91),
+        detection("person", (0.6, 0.1, 0.9, 0.9), 0.82),
+        Detection("person", 0.31, BoundingBox(0.4, 0.2, 0.5, 0.7), weak=True),
+        detection("helmet", (0.2, 0.1, 0.3, 0.2), 0.95),
+    ]
+
+    tracks = tracker.update(detections, 0)
+
+    assert len(tracks) == sum(
+        d.class_name == "person" and not d.weak for d in detections
+    ) == 2
+    assert len({track.id for track in tracks}) == 2
+
+
 def test_tracker_keeps_ids_with_reordered_people():
     tracker = Tracker()
     a = detection("person", (0.1, 0.1, 0.3, 0.8))

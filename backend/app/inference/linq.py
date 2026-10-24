@@ -22,6 +22,7 @@ agnostic by design (see docs/ARCHITECTURE.md).
 """
 
 import asyncio
+import hashlib
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -104,7 +105,7 @@ class LinqProvider(InferenceProvider):
         self.model_path = Path(model_path)
         self.confidence = confidence
         self.threads = threads
-        self.person_model_path = person_model_path
+        self.person_model_path = Path(person_model_path) if person_model_path else None
         # ``endpoint`` is kept for backward compatibility and means the AMQP
         # host when set (e.g. LINQ_ENDPOINT=10.0.114.30). It never triggers the
         # removed placeholder HTTP path.
@@ -137,6 +138,8 @@ class LinqProvider(InferenceProvider):
         self.stats = LinqStats(mode="uninitialized")
         self._local = None
         self._person = None
+        self.person_model_error = None
+        self._person_model_sha256 = None
         self._loaded = False
         self._connection = None
         self._channel = None
@@ -231,11 +234,18 @@ class LinqProvider(InferenceProvider):
 
     def _load_remote_person(self) -> None:
         if not self.person_model_path:
+            self.person_model_error = "not_configured"
             return
         try:
+            if self.person_model_path.is_file():
+                digest = hashlib.sha256()
+                with self.person_model_path.open("rb") as model_file:
+                    for chunk in iter(lambda: model_file.read(1024 * 1024), b""):
+                        digest.update(chunk)
+                self._person_model_sha256 = digest.hexdigest()
             from app.inference.local_onnx import LocalOnnxProvider
 
-            self._person = LocalOnnxProvider(
+            person = LocalOnnxProvider(
                 str(self.person_model_path),
                 self.confidence,
                 self.threads,
@@ -246,9 +256,12 @@ class LinqProvider(InferenceProvider):
                 required_classes={"person"},
                 allow_spinning=self.allow_spinning,
             )
-            self._person.load()
-        except Exception:  # noqa: BLE001 - PPE/TPU path still works without it
+            person.load()
+            self._person = person
+            self.person_model_error = None
+        except Exception as exc:  # noqa: BLE001 - report safe class only, never local paths
             self._person = None
+            self.person_model_error = type(exc).__name__
 
     def _pick_local_mode(self) -> str:
         # Mode by FACT from the loaded session, not by global availability:
@@ -325,6 +338,13 @@ class LinqProvider(InferenceProvider):
             "person_detector": (
                 "cpu" if self.stats.mode == "linq_remote" and self._person is not None else None
             ),
+            "person_model_ready": self._person is not None,
+            "person_model_error": self.person_model_error,
+            "person_model_sha256": self._person_model_sha256,
+            "person_active_providers": list(
+                getattr(self._person, "active_providers", []) if self._person else []
+            ),
+            "independent_motion_active": self.motion_capable(),
             "ppe_runtime": "tpu" if self.stats.mode == "linq_remote" else "cpu",
             "hardware_verified": self.readiness == "hardware_verified",
             "worker_pid": self.stats.worker_pid,

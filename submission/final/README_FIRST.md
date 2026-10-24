@@ -1,62 +1,80 @@
-# Industrial Safety AI × LinQ — финальный комплект
+# Industrial Safety AI × LinQ — комплект для защиты
+
+## Проверяемая версия
+
+Репозиторий: `https://github.com/Belvist/Industrial-Safety-AI`
+Сдаваемая ветка: `fix/ppe-always-on-accuracy`. Закреплённый релизный тег:
+`linq-defense-20261025` (создаётся на проверенном финальном commit; см. `git rev-parse`).
+`main` намеренно не используется.
+
+Проверенные локальные изменения перед публикацией: backend Ruff clean,
+281 passed / 1 skipped; frontend Vitest 39 passed; TypeScript и Vite build
+успешны. Эти результаты относятся к сдаваемой ревизии только после того,
+как соответствующий commit появится в публичном репозитории.
 
 ## Что это
 
-Система промышленной безопасности: камеры → детекция → трекинг →
-Safety Radar → инцидент → видеодоказательство → журнал.
+Система промышленной безопасности: видеопоток → детекция людей → трекинг →
+Safety Radar → подтверждённый инцидент → видеодоказательство → журнал.
 
-PPE-сеть исполняется на **LinQ TPU**. Person-детектор, трекинг, Radar,
-правила и UI — на CPU.
+Рабочий режим зависит от конфигурации. На последней проверенной изолированной
+версии Radar и person-детектор работали на CPU; текущая аппаратная приёмка
+этой версии на LinQ **не выполнена**. Исторические LinQ-измерения и ответы
+worker приведены отдельно в `ACTUAL_RESULTS.md` и `LINQ_PROOF.md`; они не
+доказывают доступность LinQ на защите.
 
-## Как запустить
+## Чистая установка (CPU baseline)
 
 ```bash
-git clone https://github.com/judogaaa/Industrial-Safety-AI.git
+git clone https://github.com/Belvist/Industrial-Safety-AI.git
 cd Industrial-Safety-AI
-git checkout feature/linq-pipeline-app
+git checkout linq-defense-20261025
 
 python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -e "./backend[dev,vision,linq]" -c backend/constraints.txt
 cd frontend && npm ci && npm run build && cd ..
 python backend/scripts/download_model.py
-
-# локальный режим (CPU, без TPU)
-python -m uvicorn app.main:app --app-dir backend --port 8000
-
-# режим LinQ TPU
-export INFERENCE_PROVIDER=linq
-export LINQ_AMQP_HOST=<broker-host>
-export LINQ_TPU_PROGRAM=ppe_nosig_p999.tpu
-export LINQ_TPU_CACHE_DIR=/auto/cache/hackathon93154
 python -m uvicorn app.main:app --app-dir backend --port 8000
 ```
 
-Открыть `http://127.0.0.1:8000`.
+Откройте `http://127.0.0.1:8000`. Первый запуск требует доступа к источникам
+пакетов и закреплённым URL моделей. `models/ppe-v4.onnx` и `ppe-v4cloud.onnx`
+не являются скачиваемыми артефактами; воспроизводимый baseline — registry
+модель `ppe.onnx`. Не подменяйте её экспериментальными весами.
 
-## Что смотреть
+## LinQ режим (только при наличии доступа)
 
-1. **Наблюдение** → выбрать камеру.
-2. **Подключить источник** → видеофайл.
-3. **Опасные зоны** → нарисовать 1–3 именованные зоны.
-4. Смотреть **Радар**: NORMAL → WARNING → CRITICAL.
-5. **События** → инцидент → **Replay** (H.264).
-6. **Система** → `ppe_runtime=tpu`, `worker_verified`, `remote_calls`.
+```bash
+export INFERENCE_PROVIDER=linq
+export LINQ_AMQP_HOST="broker-host"
+export LINQ_TPU_PROGRAM=ppe_nosig_p999.tpu
+export LINQ_TPU_CACHE_DIR="shared-program-cache"
+python -m uvicorn app.main:app --app-dir backend --port 8000
+```
 
-## Документы
+До демонстрации откройте `/api/v1/system/info` и подтвердите текущие
+`readiness`, `worker_verified`, `ppe_runtime`, `person_detector` и счётчик
+ответов. Если worker не отвечает, переключитесь на CPU-демо и прямо назовите
+его CPU. Не показывайте сохранённые исторические ответы как live LinQ.
+`hardware_verified=false` означает отсутствие независимых аппаратных счётчиков.
 
-| Файл | Что внутри |
-|---|---|
-| `metrics/PRESENTATION_METRICS.md` | все замеры с методологией |
-| `docs/LINQ_CASE_TRACEABILITY.md` | требование → код → тест → статус |
-| `docs/finalization-20261024/RESULTS.md` | независимая приёмка на реальном видео |
-| `docs/LINQ_HARDWARE_REPORT.md` | TPU-программа, parity, латентность |
-| `Industrial_Safety_AI_LinQ.pptx` / `.pdf` | презентация, 13 слайдов |
+## Проверенный сценарий показа
 
-## Честные ограничения
+1. Подключить видеофайл и показать человека/трек.
+2. Заранее размеченная именованная зона: показать переход Radar
+   NORMAL → WARNING → CRITICAL.
+3. Показать ровно один подтверждённый инцидент, временную метку и камеру.
+4. Открыть H.264 Replay и решение оператора.
+5. Отдельно показать фактический runtime provider и ограничения PPE.
 
-- `hardware_verified=false` — протокол не отдаёт аппаратные счётчики.
-- PPE слабый: 5 FN каски, 10 FN жилета на 17 примерах.
-- Person на CPU, не на TPU.
-- Сценарии 02–04, 06–08 не реализованы; 05 — только нарисованные зоны.
-- Положительный бег на реальном видео не подтверждён.
+Положительное распознавание бега не подтверждено и не является частью демо.
+Физическая IP-камера и новая LinQ-приёмка не подтверждены.
+
+## Материалы
+
+- `ACTUAL_RESULTS.md` — метрики с разделением исторической LinQ-приёмки и текущих ограничений.
+- `LINQ_PROOF.md` — исторические аппаратные доказательства и границы.
+- `REQUIREMENTS_MATRIX.md` — обязательные требования и статус доказательств.
+- `DEMO_SCRIPT.md`, `JURY_QA.md` — сценарий и ответы без неподтверждённых обещаний.
+- `Industrial_Safety_AI_LinQ.pptx` / `.pdf` — презентационные материалы; актуальность каждого слайда требует ручной сверки.

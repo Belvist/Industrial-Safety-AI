@@ -305,7 +305,56 @@ def test_linq_local_mode_only_when_ep_really_in_session(monkeypatch, tmp_path):
     assert provider.mode == "local_onnx"
     assert provider.status()["active_providers"] == ["CPUExecutionProvider"]
 
-def test_linq_remote_status_exposes_normalized_program_classes():
+def test_remote_person_status_reports_ready_and_model_digest(monkeypatch, tmp_path):
+    import hashlib
+
+    import app.inference.local_onnx as local_onnx
+
+    model = tmp_path / "person.onnx"
+    model.write_bytes(b"person-model")
+
+    class FakePerson:
+        active_providers = ["CPUExecutionProvider"]
+
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def load(self):
+            pass
+
+    monkeypatch.setattr(local_onnx, "LocalOnnxProvider", FakePerson)
+    provider = LinqProvider(amqp_host="127.0.0.1", person_model_path=str(model))
+    provider.load()
+
+    status = provider.status()
+    assert status["person_model_ready"] is True
+    assert status["person_model_error"] is None
+    assert status["person_model_sha256"] == hashlib.sha256(b"person-model").hexdigest()
+    assert status["person_active_providers"] == ["CPUExecutionProvider"]
+    assert status["independent_motion_active"] is True
+
+
+def test_remote_person_load_error_is_reported_without_path(monkeypatch, tmp_path):
+    import app.inference.local_onnx as local_onnx
+
+    private_path = tmp_path / "private" / "person.onnx"
+
+    class BrokenPerson:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def load(self):
+            raise FileNotFoundError(str(private_path))
+
+    monkeypatch.setattr(local_onnx, "LocalOnnxProvider", BrokenPerson)
+    provider = LinqProvider(amqp_host="127.0.0.1", person_model_path=str(private_path))
+    provider.load()
+
+    status = provider.status()
+    assert status["person_model_ready"] is False
+    assert status["person_model_error"] == "FileNotFoundError"
+    assert str(private_path) not in str(status)
+    assert status["independent_motion_active"] is False
     provider = LinqProvider(amqp_host="10.0.114.30")
     provider.load()
     supported = provider.status()["supported_classes"]

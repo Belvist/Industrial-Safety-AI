@@ -56,7 +56,7 @@ export default function Monitor({
     >(null),
     [focus, setFocus] = useState(false),
     [boxes, setBoxes] = useState(true),
-    [raw, setRaw] = useState(false);
+    [raw, setRaw] = useState(true);
   const state = observation(camera, result, online);
   const fresh =
     online &&
@@ -188,26 +188,26 @@ export default function Monitor({
           </button>
         )}
       </div>
-      {ppeUnknown && (
-        <div className="p-inform p-warning" role="status">
-          <AlertTriangle size={18} />
-          <p>
-            <strong>СИЗ: недостаточно достоверных данных.</strong>{" "}
-            {qualityReasons.length
-              ? qualityReasons.map((r) => qualityText[r] ?? r).join("; ")
-              : result?.ppe?.state === "unavailable"
-                ? "Модель СИЗ недоступна. Контроль движения продолжается."
-                : result?.ppe?.state === "stale"
-                  ? "Ответ СИЗ устарел. Старый статус не подтверждает новое нарушение."
-                  : "Ожидаем распознавание каски и жилета. Отсутствие результата не означает нарушение."}
-          </p>
-        </div>
-      )}
       <div
         className={`p-observation-layout ${inspector ? "with-inspector" : ""}`}
       >
         <div className="p-observation-video">
           <div className="p-video-surface">
+            {ppeUnknown && (
+              <div className="p-inform p-warning p-video-warning" role="status">
+                <AlertTriangle size={18} />
+                <p>
+                  <strong>СИЗ: недостаточно достоверных данных.</strong>{" "}
+                  {qualityReasons.length
+                    ? qualityReasons.map((r) => qualityText[r] ?? r).join("; ")
+                    : result?.ppe?.state === "unavailable"
+                      ? "Модель СИЗ недоступна. Контроль движения продолжается."
+                      : result?.ppe?.state === "stale"
+                        ? "Ответ СИЗ устарел. Старый статус не подтверждает новое нарушение."
+                        : "Ожидаем распознавание каски и жилета. Отсутствие результата не означает нарушение."}
+                </p>
+              </div>
+            )}
             {result ? (
               <CameraViewport
                 camera={camera}
@@ -320,7 +320,9 @@ export default function Monitor({
           </div>
         </div>
         {inspector && (
-          <aside className="p-inspector">
+          <aside
+            className={`p-inspector ${inspector === "people" ? "p-inspector-people" : ""}`}
+          >
             <header>
               <h2>
                 {inspector === "people"

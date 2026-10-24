@@ -16,6 +16,9 @@ class ControlledProvider:
     missing = True
     ppe_confidence = 0.95
 
+    def status(self):
+        return {"provider": self.name}
+
     def predict_sync(self, frame):
         assert frame.dtype == np.uint8
         person = Detection("person", 0.99, BoundingBox(0.1, 0.1, 0.8, 0.95))
@@ -155,6 +158,12 @@ def test_api_frames_settings_history_feedback_and_origin(runtime):
         camera = client.get("/api/v1/cameras").json()[0]
         cid = camera["id"]
         assert client.get("/api/v1/system/info").json()["model_ready"]
+        assert (
+            client.get("/api/v1/system/info").json()["inference"][
+                "independent_motion_active"
+            ]
+            is False
+        )
         started = client.post(f"/api/v1/cameras/{cid}/start", json={"kind": "browser"})
         assert started.status_code == 200
         headers = {"X-Session-Id": started.json()["session_id"]}

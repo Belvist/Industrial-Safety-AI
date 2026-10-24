@@ -73,10 +73,11 @@ Intel worker-zone-detection, 1920×1080, 59.94 исходных FPS; CPU quota 2
 
 ```bash
 # Каждый output должен быть новым. Требуются существующие модели и FFmpeg/libx264.
-python backend/scripts/profile_motion.py --repo "$PWD" --video /tmp/worker-zone-detection.mp4 --output /tmp/motion-run-1 --target-fps 6
-python backend/scripts/profile_motion.py --repo "$PWD" --video /tmp/worker-zone-detection.mp4 --output /tmp/ppe-run-1 --target-fps 6 --ppe
-python backend/scripts/profile_motion.py --repo "$PWD" --video /tmp/worker-zone-detection.mp4 --output /tmp/two-run-1 --target-fps 6 --cameras 2 --ppe
-# Повторить по 3 раза; для сравнения baseline — отдельный detached worktree f27f391
+python backend/scripts/profile_motion.py --repo "$PWD" --video /tmp/worker-zone-detection.mp4 --output /tmp/motion-run-1 --target-fps 6 --motion-only
+python backend/scripts/profile_motion.py --repo "$PWD" --video /tmp/worker-zone-detection.mp4 --output /tmp/ppe-run-1 --target-fps 6
+python backend/scripts/profile_motion.py --repo "$PWD" --video /tmp/worker-zone-detection.mp4 --output /tmp/two-run-1 --target-fps 6 --cameras 2
+python backend/scripts/profile_motion.py --repo "$PWD" --video /tmp/worker-zone-detection.mp4 --output /tmp/motion-only-run-1 --target-fps 6 --motion-only
+# Run both profiles; do not compare motion-only FPS as full PPE performance.
 # с теми же моделями (weights runtime assets, в Git не хранятся).
 python backend/scripts/evaluate_ppe_visibility.py --repo "$PWD" --video-dir /tmp/industrial-real-footage --labels docs/finalization-20261024/ppe-visibility-labels.json --output /tmp/visibility-run-1
 python backend/scripts/validate_real_video.py --video /tmp/worker-zone-detection.mp4 --config docs/finalization-20261024/configs/reentry.json --output /tmp/reentry-run-1 --seconds 12
@@ -84,6 +85,22 @@ python -m pytest backend/tests/test_ppe_window.py backend/tests/test_independent
 ```
 
 Для аппаратной приёмки сначала настройте разрешённое подключение и квоту; затем
-повторите сценарий C и profile_motion с --provider linq --ppe. Только после
+повторите сценарий C и profile_motion с --provider linq. Только после
 разрешения настройте оба лимита PPE и выполните benchmark_linq с --approved-max.
 Ни batch, ни новая TPU-компиляция в этой работе не заявляются совместимыми.
+
+## PPE accuracy follow-up (24 Oct 2026)
+
+- Isolated feature work started from `0905ebe` on `fix/ppe-always-on-accuracy`; no production thresholds or user `.env` changed.
+- `backend/scripts/profile_motion.py` now enables helmet + vest by default. `--motion-only` is the explicit diagnostic opt-out; `--model` selects an ONNX weight without reading user `.env`. Reports include model SHA, active provider, enabled PPE flags and aggregate person/Radar/PPE rates. Finite-source runs that end during the window correctly report `INCOMPLETE`.
+- Four-model same-decoder diagnostic sweep on `datasets/ppe_v3_clean` test set (124 images; IoU 0.5; CPU; floor 0.05; thresholds 0.25–0.60) is in session temp output `/var/folders/54/hs33sq6j50s5jstt9q5062680000gn/T/opencode/ppe-ab-0905` (not checked in). Same-distribution evidence only: `ppe-v3-clean` at no-v* 0.30 got no_helmet 17/31 TP, 4 FP; no_vest 45/61 TP, 28 FP. `ppe-v4` at 0.25 got no_helmet 18/31 TP, 11 FP; no_vest 36/61 TP, 37 FP. `ppe-v4cloud` at 0.25 got no_helmet 19/31 TP, 3 FP; no_vest 40/61 TP, 43 FP. These are detection-box results, not event recall or operating safety metrics; no thresholds were changed from them.
+- Dataset `audit_leaks.json` lists 30 near-duplicate cross-split image pairs and two label conflicts. This test set is not a frozen independent holdout and must not be used for model selection or generalization claims. No decoder defect was established; do not change postprocessing based on this sweep.
+- Isolated 10-second profile using `models/ppe-v4.onnx` on the previously licensed CC BY running clip completed with `MEASURED`, PPE enabled, CPUExecutionProvider, model SHA `688bbf4d68217d1ff722aac06b2bae0a0296b6e5938d4b29f68623edd2d09f88`: person/Radar 3.997/3.997 FPS, PPE requested/applied 0.700/0.700 per second, CPU 108.7% of one core, source age p95 86.1 ms. Exploratory throughput only; not accuracy acceptance or sustained-camera performance.
+- Backend Ruff clean; pytest 279 passed, 1 skipped. Independent holdout A–H videos, verified labels, classifier experiment, real browser E2E and LinQ remain outstanding/blocked.
+- Exploratory person-model check on the 17 existing manually labeled person samples: full-frame `person.onnx` matched 17/17 at IoU >= 0.4, with 19 strong detections total; a naive 640x640 overlapping-tile pass matched 13/17 and emitted 45 strong detections. A broader two-window crop pass matched 17/17 but emitted 25 detections versus 19 and increased mean latency from 54.3 ms to 75.2 ms. These small repeated samples show no safe recall gain; no tiling/crop rescue was added.
+- Current provisional 17-sample PPE rerun with the real person model and `ppe.onnx` reports no person misses. Full-frame: helmet present 5, missing 0, unknown 12; vest present 0, missing 0, unknown 17. ROI-auto: helmet present 6, missing 1, unknown 10; vest present 3, missing 0, unknown 14. Against known visual labels this still includes 5/4 helmet violation false negatives and 10/10 vest violation false negatives respectively; this is a small diagnostic set, not independent accuracy acceptance. Full-frame and ROI-auto each use one detection frame per label, not a production temporal event pipeline.
+- The PPE warning was moved from normal document flow into the video surface and its CSS specificity was corrected so the overlay positioning/background/padding win over generic warning styles. Monitor/focus video sizing no longer derives width from viewport height, aiming to avoid layout reflow. Frontend tests/build pass, but no browser geometry or screenshot comparison was run; visual stability is not yet confirmed.
+- Live system-info check: port 8000 reports LinQ remote readiness `failed`, no confirmed accelerator, zero successful TPU results in the last metrics window, 93 remote failures/246 calls since process start, and PPE full-frame fallback reason `roi too small or too large`; PPE work was not skipped. The independent CPU person detector remains active. Isolated port 8011 reports `ppe-v4.onnx` on CPU and no recorded incidents. These states are point-in-time diagnostics, not camera detection acceptance.
+- Atharion v1.0 archive was checksum-verified (`f5f6f1966c4bdfff4151ee68fa0da21f446e1b788d15280e5f70028c69ec88c5`); its 791/170/169 split and 2,002 Person / 1,776 Hardhat / 1,577 Safety Vest box totals match its build metadata. `NOTICE.md` identifies 1,026 Ultralytics Construction-PPE images (AGPL-3.0) and 104 Construction Site Safety images (CC BY 4.0), with per-image attribution. It is positive-only; absent PPE boxes are not verified absences.
+- Audit against 33,343 local dataset images found 3 exact SHA matches among the 169 Atharion test images, all in css-kaggle-v28; 110 test images had pHash distance <=5 (102 Ultralytics-source and 8 css-kaggle-v28), which may include exact matches. pHash is only a candidate-overlap signal, not scene-level adjudication. The split is contaminated and was not used for model scoring; do not call it an independent holdout.
+- Three exploratory Pexels/Pixabay clips were downloaded and SHA-256 verified, but no visual ground-truth adjudication was possible; no A–H or PPE-state labels are established. Keep them out of TP/FP/FN and event-rate metrics until qualified annotation is available. No accuracy fix or independent PPE acceptance is established.
