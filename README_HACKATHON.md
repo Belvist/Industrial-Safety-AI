@@ -101,3 +101,16 @@ metrics and the new desktop/mobile workspace. Keep `LINQ_MAX_IN_FLIGHT=1` until
 organizers authorize a measured higher setting. This environment has no LinQ
 VPN/broker access, so this update is **not a new hardware 5 FPS demonstration**.
 The existing `demo-stable-c809154` tag is retained.
+
+## Operator workspace (24 Oct 2026)
+
+The default UI is now a dark monochrome workspace with a camera explorer,
+focused video, optional People/Radar/Events panels and a separate review queue.
+Light theme is available. Start with **«Подключить первую камеру»** and follow
+source → checks → observation. Ctrl/⌘ B toggles the explorer; F opens focus mode.
+See [the operator journey](docs/PRODUCT_WORKSPACE.md) and
+[the three-minute demo](docs/DEMO_SCRIPT.md).
+
+H.264 playback/review/export has its own isolated browser regression:
+`python e2e/test_incident_review.py`. Its fixtures are explicitly labelled and
+are not accuracy, physical-camera or TPU performance evidence.

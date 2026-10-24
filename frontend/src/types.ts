@@ -169,6 +169,7 @@ export type Info = {
     active: number;
     today: number;
     false_positive: number;
+    unreviewed?: number;
   };
 };
 export type Page = "monitor" | "dashboard" | "incidents" | "cameras";

@@ -13,6 +13,7 @@ export default function PhoneConnect({
 }) {
   const [code, setCode] = useState<string | null>(null);
   const [expiresIn, setExpiresIn] = useState(0);
+  const [deadline, setDeadline] = useState(0);
   const [isolated, setIsolated] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -28,7 +29,20 @@ export default function PhoneConnect({
   useEffect(() => {
     setCode(null);
     setExpiresIn(0);
+    setDeadline(0);
   }, [cameraId, url]);
+  useEffect(() => {
+    if (!code || !deadline) return;
+    const timer = setInterval(() => {
+      const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      setExpiresIn(left);
+      if (!left) {
+        setCode(null);
+        setError("Время действия кода истекло. Создайте новый код.");
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [code, deadline]);
 
   async function mint() {
     setBusy(true);
@@ -39,14 +53,13 @@ export default function PhoneConnect({
         {
           method: "POST",
           ...json(
-            isolated
-              ? { new_camera_name: "Телефон" }
-              : { camera_id: cameraId },
+            isolated ? { new_camera_name: "Телефон" } : { camera_id: cameraId },
           ),
         },
       );
       setCode(created.code);
       setExpiresIn(created.expires_in);
+      setDeadline(Date.now() + created.expires_in * 1000);
     } catch (e) {
       setError(errorText(e));
     } finally {
@@ -80,16 +93,27 @@ export default function PhoneConnect({
             />
             Отдельная камера телефона (свои кадры и история)
           </label>
-          <button className="button" disabled={busy} onClick={() => void mint()}>
+          <button
+            className="button"
+            disabled={busy}
+            onClick={() => void mint()}
+          >
             Создать код для телефона
           </button>
           {error && <p className="notice-text">{error}</p>}
         </>
       ) : (
         <>
-          <canvas ref={canvas} className="qr" aria-label={`QR: ${pairing}`} />
+          <canvas
+            ref={canvas}
+            className="qr"
+            aria-label="QR-код подключения телефона"
+          />
           <p className="qr-url">{pairing}</p>
-          <p>Код сгорит при использовании или через {expiresIn} сек.</p>
+          <p>
+            Одноразовый код · осталось {Math.floor(expiresIn / 60)}:
+            {String(expiresIn % 60).padStart(2, "0")}
+          </p>
           <button className="button" onClick={() => void cancel()}>
             Отменить код
           </button>
@@ -97,9 +121,9 @@ export default function PhoneConnect({
       )}
       <ol>
         <li>Телефон в том же Wi-Fi, что этот компьютер</li>
-        <li>Отсканируй QR камерой телефона</li>
-        <li>Прими предупреждение о сертификате и разреши доступ к камере</li>
-        <li>Нажми «Запустить мониторинг» — кадры пойдут с телефона</li>
+        <li>Отсканируйте QR камерой телефона</li>
+        <li>Откройте страницу через HTTPS и разрешите доступ к камере</li>
+        <li>Нажмите «Открыть камеру телефона», затем «Начать передачу»</li>
       </ol>
     </section>
   );

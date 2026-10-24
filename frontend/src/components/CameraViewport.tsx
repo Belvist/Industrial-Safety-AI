@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ScanLine, Video, Eye, EyeOff, Activity } from "lucide-react";
 import type { Camera, Point, Result } from "../types";
 import { labels, percentage } from "../types";
-import { observeClient } from "../clientMetrics";
+import { observeClient, markUiFrame } from "../clientMetrics";
 import { useAuthedImage } from "../useAuthedImage";
 export default function CameraViewport({
   camera,
@@ -17,6 +17,8 @@ export default function CameraViewport({
   showRaw,
   setShowRaw,
   dataStale = false,
+  minimal = false,
+  onMovePoint,
 }: {
   camera?: Camera;
   result?: Result | null;
@@ -30,7 +32,11 @@ export default function CameraViewport({
   showRaw: boolean;
   setShowRaw: (value: boolean) => void;
   dataStale?: boolean;
+  minimal?: boolean;
+  onMovePoint?: (index: number, point: Point) => void;
 }) {
+  const dragPoint = useRef<number | null>(null);
+  const movedPoint = useRef(false);
   const [displayed, setDisplayed] = useState<Result | null>(null);
   const rendered = useRef<{ started: number; frames: number[]; last: number }>({
     started: performance.now(),
@@ -105,6 +111,12 @@ export default function CameraViewport({
                     performance.now() - loaded.startedAt,
                   );
                   if (rendered.current.last !== loaded.payload.sequence) {
+                    if (camera?.id)
+                      markUiFrame(
+                        camera.id,
+                        loaded.payload.session_id,
+                        loaded.payload.sequence,
+                      );
                     rendered.current.frames.push(performance.now());
                     rendered.current.last = loaded.payload.sequence;
                   }
@@ -132,7 +144,26 @@ export default function CameraViewport({
             className={"zone-overlay " + (editing ? "editing" : "")}
             viewBox="0 0 1000 1000"
             preserveAspectRatio="none"
+            onPointerMove={(e) => {
+              if (dragPoint.current === null || !onMovePoint) return;
+              const rect = e.currentTarget.getBoundingClientRect();
+              movedPoint.current = true;
+              onMovePoint(dragPoint.current, [
+                Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)),
+                Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height)),
+              ]);
+            }}
+            onPointerUp={() => {
+              dragPoint.current = null;
+            }}
+            onPointerCancel={() => {
+              dragPoint.current = null;
+            }}
             onClick={(e) => {
+              if (movedPoint.current) {
+                movedPoint.current = false;
+                return;
+              }
               if (!editing || points.length >= 30) return;
               const rect = e.currentTarget.getBoundingClientRect();
               onPoint([
@@ -190,7 +221,35 @@ export default function CameraViewport({
                   key={i}
                   cx={x * 1000}
                   cy={y * 1000}
-                  r="5"
+                  r="8"
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Точка зоны ${i + 1}`}
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    dragPoint.current = i;
+                    movedPoint.current = false;
+                    e.currentTarget.ownerSVGElement?.setPointerCapture(
+                      e.pointerId,
+                    );
+                  }}
+                  onKeyDown={(e) => {
+                    const move: Record<string, Point> = {
+                      ArrowLeft: [-0.005, 0],
+                      ArrowRight: [0.005, 0],
+                      ArrowUp: [0, -0.005],
+                      ArrowDown: [0, 0.005],
+                    };
+                    if (move[e.key] && onMovePoint) {
+                      e.preventDefault();
+                      const [dx, dy] = move[e.key];
+                      onMovePoint(i, [
+                        Math.min(1, Math.max(0, x + dx)),
+                        Math.min(1, Math.max(0, y + dy)),
+                      ]);
+                    }
+                  }}
                   fill="#eac36b"
                 />
               ))}
@@ -319,16 +378,35 @@ export default function CameraViewport({
                     }}
                   >
                     <span className="track-label">
-                      <b>#{t.id}</b> · {level}
-                      <br />
-                      {(t.ppe_age_seconds ?? 0) > 0 && (
+                      <b>Сотрудник #{t.id}</b>
+                      {minimal ? (
                         <>
-                          СИЗ: {(t.ppe_age_seconds ?? 0).toFixed(1)} с назад
+                          {level === "CRITICAL"
+                            ? " · В опасной зоне"
+                            : level === "WARNING"
+                              ? " · Приближается к зоне"
+                              : ""}
+                          {(t.ppe_age_seconds ?? 0) === 0 &&
+                            t.ppe?.helmet === "missing" && (
+                              <>
+                                <br />
+                                Без каски
+                              </>
+                            )}
+                          {(t.ppe_age_seconds ?? 0) === 0 &&
+                            t.ppe?.vest === "missing" && (
+                              <>
+                                <br />
+                                Без жилета
+                              </>
+                            )}
+                        </>
+                      ) : (
+                        <>
                           <br />
+                          Каска: {label(helmet)} · жилет: {label(vest)}
                         </>
                       )}
-                      каска: {label(helmet)}
-                      {" · "}жилет: {label(vest)}
                     </span>
                   </div>
                 );
@@ -376,7 +454,7 @@ export default function CameraViewport({
               ? "Анализ файла"
               : labels[camera?.status || "stopped"]}
           </span>
-          {displayed && (
+          {displayed && !minimal && (
             <span className="frame-counter">
               КАДР {displayed.sequence.toString().padStart(5, "0")}
             </span>
@@ -388,46 +466,47 @@ export default function CameraViewport({
           </div>
         )}
       </div>
-      <div className="video-toolbar">
-        <div className="telemetry">
-          <span>
-            <Activity size={14} />
-            Аналитика {result?.metrics?.rates.analytics?.fps.toFixed(1) ??
-              "—"}{" "}
-            FPS
-          </span>
-          <span title="Захваченные кадры за измеренное окно">
-            Захват {result?.metrics?.rates.capture?.fps.toFixed(1) ?? "—"}
-          </span>
-          <span title="Успешные удалённые TPU-результаты; прочерк для локального режима">
-            TPU {result?.metrics?.rates.tpu?.fps.toFixed(1) ?? "—"}
-          </span>
-          <span title="Уникальные кадры, загруженные в этом окне браузера">
-            UI {uiFps.toFixed(1)}
-          </span>
-          <span>{displayed?.latency_ms || "—"} мс</span>
-          <span title="Отброшенные кадры при перегрузке">
-            Пропуски {result?.metrics?.rates.dropped?.total ?? 0}
-          </span>
-          <span>{displayed?.tracks.length ?? 0} чел.</span>
+      {!minimal && (
+        <div className="video-toolbar">
+          <div className="telemetry">
+            <span>
+              <Activity size={14} />
+              Аналитика{" "}
+              {result?.metrics?.rates.analytics?.fps.toFixed(1) ?? "—"} FPS
+            </span>
+            <span title="Захваченные кадры за измеренное окно">
+              Захват {result?.metrics?.rates.capture?.fps.toFixed(1) ?? "—"}
+            </span>
+            <span title="Успешные удалённые TPU-результаты; прочерк для локального режима">
+              TPU {result?.metrics?.rates.tpu?.fps.toFixed(1) ?? "—"}
+            </span>
+            <span title="Уникальные кадры, загруженные в этом окне браузера">
+              UI {uiFps.toFixed(1)}
+            </span>
+            <span>{displayed?.latency_ms || "—"} мс</span>
+            <span title="Отброшенные кадры при перегрузке">
+              Пропуски {result?.metrics?.rates.dropped?.total ?? 0}
+            </span>
+            <span>{displayed?.tracks.length ?? 0} чел.</span>
+          </div>
+          <button
+            className="text-button"
+            onClick={() => setShowBoxes(!showBoxes)}
+            aria-pressed={showBoxes}
+          >
+            {showBoxes ? <Eye size={15} /> : <EyeOff size={15} />}Объекты и
+            проценты
+          </button>
+          <button
+            className="text-button"
+            onClick={() => setShowRaw(!showRaw)}
+            aria-pressed={showRaw}
+            title="Показать все сырые детекции, включая непривязанные к работникам"
+          >
+            {showRaw ? <Eye size={15} /> : <EyeOff size={15} />}Сырые детекции
+          </button>
         </div>
-        <button
-          className="text-button"
-          onClick={() => setShowBoxes(!showBoxes)}
-          aria-pressed={showBoxes}
-        >
-          {showBoxes ? <Eye size={15} /> : <EyeOff size={15} />}Объекты и
-          проценты
-        </button>
-        <button
-          className="text-button"
-          onClick={() => setShowRaw(!showRaw)}
-          aria-pressed={showRaw}
-          title="Показать все сырые детекции, включая непривязанные к работникам"
-        >
-          {showRaw ? <Eye size={15} /> : <EyeOff size={15} />}Сырые детекции
-        </button>
-      </div>
+      )}
     </>
   );
 }

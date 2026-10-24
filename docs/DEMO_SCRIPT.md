@@ -1,58 +1,51 @@
-# Demo script — Industrial Safety AI × LinQ
+# Показ продукта — 3 минуты
 
-Target length: 2–3 minutes live. The 90-second version is marked **[90s]**.
+## До показа
 
-## Before the demo
+Запустите `python run.py`. В «Система» проверьте модель и подключение.
+Подготовьте разрешённую запись с работниками либо настоящую камеру на площадке.
+Используйте свои СИЗ; не создавайте реальную опасность ради демонстрации зоны.
+Если доступа LinQ нет, прямо назовите режим локальным.
 
-1. Start the application: `python run.py` (or the one-command path in
-   `README_HACKATHON.md`).
-2. Open the operator UI and pick a camera.
-3. In **Камеры и правила**, enable **Контроль бега по цеху**.
-   Optional: enable helmet/vest and draw a danger zone.
-4. Open `docs/LINQ_HARDWARE_REPORT.md` and say plainly whether LinQ is
-   verified or blocked. Never show CPU/CoreML as TPU.
+## Путь оператора
 
-## Script
+1. **0:00–0:30 — первый запуск.** Нажмите «Подключить первую камеру».
+   Дайте понятное имя, выберите источник и проверки. «Начать наблюдение».
+2. **0:30–1:00 — рабочий экран.** Покажите живую картинку и состояние.
+   Откройте «Люди» и «Радар». Закройте панель Escape. Ctrl/⌘ B убирает список
+   камер, F включает режим наблюдения. Объясните, что нет людей в кадре
+   или нет данных — это не гарантия безопасности.
+3. **1:00–1:40 — опасная зона.** «Обозначить зону»: три точки, название,
+   сохранить. На безопасном демонстрационном участке покажите приближение,
+   прогноз и вход. Дождитесь настоящего временного подтверждения;
+   отсутствие срабатывания нельзя заменять тестовой записью в базе.
+4. **1:40–2:30 — решение.** «Инциденты» → событие. Покажите снимок,
+   видеодоказательство при его наличии, время и трек. Подтвердите нарушение
+   либо отметьте ложное срабатывание. Это оценка оператора, а не команда
+   считать участок безопасным.
+5. **2:30–3:00 — завершённый цикл.** Фильтр камеры и периода, CSV. Вернитесь
+   к наблюдению, остановите источник. История сохраняется. Остановка активного
+   нарушения отмечает наблюдение прерванным, не устранённым.
 
-1. **[90s] Show normal work.** Start the browser camera or a video file.
-   Point at the calm-state chip: workers are tracked, no incident is created.
-2. **[90s] Trigger scenario 01.** Have a person walk, then run across the
-   frame for at least ~1.5 s. The alert banner moves from “ПРОВЕРКА” to
-   “НАРУШЕНИЕ: Бег по цеху” after temporal confirmation.
-3. Show that exactly **one** incident appears. Open it: snapshot, camera,
-   timestamp, type, confidence, duration.
-4. Keep the person still/walking. Let the rule clear; the incident becomes
-   **Завершён** (`violation_cleared`).
-5. Open **Журнал инцидентов**. Filter by type `Бег по цеху`, by camera, and
-   by status. This is server-side filtering (case slide 13, item 5).
-6. Stop the camera mid-incident to show **Прерван** (`monitoring_stopped`),
-   not a false “resolved”.
-7. Optional: show PPE/zone rules as additional functions, not as the main
-   behavioural case.
-8. Hardware slide: state LinQ status honestly (verified / blocked) and the
-   exact next step from `docs/LINQ_HARDWARE_REPORT.md`.
+## Дополнительно по запросу
 
-## What to say about LinQ
+- «Камеры» → «Основное и проверки» → раскрыть дополнительные настройки:
+  временное подтверждение, параметры движения. Быстрое перемещение —
+  экспериментальная проверка движения в изображении, не распознавание намерения.
+- «Камеры» → «Подключение»: телефон через одноразовый QR и HTTPS/LAN запуск.
+- «Система» → «Техническая диагностика»: отдельно захват, TPU, аналитика,
+  задержки и потери. Частота интерфейса не доказывает частоту инференса.
 
-- The application is provider-agnostic: `Detection` → tracking → rules →
-  TemporalEngine → incidents.
-- The remote adapter speaks the organizers' RabbitMQ protocol and runs the
-  compiled `ppe_nosig_p999.tpu` program. `system/info` shows `protocol`,
-  `program`, `worker_verified`, `worker_pid`, `worker_inference_ms` and
-  `readiness`.
-- Say the honest number: worker inference p50 ~55–75 ms, but end-to-end
-  p50 ~1.4–2.4 s because of the VPN/RabbitMQ round-trip. Do not present
-  worker-only FPS as end-to-end.
-- Do not claim independent hardware counters: the protocol exposes only the
-  worker's `status_code` and `inference_time`. `hardware_verified` stays
-  false; `worker_verified` is true.
-- Parity is measured: val 20/20 detections; test 11/14 (two low-confidence
-  `no_helmet` misses, one extra). State it if asked.
+## LinQ и приёмка
 
-## Failure fallbacks
+Исторические реальные ответы worker зафиксированы в
+[LINQ_HARDWARE_REPORT.md](LINQ_HARDWARE_REPORT.md).
+Новая архитектура допускает ограниченный параллелизм; реальные 5 FPS этой
+версии пока не измерены. Последний контролируемый 60-секундный транспортный
+тест использует тестового peer и не является аппаратным доказательством.
+Процедура запуска на разрешённом ресурсе:
+[LINQ_5FPS_BENCHMARK.md](LINQ_5FPS_BENCHMARK.md).
 
-- Running does not fire: check that the rule is enabled, the person crosses
-  enough of the frame, and `confirm_seconds` has elapsed. Show the rule state
-  (PENDING) instead of pretending.
-- Camera unavailable: use a recorded MP4 upload; label it as a recording.
-- No network: run fully local and say so; do not claim LinQ.
+Если камера недоступна, выберите разрешённую видеозапись и назовите её записью.
+Если событие ещё подтверждается, покажите этот статус. Если сеть или worker
+недоступны, покажите ошибку и восстановление, не скрывая режим работы.

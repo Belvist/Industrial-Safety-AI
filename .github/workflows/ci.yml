@@ -100,3 +100,4 @@ jobs:
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:8002/health && break || sleep 2; done
       - run: python e2e/test_phone_flow.py --base http://127.0.0.1:8002 --master e2e-master-123
       - run: python e2e/test_workspace.py --base http://127.0.0.1:8002 --master e2e-master-123
+      - run: python e2e/test_incident_review.py

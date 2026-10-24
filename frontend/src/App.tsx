@@ -1,1767 +1,686 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ArrowUpRight,
+  Activity,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CircleHelp,
+  Loader2,
+  LogIn,
   ShieldCheck,
   Video,
-  LayoutDashboard,
-  BellRing,
-  Settings2,
-  Play,
-  Square,
-  Upload,
-  AlertTriangle,
-  Check,
   X,
-  Plus,
-  ScanLine,
-  ExternalLink,
-  Activity,
-  ChevronRight,
-  Loader2,
-  ArrowRight,
-  Radio,
-  SlidersHorizontal,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from "lucide-react";
-import { clientProfile } from "./clientMetrics";
 import { api, json, saveOperatorToken, stopPath } from "./api";
 import { useSafety } from "./hooks/useSafety";
 import { useBrowserCamera } from "./hooks/useBrowserCamera";
-import CameraViewport from "./components/CameraViewport";
-import SafetyRadarPanel from "./components/SafetyRadarPanel";
-import CameraTile from "./components/CameraTile";
-import IncidentDialog from "./components/IncidentDialog";
-import PhoneConnect from "./components/PhoneConnect";
-import ConnectPage from "./ConnectPage";
-import Overview from "./components/Overview";
-import type {
-  Camera,
-  Config,
-  Incident,
-  Page,
-  Point,
-  Result,
-  Zone,
-} from "./types";
-import {
-  configOf,
-  date,
-  isActive,
-  labels,
-  percentage,
-  typeLabels,
-} from "./types";
-import {
-  accelerationHint,
-  inferenceLabel,
-  inferenceSub,
-} from "./inferenceLabel";
-import {
-  cameraAlert,
-  globalAlert,
-  screenStatus,
-  sortDetections,
-  sortTracks,
-  visibleDetections,
-} from "./monitor";
+import type { Camera, Config, Incident, Zone } from "./types";
+import { configOf, isActive } from "./types";
+import WorkspaceShell from "./workspace/WorkspaceShell";
+import ObservationHome from "./workspace/ObservationHome";
+import Monitor from "./workspace/Monitor";
+import ConnectCamera from "./workspace/ConnectCamera";
+import CameraSettings from "./workspace/CameraSettings";
+import type { SettingsControls } from "./workspace/CameraSettings";
+import Journal from "./workspace/Journal";
+import EvidenceDrawer from "./workspace/EvidenceDrawer";
+import ZoneEditor from "./workspace/ZoneEditor";
+import SystemPage from "./workspace/SystemPage";
+import Dialog from "./workspace/Dialog";
+import { friendlyError, pageNames } from "./workspace/model";
+import type { ConnectionDraft, WorkspacePage } from "./workspace/model";
 
-const pages: Record<Page, string> = {
-  monitor: "Мониторинг",
-  dashboard: "Обзор",
-  incidents: "Инциденты",
-  cameras: "Камеры и правила",
-};
+type Route = { page: WorkspacePage; cameraId: string };
+function readRoute(): Route {
+  const [page, cameraId = ""] = location.hash.slice(1).split("/");
+  return {
+    page: Object.hasOwn(pageNames, page)
+      ? (page as WorkspacePage)
+      : "dashboard",
+    cameraId,
+  };
+}
 export default function App() {
   const safety = useSafety();
-  const [page, updatePage] = useState<Page>(() => {
-    const hash = location.hash.slice(1);
-    return Object.hasOwn(pages, hash) ? (hash as Page) : "monitor";
-  });
-  const [compactNav, setCompactNav] = useState(false);
-  const [connectRequested, setConnectRequested] = useState(false);
-  function setPage(next: Page) {
-    updatePage(next);
-    if (location.hash !== `#${next}`) history.pushState(null, "", `#${next}`);
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }
-  useEffect(() => {
-    const restore = () => {
-      const hash = location.hash.slice(1);
-      updatePage(Object.hasOwn(pages, hash) ? (hash as Page) : "monitor");
-    };
-    window.addEventListener("popstate", restore);
-    window.addEventListener("hashchange", restore);
-    return () => {
-      window.removeEventListener("popstate", restore);
-      window.removeEventListener("hashchange", restore);
-    };
-  }, []);
-  useEffect(() => {
-    document.title = `${pages[page]} · Industrial Safety AI`;
-  }, [page]);
-  useEffect(() => {
-    if (page === "monitor" && connectRequested) {
-      const controls = document.getElementById("source-controls");
-      controls?.scrollIntoView({ behavior: "smooth", block: "center" });
-      controls
-        ?.querySelector<HTMLElement>("select, input")
-        ?.focus({ preventScroll: true });
-      setConnectRequested(false);
-    }
-  }, [page, connectRequested]);
-  const [selected, setSelected] = useState("");
-  const [source, setSource] = useState("browser");
-  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-  const [device, setDevice] = useState("");
-  const [url, setUrl] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState("");
-  const [operatorKey, setOperatorKey] = useState("");
-  const [form, setForm] = useState<Config | null>(null);
-  const [formCamera, setFormCamera] = useState("");
-  const [editing, setEditing] = useState(false);
-  const [points, setPoints] = useState<Point[]>([]);
-  const [zoneIndex, setZoneIndex] = useState(0);
-  const [zoneDraft, setZoneDraft] = useState<Zone[]>([]);
-  const [newZoneName, setNewZoneName] = useState("");
-  const [showBoxes, setShowBoxes] = useState(true);
-  const [showRaw, setShowRaw] = useState(false);
-  const [detail, setDetail] = useState<Incident | null>(null);
-  const [grid, setGrid] = useState(false);
-  const browser = useBrowserCamera(setError);
-  const camera = safety.cameras.find((c) => c.id === selected);
-  const active = isActive(camera);
-  const busy =
-    safety.busy ||
-    ["permission", "connecting", "stopping"].includes(browser.state.phase);
-  const result: Result | null | undefined =
-    browser.owner === selected &&
+  const [route, setRoute] = useState(readRoute),
+    [connectOpen, setConnectOpen] = useState(false),
+    [connectInitial, setConnectInitial] = useState<Camera | undefined>(),
+    [zoneOpen, setZoneOpen] = useState(false),
+    [detail, setDetail] = useState<Incident | null>(null),
+    [help, setHelp] = useState(false),
+    [error, setError] = useState("");
+  const [working, setWorking] = useState(false),
+    [toast, setToast] = useState(""),
+    [operatorKey, setOperatorKey] = useState("");
+  const [seen, setSeen] = useState(
+    () => localStorage.getItem("safety.workspace-configured") === "1",
+  );
+  const [leave, setLeave] = useState<(() => void) | null>(null);
+  const dirty = useRef(false),
+    settingsControls = useRef<SettingsControls | null>(null),
+    executing = useRef(false),
+    operation = useRef(0),
+    connectionRun = useRef(0),
+    connectionCamera = useRef<Camera | undefined>(undefined),
+    connectionAbort = useRef<AbortController | null>(null);
+  const browser = useBrowserCamera((message) =>
+    setError(friendlyError(new Error(message))),
+  );
+  const camera =
+    safety.cameras.find((c) => c.id === route.cameraId) ?? safety.cameras[0];
+  const owned =
+    browser.owner === camera?.id &&
     browser.result?.session_id === camera?.session_id
       ? browser.result
-      : camera?.latest;
-  const resultStale =
-    safety.connection !== "online" ||
-    camera?.status === "stale" ||
-    (result?.data_age_ms ?? 0) > 5000;
-  const shownDetections =
-    result && !resultStale
-      ? sortDetections(visibleDetections(result.detections))
-      : [];
-  const shownTracks =
-    result && !resultStale ? sortTracks(result.tracks, result.rules) : [];
-  const screen = screenStatus(
-    active && !resultStale,
-    result?.tracks ?? [],
-    result?.rules ?? [],
-  );
-  const otherAlert =
-    page === "monitor" ? globalAlert(safety.cameras, selected) : null;
-  const runningCount = safety.cameras.filter((c) =>
-    ["running", "stale"].includes(c.status),
-  ).length;
-  useEffect(() => {
-    if (!selected && safety.cameras[0]) setSelected(safety.cameras[0].id);
-  }, [safety.cameras, selected]);
-  // Enumerate video devices on mount so the operator picks a camera BEFORE
-  // the first start (previously the list appeared only after starting).
-  useEffect(() => {
-    let alive = true;
-    navigator.mediaDevices
-      ?.enumerateDevices()
-      .then((all) => {
-        if (!alive) return;
-        const video = all.filter((d) => d.kind === "videoinput");
-        setDevices(video);
-        if (video.length > 0) setDevice((d) => d || video[0].deviceId);
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
+      : null;
+  const latest = camera?.latest;
+  const result =
+    owned && owned.sequence > (latest?.sequence ?? 0) ? owned : latest;
+  const busy =
+    working ||
+    ["permission", "connecting", "stopping"].includes(browser.state.phase);
+  const online = safety.connection === "online";
+  const firstRun =
+    !seen &&
+    safety.cameras.length <= 1 &&
+    !safety.cameras.some((c) => c.kind) &&
+    !safety.info?.stats.total;
+  function navigate(page: WorkspacePage, cameraId = "") {
+    const hash = `#${page}${cameraId ? "/" + cameraId : ""}`;
+    if (location.hash !== hash) history.pushState(null, "", hash);
+    setRoute({ page, cameraId });
+    setError("");
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+  function request(action: () => void) {
+    if (dirty.current) setLeave(() => action);
+    else action();
+  }
+  const onDirty = useCallback((value: boolean, controls: SettingsControls) => {
+    dirty.current = value;
+    settingsControls.current = controls;
   }, []);
   useEffect(() => {
-    if (camera && formCamera !== camera.id) {
-      setForm(configOf(camera));
-      setFormCamera(camera.id);
-      const loaded = camera.zones?.length
-        ? camera.zones
-        : camera.zone.length >= 3
-          ? [
-              {
-                id: "legacy",
-                name: camera.zone_name || "Опасная зона",
-                enabled: true,
-                points: camera.zone,
-              },
-            ]
-          : [];
-      setZoneDraft(loaded);
-      setZoneIndex(0);
-      setPoints(loaded[0]?.points ?? []);
-      setEditing(false);
-    }
-  }, [camera, formCamera]);
-  useEffect(() => {
-    setDetail((old) =>
-      old ? safety.incidents.find((i) => i.id === old.id) || old : null,
-    );
-  }, [safety.incidents]);
-  async function act(work: () => Promise<void>) {
-    setError("");
-    await safety.act(work);
-  }
-  async function start() {
-    await act(async () => {
-      if (!camera) return;
-      if (source === "browser") {
-        await browser.start(camera.id, device, safety.info?.target_fps || 5);
-        setDevices(
-          (await navigator.mediaDevices.enumerateDevices()).filter(
-            (d) => d.kind === "videoinput",
-          ),
+    const restore = () => {
+      if (dirty.current) {
+        const target = readRoute();
+        history.pushState(
+          null,
+          "",
+          `#${route.page}${route.cameraId ? "/" + route.cameraId : ""}`,
         );
-      } else if (source === "video") {
-        if (!file) throw new Error("Выберите видеофайл.");
-        if (file.size > 200 * 1024 * 1024) throw new Error("Максимум 200 МБ.");
-        await api(`/cameras/${camera.id}/video`, {
+        setLeave(() => () => {
+          dirty.current = false;
+          navigate(target.page, target.cameraId);
+        });
+        return;
+      }
+      setRoute(readRoute());
+    };
+    window.addEventListener("hashchange", restore);
+    return () => {
+      window.removeEventListener("hashchange", restore);
+    };
+  }, [route]);
+  useEffect(() => {
+    document.title = `${pageNames[route.page]} · Industrial Safety AI`;
+  }, [route.page]);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(""), 4500);
+    return () => clearTimeout(timer);
+  }, [toast]);
+  useEffect(() => {
+    setDetail((previous) =>
+      previous
+        ? (safety.incidents.find((i) => i.id === previous.id) ??
+          safety.recent.find((i) => i.id === previous.id) ??
+          safety.activeIncidents.find((i) => i.id === previous.id) ??
+          previous)
+        : null,
+    );
+  }, [safety.incidents, safety.recent, safety.activeIncidents]);
+  async function execute<T>(work: () => Promise<T>): Promise<T> {
+    if (executing.current)
+      throw new Error("Дождитесь завершения текущего действия.");
+    const id = ++operation.current;
+    executing.current = true;
+    setWorking(true);
+    try {
+      const value = await work();
+      // A failed background refresh must not report a successful save as failed.
+      await safety.refresh().catch(() => {});
+      return value;
+    } finally {
+      if (operation.current === id) {
+        executing.current = false;
+        setWorking(false);
+      }
+    }
+  }
+  function openConnection(target?: Camera) {
+    request(() => {
+      connectionCamera.current = target;
+      setConnectInitial(target);
+      connectionRun.current++;
+      setConnectOpen(true);
+      setError("");
+    });
+  }
+  function closeConnection() {
+    connectionRun.current++;
+    connectionAbort.current?.abort();
+    if (["permission", "connecting"].includes(browser.state.phase))
+      void browser.stop().catch(() => {});
+    operation.current++;
+    executing.current = false;
+    setWorking(false);
+    setConnectOpen(false);
+    void safety.refresh().catch(() => {});
+  }
+  async function connect(draft: ConnectionDraft) {
+    const run = connectionRun.current,
+      controller = new AbortController();
+    connectionAbort.current = controller;
+    const current = () => {
+      if (run !== connectionRun.current || controller.signal.aborted)
+        throw new Error("Подключение отменено.");
+    };
+    await execute(async () => {
+      let target = connectionCamera.current;
+      if (target && isActive(target))
+        throw new Error(
+          "Эта камера уже работает. Сначала остановите её наблюдение.",
+        );
+      const config = {
+        ...(target ? configOf(target) : {}),
+        name: draft.name.trim(),
+        helmet: draft.helmet,
+        vest: draft.vest,
+      };
+      target = await api<Camera>(
+        target ? `/cameras/${target.id}` : "/cameras",
+        { ...json(config, target ? "PUT" : "POST"), signal: controller.signal },
+      );
+      current();
+      connectionCamera.current = target;
+      if (draft.source === "browser")
+        await browser.start(
+          target.id,
+          draft.device,
+          safety.info?.target_fps ?? 5,
+        );
+      else if (draft.source === "video") {
+        if (!draft.file) throw new Error("Выберите видеофайл.");
+        await api(`/cameras/${target.id}/video`, {
           method: "POST",
           headers: { "Content-Type": "video/mp4" },
-          body: file,
+          body: draft.file,
+          signal: controller.signal,
         });
-      } else
-        await api(`/cameras/${camera.id}/start`, json({ kind: "rtsp", url }));
+      } else {
+        // Read the startup acknowledgement even after cancelling the dialog,
+        // so cleanup stops that exact session without stopping a newer retry.
+        const started = await api<Camera>(
+          `/cameras/${target.id}/start`,
+          json({ kind: "rtsp", url: draft.url }),
+        );
+        if (run !== connectionRun.current || controller.signal.aborted)
+          await api(stopPath(target.id, started.session_id), {
+            method: "POST",
+          });
+      }
+      current();
+      localStorage.setItem("safety.workspace-configured", "1");
+      setSeen(true);
+      setConnectOpen(false);
+      navigate("monitor", target.id);
+      setToast("Источник подключается. Дождитесь первого кадра.");
     });
   }
   async function stop() {
-    if (
-      ["permission", "connecting"].includes(browser.state.phase) &&
-      browser.state.cameraId === selected
-    ) {
-      try {
-        await browser.stop();
-        await safety.refresh();
-      } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
-      }
-      return;
-    }
-    await act(async () => {
-      if (browser.owner === selected || browser.state.cameraId === selected)
-        await browser.stop();
-      else if (camera)
-        await api(stopPath(camera.id, camera.session_id), { method: "POST" });
-    });
-  }
-  async function enumerate() {
-    await act(async () => {
-      if (!navigator.mediaDevices)
-        throw new Error("Для доступа к камере откройте localhost.");
-      const media = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false,
+    if (!camera) return;
+    try {
+      await execute(async () => {
+        if (browser.owner === camera.id || browser.state.cameraId === camera.id)
+          await browser.stop();
+        else
+          await api(stopPath(camera.id, camera.session_id), { method: "POST" });
       });
-      try {
-        setDevices(
-          (await navigator.mediaDevices.enumerateDevices()).filter(
-            (d) => d.kind === "videoinput",
-          ),
+      setToast("Наблюдение остановлено. История событий сохранена.");
+    } catch (e) {
+      setError(friendlyError(e));
+    }
+  }
+  async function saveConfig(config: Config) {
+    if (!camera) throw new Error("Выберите камеру.");
+    const saved = await execute(() =>
+      api<Camera>(`/cameras/${camera.id}`, json(config, "PUT")),
+    );
+    setToast("Настройки камеры сохранены.");
+    return saved;
+  }
+  function openZones() {
+    request(() => {
+      if (!camera) return;
+      if (
+        !result ||
+        camera.status !== "running" ||
+        (result.data_age_ms ?? 0) > 5000
+      ) {
+        navigate("monitor", camera.id);
+        setError(
+          "Для разметки нужен свежий кадр. Подключите камеру и дождитесь изображения.",
         );
-      } finally {
-        media.getTracks().forEach((t) => t.stop());
+        return;
       }
+      setZoneOpen(true);
     });
   }
-  async function save(config: Config) {
-    await act(async () => {
-      const saved = await api<Camera>(
-        `/cameras/${selected}`,
-        json(config, "PUT"),
-      );
-      setForm(configOf(saved));
-      const zones = saved.zones?.length ? saved.zones : [];
-      setZoneDraft(zones);
-      setPoints(zones[0]?.points ?? saved.zone);
-      setEditing(false);
+  async function saveZones(zones: Zone[]) {
+    if (!camera) return;
+    await saveConfig({
+      ...configOf(camera),
+      zones,
+      zone: [],
+      zone_enabled: false,
+    });
+    setToast("Опасные зоны сохранены. Контроль обновлён.");
+  }
+  function openJournal(cameraId = "", feedback = "unreviewed") {
+    request(() => {
+      safety.setIncidentCamera(cameraId);
+      safety.setFeedback(feedback);
+      safety.setFilter("");
+      safety.setIncidentType("");
+      safety.setFromDate("");
+      safety.setToDate("");
+      navigate("incidents");
     });
   }
-  function editZone(index = 0) {
-    setPage("monitor");
-    const zones = camera?.zones?.length
-      ? camera.zones
-      : camera?.zone.length
-        ? [
-            {
-              id: "legacy",
-              name: camera.zone_name || "Опасная зона",
-              enabled: true,
-              points: camera.zone,
-            },
-          ]
-        : [];
-    const idx = Math.min(index, Math.max(0, zones.length - 1));
-    setZoneDraft(zones);
-    setZoneIndex(idx);
-    setPoints(zones[idx]?.points ?? []);
-    setEditing(true);
-  }
-
-  function addZone() {
-    const name = newZoneName.trim() || `Зона ${zoneDraft.length + 1}`;
-    const next: Zone = {
-      id: `z${Date.now()}`,
-      name,
-      enabled: true,
-      points: [],
-    };
-    setZoneDraft((old) => [...old, next]);
-    setZoneIndex(zoneDraft.length);
-    setPoints([]);
-    setNewZoneName("");
-    setEditing(true);
-    setPage("monitor");
-  }
-
-  function selectZone(index: number) {
-    setZoneIndex(index);
-    setPoints(zoneDraft[index]?.points ?? []);
-  }
-
-  function removeZone(index: number) {
-    const next = zoneDraft.filter((_, i) => i !== index);
-    setZoneDraft(next);
-    const idx = Math.max(0, Math.min(index, next.length - 1));
-    setZoneIndex(idx);
-    setPoints(next[idx]?.points ?? []);
-  }
-
-  function renameZone(index: number, name: string) {
-    setZoneDraft((old) =>
-      old.map((z, i) => (i === index ? { ...z, name } : z)),
+  async function feedback(verdict: string) {
+    if (!detail) return;
+    const saved = await execute(() =>
+      api<Incident>(`/incidents/${detail.id}/feedback`, json({ verdict })),
     );
+    setDetail(saved);
+    setToast("Решение оператора сохранено.");
   }
-
-  function toggleZone(index: number) {
-    setZoneDraft((old) =>
-      old.map((z, i) => (i === index ? { ...z, enabled: !z.enabled } : z)),
+  const nextIncident = safety.incidents.find(
+    (i) => i.id !== detail?.id && i.feedback === "unreviewed",
+  );
+  if (safety.accessDenied)
+    return (
+      <div className="product-app p-auth">
+        <div className="p-auth-card">
+          <span className="p-kicker">INDUSTRIAL SAFETY AI</span>
+          <ShieldCheck size={35} />
+          <h1>Вход в рабочее пространство</h1>
+          <p>
+            Введите ключ оператора. Камеры и история доступны только после
+            входа.
+          </p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (operatorKey.trim()) {
+                saveOperatorToken(operatorKey);
+                location.reload();
+              }
+            }}
+          >
+            <label className="p-field">
+              Ключ оператора
+              <input
+                type="password"
+                autoComplete="off"
+                value={operatorKey}
+                onChange={(e) => setOperatorKey(e.target.value)}
+                autoFocus
+              />
+            </label>
+            <button
+              className="p-button p-primary"
+              disabled={!operatorKey.trim()}
+            >
+              <LogIn size={17} />
+              Войти
+            </button>
+          </form>
+          <details className="p-advanced">
+            <summary>Где взять ключ</summary>
+            <p>
+              Используйте ссылку штатного запуска приложения или ключ из файла
+              data/api_token на компьютере оператора. Для телефона нужен
+              отдельный QR-код.
+            </p>
+          </details>
+        </div>
+      </div>
     );
-  }
-  const errorMessage = error || safety.command.error;
-  const canStop =
-    active ||
-    (browser.state.cameraId === selected &&
-      browser.state.phase !== "idle" &&
-      browser.state.phase !== "failed");
-  const groups = [
-    "person",
-    "helmet",
-    "no_helmet",
-    "vest",
-    "no_vest",
-    "mask",
-    "no_mask",
-    "smoking",
-  ].map((name) => ({
-    name,
-    items: result?.detections.filter((d) => d.class_name === name) || [],
-  }));
-
   return (
-    <div
-      className={`app-shell desktop-app ${compactNav ? "nav-collapsed" : ""}`}
+    <WorkspaceShell
+      route={route}
+      cameras={safety.cameras}
+      info={safety.info}
+      result={result}
+      online={online}
+      connecting={safety.connection === "connecting"}
+      firstRun={firstRun}
+      onNavigate={(page, id) => request(() => navigate(page, id))}
+      onConnect={() => openConnection(firstRun ? safety.cameras[0] : undefined)}
+      onHelp={() => setHelp(true)}
     >
-      {location.pathname === "/connect" ? (
-        <ConnectPage />
-      ) : (
-        <>
-          <header className="site-header">
-            <a
-              className="brand"
-              href="#monitor"
-              onClick={(e) => {
-                e.preventDefault();
-                setPage("monitor");
+      {!online && safety.connection === "offline" && (
+        <div className="p-connection-banner" role="status">
+          <Activity size={17} />
+          <span>Нет связи с приложением. Пытаемся переподключиться.</span>
+          <button
+            className="p-link"
+            onClick={() => request(() => navigate("system"))}
+          >
+            Проверить систему
+            <ArrowRight size={15} />
+          </button>
+        </div>
+      )}
+      {online &&
+        safety.info &&
+        !safety.info.model_ready &&
+        route.page !== "system" && (
+          <div className="p-connection-banner">
+            <ShieldCheck size={17} />
+            <span>Распознавание пока недоступно.</span>
+            <button
+              className="p-link"
+              onClick={() => request(() => navigate("system"))}
+            >
+              Что нужно настроить
+              <ArrowRight size={15} />
+            </button>
+          </div>
+        )}
+      {error && (
+        <div className="p-inline-error p-global-error" role="alert">
+          <span>{error}</span>
+          <button
+            className="p-icon"
+            aria-label="Закрыть сообщение"
+            onClick={() => setError("")}
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+      <div className="p-page-content">
+        {!safety.info && safety.connection === "connecting" ? (
+          <div className="p-loading-screen">
+            <Loader2 className="spin" size={30} />
+            <h1>Открываем рабочее пространство</h1>
+            <p>Проверяем подключение и состояние камер.</p>
+          </div>
+        ) : route.page === "dashboard" ? (
+          <ObservationHome
+            cameras={safety.cameras}
+            info={safety.info}
+            recent={safety.recent}
+            firstRun={firstRun}
+            onConnect={() =>
+              openConnection(firstRun ? safety.cameras[0] : undefined)
+            }
+            onOpen={(id) => navigate("monitor", id)}
+            onIncident={setDetail}
+            onJournal={() => openJournal("", "")}
+            onHelp={() => setHelp(true)}
+          />
+        ) : route.page === "monitor" && camera ? (
+          <Monitor
+            camera={camera}
+            result={result}
+            online={online}
+            busy={busy}
+            incidents={[
+              ...safety.activeIncidents,
+              ...safety.recent.filter(
+                (i) => !safety.activeIncidents.some((a) => a.id === i.id),
+              ),
+            ]}
+            onBack={() => navigate("dashboard")}
+            onConnect={() => openConnection(camera)}
+            onStop={() => void stop()}
+            onSettings={() => request(() => navigate("cameras", camera.id))}
+            onZones={openZones}
+            onIncident={setDetail}
+            onHistory={() => openJournal(camera.id, "")}
+          />
+        ) : route.page === "cameras" ? (
+          <CameraSettings
+            cameras={safety.cameras}
+            selected={camera?.id ?? ""}
+            info={safety.info}
+            busy={busy}
+            onSelect={(id) => request(() => navigate("cameras", id))}
+            onSave={saveConfig}
+            onConnect={openConnection}
+            onMonitor={() => request(() => navigate("monitor", camera?.id))}
+            onZones={openZones}
+            onDirty={onDirty}
+          />
+        ) : route.page === "incidents" ? (
+          <Journal
+            items={safety.incidents}
+            total={safety.total}
+            cameras={safety.cameras}
+            loading={safety.incidentLoading}
+            error={safety.journalError}
+            feedback={safety.feedback}
+            status={safety.filter}
+            type={safety.incidentType}
+            cameraId={safety.incidentCamera}
+            fromDate={safety.fromDate}
+            toDate={safety.toDate}
+            offset={safety.offset}
+            onFeedback={safety.setFeedback}
+            onStatus={safety.setFilter}
+            onType={safety.setIncidentType}
+            onCamera={safety.setIncidentCamera}
+            onFrom={safety.setFromDate}
+            onTo={safety.setToDate}
+            onOffset={safety.setOffset}
+            params={safety.incidentParams}
+            onOpen={setDetail}
+            onConnect={() => navigate("dashboard")}
+          />
+        ) : route.page === "system" ? (
+          <SystemPage
+            camera={camera}
+            info={safety.info}
+            cameras={safety.cameras}
+            online={online}
+            result={result}
+            onHelp={() => setHelp(true)}
+            onCameras={() => navigate("cameras", camera?.id)}
+          />
+        ) : (
+          <div className="p-empty">
+            <Video size={30} />
+            <h1>Выберите камеру</h1>
+            <button
+              className="p-button p-primary"
+              onClick={() => navigate("dashboard")}
+            >
+              Все камеры
+            </button>
+          </div>
+        )}
+      </div>
+      {toast && !connectOpen && !zoneOpen && !detail && !leave && !help && (
+        <div className="p-toast" role="status">
+          <Check size={18} />
+          <span>{toast}</span>
+          <button
+            className="p-icon"
+            onClick={() => setToast("")}
+            aria-label="Закрыть уведомление"
+          >
+            <X size={15} />
+          </button>
+        </div>
+      )}
+      {connectOpen && (
+        <ConnectCamera
+          camera={connectInitial}
+          info={safety.info}
+          onClose={closeConnection}
+          onConnect={connect}
+        />
+      )}
+      {zoneOpen && camera && result && (
+        <ZoneEditor
+          camera={camera}
+          result={result}
+          onClose={() => setZoneOpen(false)}
+          onSave={saveZones}
+        />
+      )}
+      {detail && (
+        <EvidenceDrawer
+          key={detail.id}
+          incident={detail}
+          busy={working}
+          onClose={() => setDetail(null)}
+          onFeedback={feedback}
+          onCamera={() => {
+            const id = detail.camera_id;
+            setDetail(null);
+            request(() => navigate("monitor", id));
+          }}
+          onNext={nextIncident ? () => setDetail(nextIncident) : undefined}
+        />
+      )}
+      {leave && (
+        <Dialog
+          title="Сохранить изменения?"
+          description="Настройки камеры ещё не сохранены."
+          onClose={() => setLeave(null)}
+          className="p-small-dialog"
+          footer={
+            <>
+              <button
+                className="p-button"
+                onClick={() => {
+                  const next = leave;
+                  setLeave(null);
+                  dirty.current = false;
+                  next();
+                }}
+              >
+                Не сохранять
+              </button>
+              <button
+                className="p-button p-primary"
+                disabled={working}
+                onClick={() =>
+                  void (async () => {
+                    const ok = await settingsControls.current?.save();
+                    if (ok) {
+                      const next = leave;
+                      setLeave(null);
+                      dirty.current = false;
+                      next();
+                    }
+                  })()
+                }
+              >
+                Сохранить и перейти
+              </button>
+            </>
+          }
+        >
+          <p>
+            Можно сохранить настройки перед переходом или вернуться к
+            редактированию.
+          </p>
+          <button className="p-link" onClick={() => setLeave(null)}>
+            <ArrowLeft size={15} />
+            Продолжить редактирование
+          </button>
+        </Dialog>
+      )}
+      {help && (
+        <Dialog
+          title="От камеры до решения оператора"
+          description="Четыре действия, с которых начинается работа."
+          onClose={() => setHelp(false)}
+          className="p-help-dialog"
+          footer={
+            <button
+              className="p-button p-primary"
+              onClick={() => {
+                setHelp(false);
+                openConnection(firstRun ? safety.cameras[0] : undefined);
               }}
             >
-              <span className="brand-mark">
-                <i />
-                <i />
-              </span>
-              <span>
-                safety<span className="brand-ai">ai</span>
-              </span>
-            </a>
-            <nav aria-label="Основная навигация">
-              {(Object.keys(pages) as Page[]).map((p) => (
-                <button
-                  key={p}
-                  className={page === p ? "active" : ""}
-                  aria-current={page === p ? "page" : undefined}
-                  title={pages[p]}
-                  onClick={() => setPage(p)}
-                >
-                  {p === "monitor" ? (
-                    <Video size={15} />
-                  ) : p === "dashboard" ? (
-                    <LayoutDashboard size={15} />
-                  ) : p === "incidents" ? (
-                    <BellRing size={15} />
-                  ) : (
-                    <Settings2 size={15} />
-                  )}
-                  <span>{pages[p]}</span>
-                  {p === "incidents" && !!safety.info?.stats.active && (
-                    <b>{safety.info.stats.active}</b>
-                  )}
-                </button>
-              ))}
-            </nav>
-            <div className="header-tools">
-              <span
-                className={
-                  "connection " +
-                  (safety.connection === "online" ? "online" : "")
-                }
-              >
-                <i />
-                {safety.connection === "online"
-                  ? "Локально"
-                  : safety.connection === "connecting"
-                    ? "Подключение"
-                    : "Нет связи"}
-              </span>
-              <button
-                className="header-button"
-                onClick={() => {
-                  setPage(safety.cameras.length ? "monitor" : "cameras");
-                  setConnectRequested(true);
-                }}
-              >
-                Подключить камеру
-                <ArrowUpRight size={15} />
-              </button>
-            </div>
-          </header>
-          <main className="workspace" id="workspace">
-            <div className="workspace-bar">
-              <div className="inline">
-                <button
-                  className="icon-button nav-collapse"
-                  aria-label={
-                    compactNav ? "Развернуть навигацию" : "Свернуть навигацию"
-                  }
-                  onClick={() => setCompactNav(!compactNav)}
-                >
-                  {compactNav ? (
-                    <PanelLeftOpen size={19} />
-                  ) : (
-                    <PanelLeftClose size={19} />
-                  )}
-                </button>
-                <span>Рабочее пространство</span>
-                <ChevronRight size={14} />
-                <strong>{pages[page]}</strong>
-              </div>
-              <button
-                className="workspace-alerts"
-                onClick={() => {
-                  safety.setFilter("active");
-                  setPage("incidents");
-                }}
-              >
-                <BellRing size={16} />
-                <span>{safety.info?.stats.active ?? 0} активных</span>
-              </button>
-            </div>
-            <section className="page-heading">
+              Подключить камеру
+              <ArrowRight size={16} />
+            </button>
+          }
+        >
+          <ol className="p-help-steps">
+            <li>
+              <span>1</span>
               <div>
-                <span className="eyebrow">INDUSTRIAL SAFETY AI</span>
-                <h1>{pages[page]}</h1>
-                <p className="page-description">
-                  {page === "monitor"
-                    ? "Видеопоток, люди и безопасность рабочей зоны."
-                    : page === "dashboard"
-                      ? "Состояние камер и события на вашем объекте."
-                      : page === "incidents"
-                        ? "Проверяйте нарушения, снимки и видеодоказательства."
-                        : "Источники видео и правила для каждой рабочей зоны."}
+                <h3>Подключите источник</h3>
+                <p>
+                  Выберите веб-камеру, IP-камеру или видео. Укажите понятное
+                  название и нужные проверки.
                 </p>
               </div>
-              <div className="page-intro">
-                <span
-                  className={
-                    "model-status " + (safety.info?.model_ready ? "ready" : "")
-                  }
-                >
-                  <i />
-                  {safety.connection !== "online"
-                    ? "Ожидание сервера"
-                    : safety.info?.model_ready
-                      ? "Детектор готов"
-                      : "Детектор не готов"}
-                </span>
-                <details className="diagnostics">
-                  <summary>
-                    <Activity size={14} />
-                    Диагностика
-                  </summary>
-                  <div className="diagnostics-content">
-                    <strong>{inferenceLabel(safety.info)}</strong>
-                    <p>{inferenceSub(safety.info)}</p>
-                    <p>{accelerationHint(safety.info)}</p>
-                    <p>Обработка и хранение на этом устройстве.</p>
-                    {Object.entries(clientProfile()).map(([name, stage]) => (
-                      <p key={name}>
-                        <strong>
-                          {name === "api_roundtrip_ms"
-                            ? "API в браузере"
-                            : "Загрузка кадра"}
-                        </strong>
-                        <br />
-                        p50 / p95 / p99: {stage.p50} / {stage.p95} / {stage.p99}{" "}
-                        мс
-                      </p>
-                    ))}
-                    <p>
-                      Частоты измеряются отдельно. Цель 5 FPS не означает
-                      достигнутую скорость.
-                    </p>
-                  </div>
-                </details>
+            </li>
+            <li>
+              <span>2</span>
+              <div>
+                <h3>Откройте наблюдение</h3>
+                <p>
+                  Дождитесь изображения. При необходимости отметьте опасную
+                  зону. Панели людей и событий открываются по запросу.
+                </p>
               </div>
-            </section>
-            {safety.accessDenied ? (
-              <div className="notice danger">
-                <AlertTriangle size={18} />
-                <span>
-                  Доступ к серверу закрыт (401). Камеры и инциденты защищены.
-                  <small>
-                    На компьютере оператора ключ находится в файле
-                    data/api_token. Вставьте его ниже. Для независимого
-                    тестирования на другом компьютере запускайте собственную
-                    копию приложения.
-                  </small>
-                  <form
-                    className="inline"
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      if (!operatorKey.trim()) return;
-                      saveOperatorToken(operatorKey);
-                      location.reload();
-                    }}
-                  >
-                    <input
-                      type="password"
-                      autoComplete="off"
-                      aria-label="Ключ оператора"
-                      placeholder="Ключ оператора"
-                      value={operatorKey}
-                      onChange={(event) => setOperatorKey(event.target.value)}
-                    />
-                    <button
-                      className="button primary"
-                      type="submit"
-                      disabled={!operatorKey.trim()}
-                    >
-                      Войти
-                    </button>
-                  </form>
-                </span>
+            </li>
+            <li>
+              <span>3</span>
+              <div>
+                <h3>Дождитесь подтверждённого события</h3>
+                <p>
+                  Система проверяет нарушение во времени. Нет изображения или
+                  средство защиты не видно — это не подтверждение безопасности.
+                </p>
               </div>
-            ) : (
-              safety.connection === "offline" && (
-                <div className="notice danger">
-                  <AlertTriangle size={18} />
-                  Нет связи с сервером. Проверьте, что приложение запущено.
-                  Подключение восстановится автоматически.
-                </div>
-              )
-            )}
-            {safety.info?.model_error && (
-              <div className="notice amber">
-                <AlertTriangle size={18} />
-                <span>
-                  {safety.info.model_error}
-                  <small>
-                    После установки моделей перезапустите приложение.
-                  </small>
-                </span>
+            </li>
+            <li>
+              <span>4</span>
+              <div>
+                <h3>Проверьте доказательство</h3>
+                <p>
+                  Откройте инцидент в журнале. Посмотрите снимок или ролик,
+                  затем подтвердите нарушение либо отметьте ложное срабатывание.
+                </p>
               </div>
-            )}
-            {errorMessage && (
-              <div className="notice danger" role="alert">
-                <AlertTriangle size={18} />
-                <span>{errorMessage}</span>
-                <button
-                  className="icon-button"
-                  aria-label="Закрыть ошибку"
-                  onClick={() => {
-                    setError("");
-                    safety.clearError();
-                  }}
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            )}
-            {(page === "monitor" || page === "dashboard") && (
-              <section
-                className={
-                  "stats-grid " + (page === "monitor" ? "compact-stats" : "")
-                }
-              >
-                {[
-                  [
-                    Video,
-                    "Камеры в эфире",
-                    safety.cameras.filter((c) => c.status === "running").length,
-                    `из ${safety.cameras.length} настроенных`,
-                  ],
-                  [
-                    AlertTriangle,
-                    "Активные нарушения",
-                    safety.info?.stats.active ?? 0,
-                    "требуют внимания",
-                  ],
-                  [
-                    Activity,
-                    "События сегодня",
-                    safety.info?.stats.today ?? 0,
-                    "по времени UTC",
-                  ],
-                  [
-                    ShieldCheck,
-                    "Всего инцидентов",
-                    safety.info?.stats.total ?? 0,
-                    "сохранено в истории",
-                  ],
-                ].map(([Icon, title, value, sub], i) => {
-                  const Glyph = Icon as typeof Video;
-                  return (
-                    <div className="stat" key={String(title)}>
-                      <span className="stat-number">0{i + 1}</span>
-                      <div>
-                        <span className="stat-title">{String(title)}</span>
-                        <strong>{String(value)}</strong>
-                        <small>{String(sub)}</small>
-                      </div>
-                      <Glyph size={19} />
-                    </div>
-                  );
-                })}
-              </section>
-            )}
-            {page === "dashboard" && (
-              <Overview
-                cameras={safety.cameras}
-                online={safety.connection === "online"}
-                info={safety.info}
-                onSelect={(id) => {
-                  setSelected(id);
-                  setGrid(false);
-                  setPage("monitor");
-                }}
-                onConfigure={() => setPage("cameras")}
-              />
-            )}
-            {page === "monitor" && (
-              <section className="monitor-layout">
-                {otherAlert && (
-                  <div
-                    className={
-                      "alert-banner " +
-                      (otherAlert.level === "active" ? "firing" : "checking")
-                    }
-                    role="alert"
-                  >
-                    <strong>
-                      {otherAlert.level === "active" ? "НАРУШЕНИЕ" : "ПРОВЕРКА"}{" "}
-                      на {otherAlert.cameraName}:{" "}
-                      {labels[otherAlert.type] || otherAlert.type}
-                    </strong>
-                    <span>
-                      Работник #{otherAlert.trackId} ·{" "}
-                      {otherAlert.elapsed.toFixed(1)} сек.
-                    </span>
-                    <button
-                      className="text-button"
-                      onClick={() => {
-                        setSelected(otherAlert.cameraId);
-                        setGrid(false);
-                      }}
-                    >
-                      Смотреть
-                      <ArrowRight size={15} />
-                    </button>
-                  </div>
-                )}
-                <div className="monitor-main">
-                  <div className="section-heading">
-                    <div>
-                      <span className="eyebrow">ПРЯМОЙ ЭФИР</span>
-                      <h2>{camera?.name || "Рабочая зона"}</h2>
-                    </div>
-                    <div className="inline">
-                      <button
-                        className="icon-button outlined"
-                        aria-label="Сетка камер"
-                        aria-pressed={grid}
-                        title="Все камеры сразу"
-                        onClick={() => setGrid((g) => !g)}
-                      >
-                        <LayoutDashboard size={17} />
-                      </button>
-                      <select
-                        aria-label="Выбор камеры"
-                        value={selected}
-                        onChange={(e) => setSelected(e.target.value)}
-                      >
-                        {safety.cameras.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        className="icon-button outlined"
-                        aria-label="Настройки камеры"
-                        onClick={() => setPage("cameras")}
-                      >
-                        <SlidersHorizontal size={17} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="camera-panel">
-                    {grid ? (
-                      <div
-                        className="camera-grid"
-                        role="group"
-                        aria-label="Все камеры"
-                      >
-                        {safety.cameras.map((c) => (
-                          <CameraTile
-                            key={c.id}
-                            camera={c}
-                            selected={c.id === selected}
-                            onSelect={() => {
-                              setSelected(c.id);
-                              setGrid(false);
-                            }}
-                          />
-                        ))}
-                        {!safety.cameras.length && (
-                          <div className="compact-empty">
-                            Добавьте камеру на вкладке «Камеры и правила».
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <>
-                        {screen.kind === "alert" && (
-                          <div
-                            className={
-                              "alert-banner " +
-                              (screen.level === "active"
-                                ? "firing"
-                                : "checking")
-                            }
-                            role="alert"
-                          >
-                            <strong>
-                              {screen.level === "active"
-                                ? "НАРУШЕНИЕ"
-                                : "ПРОВЕРКА"}
-                              :{" "}
-                              {typeLabels[screen.type] ||
-                                labels[screen.type] ||
-                                screen.type}
-                            </strong>
-                            <span>
-                              Работник #{screen.trackId} ·{" "}
-                              {screen.elapsed.toFixed(1)} / {screen.confirm}{" "}
-                              сек.
-                            </span>
-                          </div>
-                        )}
-                        {screen.kind === "calm" && (
-                          <div className="calm-chip" role="status">
-                            Под контролем · {screen.workers}{" "}
-                            {screen.workers === 1 ? "человек" : "чел."}
-                          </div>
-                        )}
-                        <CameraViewport
-                          camera={camera}
-                          dataStale={resultStale}
-                          result={result}
-                          editing={editing}
-                          zones={zoneDraft}
-                          activeIndex={zoneIndex}
-                          points={points}
-                          onPoint={(p) => setPoints((old) => [...old, p])}
-                          showBoxes={showBoxes}
-                          setShowBoxes={setShowBoxes}
-                          showRaw={showRaw}
-                          setShowRaw={setShowRaw}
-                        />
-                        <SafetyRadarPanel
-                          radar={resultStale ? null : result?.radar}
-                          workers={result?.tracks.length ?? 0}
-                        />
-                      </>
-                    )}
-                  </div>
-                  {!editing && (
-                    <div className="detection-summary">
-                      <span className="summary-label">В кадре</span>
-                      {groups.map((g) => (
-                        <div
-                          className={
-                            "detected-chip " +
-                            (g.name.startsWith("no_") ? "warning" : "")
-                          }
-                          key={g.name}
-                        >
-                          <i />
-                          <span>{labels[g.name]}</span>
-                          <b>{g.items.length}</b>
-                          {g.items.length > 0 && (
-                            <small>
-                              {percentage(
-                                Math.max(...g.items.map((d) => d.confidence)),
-                              )}
-                            </small>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <div className="source-controls" id="source-controls">
-                    <div className="source-tabs">
-                      {[
-                        ["browser", "Веб-камера"],
-                        ["video", "Видеофайл"],
-                        ["rtsp", "RTSP / IP"],
-                      ].map(([key, label]) => (
-                        <button
-                          disabled={active || busy}
-                          className={source === key ? "chosen" : ""}
-                          key={key}
-                          onClick={() => setSource(key)}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="source-row">
-                      {source === "browser" ? (
-                        <>
-                          <select
-                            aria-label="Устройство камеры"
-                            disabled={active || busy}
-                            value={device}
-                            onChange={(e) => setDevice(e.target.value)}
-                          >
-                            <option value="">Камера по умолчанию</option>
-                            {devices.map((d, i) => (
-                              <option key={d.deviceId} value={d.deviceId}>
-                                {d.label || `Камера ${i + 1}`}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            className="button"
-                            disabled={active || busy}
-                            onClick={() => void enumerate()}
-                          >
-                            Найти камеры
-                          </button>
-                        </>
-                      ) : source === "video" ? (
-                        <label className="file-picker">
-                          <Upload size={17} />
-                          <span>
-                            {file?.name || "Выбрать видео · до 200 МБ"}
-                          </span>
-                          <input
-                            aria-label="Выбрать видео"
-                            type="file"
-                            accept="video/mp4,video/webm,video/quicktime"
-                            disabled={active || busy}
-                            onChange={(e) =>
-                              setFile(e.target.files?.[0] || null)
-                            }
-                          />
-                        </label>
-                      ) : (
-                        <input
-                          type="password"
-                          autoComplete="off"
-                          aria-label="Адрес видеопотока"
-                          placeholder="rtsp://192.168.1.10:554/stream"
-                          value={url}
-                          onChange={(e) => setUrl(e.target.value)}
-                          disabled={active || busy}
-                        />
-                      )}
-                      {canStop ? (
-                        <button
-                          className="button stop"
-                          disabled={
-                            browser.state.phase === "stopping" ||
-                            camera?.status === "stopping" ||
-                            (busy &&
-                              !["permission", "connecting"].includes(
-                                browser.state.phase,
-                              ))
-                          }
-                          onClick={() => void stop()}
-                        >
-                          <Square size={14} />
-                          Остановить
-                        </button>
-                      ) : (
-                        <button
-                          className="button primary"
-                          disabled={
-                            busy ||
-                            !selected ||
-                            !safety.info?.model_ready ||
-                            safety.connection !== "online"
-                          }
-                          onClick={() => void start()}
-                        >
-                          {busy ? (
-                            <Loader2 className="spin" size={15} />
-                          ) : (
-                            <Play size={15} />
-                          )}
-                          Запустить мониторинг
-                        </button>
-                      )}
-                    </div>
-                    <p className="source-note">
-                      <ShieldCheck size={12} />
-                      {source === "video"
-                        ? "Анализ файла по времени записи. Скорость обработки зависит от детектора."
-                        : source === "rtsp"
-                          ? "Сетевой поток обрабатывается сервером. При перегрузке используются свежие кадры."
-                          : "Обработка на вашем устройстве. Камера работает, пока вкладка открыта."}
-                    </p>
-                  </div>
-                  {camera?.error && (
-                    <div className="notice danger">
-                      <AlertTriangle size={16} />
-                      {camera.error}
-                    </div>
-                  )}
-                  <section className="objects-panel">
-                    <div className="section-heading">
-                      <div>
-                        <span className="eyebrow">
-                          РЕЗУЛЬТАТЫ ТЕКУЩЕГО КАДРА
-                        </span>
-                        <h2>Что определила модель</h2>
-                      </div>
-                      <span className="count">
-                        {shownDetections.length || 0} объектов
-                      </span>
-                    </div>
-                    {shownDetections.length ? (
-                      <div className="object-list">
-                        {shownDetections.map((d, i) => (
-                          <div
-                            className={
-                              "object-card " +
-                              (d.class_name.startsWith("no_") ? "negative" : "")
-                            }
-                            key={i}
-                          >
-                            <span className="object-index">
-                              {String(i + 1).padStart(2, "0")}
-                            </span>
-                            <div>
-                              <strong>
-                                {labels[d.class_name] || d.class_name}
-                              </strong>
-                              <span>Уверенность распознавания</span>
-                            </div>
-                            <div className="confidence-meter">
-                              <strong>{percentage(d.confidence)}</strong>
-                              <div>
-                                <i
-                                  style={{ width: percentage(d.confidence) }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="compact-empty">
-                        Распознанные объекты появятся после запуска камеры.
-                      </div>
-                    )}
-                    <p className="confidence-note">
-                      Проценты отражают уверенность модели в классе объекта. Это
-                      не оценка безопасности человека.
-                    </p>
-                  </section>
-                </div>
-                <aside className="monitor-side">
-                  <section className="rules-panel">
-                    <div className="section-heading">
-                      <div>
-                        <span className="eyebrow">ПРАВИЛА КАМЕРЫ</span>
-                        <h2>Контроль безопасности</h2>
-                      </div>
-                      <ShieldCheck size={20} />
-                    </div>
-                    {[
-                      [
-                        "helmet",
-                        "Защитная каска",
-                        "Явная детекция «без каски»",
-                      ],
-                      [
-                        "vest",
-                        "Сигнальный жилет",
-                        "Явная детекция «без жилета»",
-                      ],
-                      [
-                        "zone_enabled",
-                        "Опасная зона",
-                        camera?.zone.length
-                          ? "Контроль точки под ногами"
-                          : "Обозначьте границы на кадре",
-                      ],
-                    ].map(([key, title, subtitle]) => (
-                      <div className="rule" key={key}>
-                        <div>
-                          <strong>{title}</strong>
-                          <small>{subtitle}</small>
-                        </div>
-                        <button
-                          className={
-                            "toggle " +
-                            (camera?.[key as keyof Config] ? "on" : "")
-                          }
-                          aria-label={title}
-                          aria-pressed={Boolean(camera?.[key as keyof Config])}
-                          disabled={
-                            busy ||
-                            !form ||
-                            (key === "zone_enabled" && !camera?.zone.length)
-                          }
-                          onClick={() =>
-                            form &&
-                            void save({
-                              ...form,
-                              [key]: !camera?.[key as keyof Config],
-                            })
-                          }
-                        >
-                          <span />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      className="zone-button"
-                      onClick={() => editZone()}
-                      disabled={!camera || busy}
-                    >
-                      <ScanLine size={17} />
-                      Настроить опасную зону
-                      <ArrowUpRight size={16} />
-                    </button>
-                    {editing ? (
-                      <div className="zone-editor">
-                        <div className="zone-list">
-                          {zoneDraft.map((z, i) => (
-                            <div
-                              key={z.id || i}
-                              className={
-                                "zone-card" +
-                                (i === zoneIndex ? " active" : "") +
-                                (z.enabled ? "" : " off")
-                              }
-                              onClick={() => selectZone(i)}
-                            >
-                              <div className="zone-card-head">
-                                <span
-                                  className="zone-dot"
-                                  data-on={z.enabled}
-                                />
-                                <input
-                                  className="zone-name-input"
-                                  value={z.name}
-                                  aria-label={`Имя зоны ${i + 1}`}
-                                  onClick={(e) => e.stopPropagation()}
-                                  onChange={(e) =>
-                                    renameZone(i, e.target.value)
-                                  }
-                                />
-                                <button
-                                  className="icon-mini"
-                                  title={z.enabled ? "Отключить" : "Включить"}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleZone(i);
-                                  }}
-                                >
-                                  {z.enabled ? "●" : "○"}
-                                </button>
-                                <button
-                                  className="icon-mini danger"
-                                  title="Удалить зону"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    removeZone(i);
-                                  }}
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                              <div className="zone-card-foot">
-                                <span>{z.points.length} точек</span>
-                                {i === zoneIndex && editing ? (
-                                  <span className="zone-editing">
-                                    {z.points.length < 3
-                                      ? "поставьте ≥3 точки"
-                                      : "кликните на кадр, чтобы добавить точку"}
-                                  </span>
-                                ) : (
-                                  <span>
-                                    {z.enabled ? "активна" : "выключена"}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                          {!zoneDraft.length && (
-                            <p className="zone-empty">
-                              Зон пока нет — добавьте первую.
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="zone-add">
-                          <input
-                            placeholder="Название зоны"
-                            value={newZoneName}
-                            onChange={(e) => setNewZoneName(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") addZone();
-                            }}
-                          />
-                          <button className="button small" onClick={addZone}>
-                            + Добавить
-                          </button>
-                        </div>
-
-                        <div className="zone-tools">
-                          <span>
-                            {zoneDraft[zoneIndex]?.name ?? "Зона"} ·{" "}
-                            {points.length} точек
-                          </span>
-                          <div className="zone-tools-row">
-                            <button
-                              className="text-button"
-                              disabled={!points.length}
-                              onClick={() => setPoints(points.slice(0, -1))}
-                            >
-                              Убрать точку
-                            </button>
-                            <button
-                              className="text-button"
-                              disabled={!points.length}
-                              onClick={() => setPoints([])}
-                            >
-                              Очистить
-                            </button>
-                          </div>
-                          <div className="zone-tools-row">
-                            <button
-                              className="button small"
-                              onClick={() => {
-                                setEditing(false);
-                                setZoneDraft(camera?.zones ?? []);
-                                setPoints(camera?.zone ?? []);
-                              }}
-                            >
-                              Отмена
-                            </button>
-                            <button
-                              className="button primary small"
-                              disabled={points.length < 3 || busy}
-                              onClick={() => {
-                                if (!form) return;
-                                const zones = zoneDraft.map((z, i) =>
-                                  i === zoneIndex ? { ...z, points } : z,
-                                );
-                                const first = zones.find(
-                                  (z) => z.enabled && z.points.length >= 3,
-                                );
-                                void save({
-                                  ...form,
-                                  zones,
-                                  zone: first?.points ?? [],
-                                  zone_name: first?.name ?? form.zone_name,
-                                  zone_enabled: Boolean(first),
-                                });
-                              }}
-                            >
-                              <Check size={14} />
-                              Сохранить
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : null}
-                    <div className="confirmation">
-                      <span>Подтверждение нарушения</span>
-                      <strong>
-                        {camera?.confirm_seconds || 2}
-                        <small> сек.</small>
-                      </strong>
-                      <p>Кратковременная ошибка не создаёт инцидент.</p>
-                    </div>
-                  </section>
-                  <section className="workers-panel">
-                    <div className="section-heading">
-                      <h2>Люди в кадре</h2>
-                      <span className="count">
-                        {result?.tracks.length || 0}
-                      </span>
-                    </div>
-                    {shownTracks.length ? (
-                      shownTracks.map((t) => (
-                        <div className="worker-card" key={t.id}>
-                          <div className="worker-top">
-                            <span className="worker-avatar">#{t.id}</span>
-                            <strong>Worker #{t.id}</strong>
-                            <b>{percentage(t.confidence)}</b>
-                          </div>
-                          {(t.ppe_age_seconds ?? 0) > 0 && (
-                            <p className="source-note">
-                              СИЗ: прошлое наблюдение ·{" "}
-                              {(t.ppe_age_seconds ?? 0).toFixed(1)} с назад
-                            </p>
-                          )}
-                          <div className="worker-ppe">
-                            {[
-                              ["helmet", "Каска"],
-                              ["vest", "Жилет"],
-                              ["mask", "Респиратор"],
-                            ].map(([p, title]) => (
-                              <span key={p} className={t.ppe[p] || "unknown"}>
-                                {title}
-                                <strong>
-                                  {t.ppe[p] === "present"
-                                    ? "Есть"
-                                    : t.ppe[p] === "missing"
-                                      ? "Нет"
-                                      : "Не определено"}
-                                  {t.ppe[p] !== "unknown" &&
-                                    !!t.ppe_confidence?.[p] &&
-                                    ` · ${percentage(t.ppe_confidence[p])}`}
-                                </strong>
-                              </span>
-                            ))}
-                          </div>
-                          {(() => {
-                            const inZone = (result?.rules || []).some(
-                              (r) =>
-                                r.track_id === t.id && r.type === "danger_zone",
-                            );
-                            return (
-                              <div className="worker-status">
-                                <span className={inZone ? "in-zone" : ""}>
-                                  {inZone ? "В опасной зоне" : "Вне зоны"}
-                                </span>
-                                <strong>
-                                  {t.violations.length
-                                    ? `Нарушение: ${t.violations.map((v) => labels[v] || v).join(", ")}`
-                                    : "Норма"}
-                                </strong>
-                              </div>
-                            );
-                          })()}
-                          {(result?.rules ?? [])
-                            .filter((r) => r.track_id === t.id)
-                            .map((r) => (
-                              <div
-                                className={"rule-progress " + r.phase}
-                                key={r.type}
-                              >
-                                <div>
-                                  <span>{labels[r.type]}</span>
-                                  <b>
-                                    {r.phase === "pending"
-                                      ? `${r.elapsed_seconds.toFixed(1)} / ${r.confirm_seconds} сек.`
-                                      : labels[r.phase]}
-                                  </b>
-                                </div>
-                                <i>
-                                  <span
-                                    style={{
-                                      width: `${Math.min(100, (r.elapsed_seconds / r.confirm_seconds) * 100)}%`,
-                                    }}
-                                  />
-                                </i>
-                              </div>
-                            ))}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="compact-empty">
-                        Здесь появятся ID и результаты проверки СИЗ.
-                      </div>
-                    )}
-                  </section>
-                  <section className="telegram-card">
-                    <Radio size={21} />
-                    <div>
-                      <h3>Всегда на связи.</h3>
-                      <p>
-                        {safety.info?.telegram_ready
-                          ? "Подтверждённые инциденты отправляются в Telegram вместе со снимком."
-                          : "Подключите Telegram, чтобы получать подтверждённые нарушения со снимками."}
-                      </p>
-                      <span
-                        className={
-                          "status-badge " +
-                          (safety.info?.telegram_ready ? "resolved" : "")
-                        }
-                      >
-                        {safety.info?.telegram_ready
-                          ? "Telegram подключён"
-                          : "Не подключён"}
-                      </span>
-                    </div>
-                  </section>
-                </aside>
-              </section>
-            )}
-            {page === "cameras" && (
-              <section className="camera-layout">
-                <div className="camera-list-panel">
-                  <div className="section-heading">
-                    <h2>Ваши камеры</h2>
-                    <div className="inline">
-                      {runningCount > 0 && (
-                        <button
-                          className="button small"
-                          disabled={busy}
-                          onClick={() =>
-                            void act(async () => {
-                              for (const c of safety.cameras) {
-                                try {
-                                  await api(`/cameras/${c.id}/stop`, {
-                                    method: "POST",
-                                  });
-                                } catch {
-                                  // keep stopping the rest; refresh shows the outcome
-                                }
-                              }
-                            })
-                          }
-                        >
-                          <Square size={14} />
-                          Стоп все ({runningCount})
-                        </button>
-                      )}
-                      <button
-                        className="button small"
-                        disabled={busy}
-                        onClick={() =>
-                          void act(async () => {
-                            const c = await api<Camera>(
-                              "/cameras",
-                              json({
-                                name: `Камера ${safety.cameras.length + 1}`,
-                              }),
-                            );
-                            setSelected(c.id);
-                          })
-                        }
-                      >
-                        <Plus size={14} />
-                        Добавить
-                      </button>
-                    </div>
-                  </div>
-                  {safety.cameras.map((c) => {
-                    const alert = cameraAlert(c);
-                    return (
-                      <button
-                        className={
-                          "camera-row " +
-                          (selected === c.id ? "selected" : "") +
-                          (alert ? " alarming" : "")
-                        }
-                        key={c.id}
-                        onClick={() => setSelected(c.id)}
-                      >
-                        <Video size={20} />
-                        <div>
-                          <strong>{c.name}</strong>
-                          <small>
-                            {alert
-                              ? `${labels[alert.type] || alert.type} · #${alert.trackId}`
-                              : labels[c.status]}
-                          </small>
-                        </div>
-                        <ChevronRight size={17} />
-                      </button>
-                    );
-                  })}
-                  {safety.info?.public_url && (
-                    <PhoneConnect
-                      url={safety.info.public_url}
-                      cameraId={selected}
-                    />
-                  )}
-                </div>
-                {form && (
-                  <section className="config-form">
-                    <div className="section-heading">
-                      <div>
-                        <span className="eyebrow">CONFIGURATION</span>
-                        <h2>Настройки рабочей зоны</h2>
-                      </div>
-                      <Settings2 size={20} />
-                    </div>
-                    <label>
-                      Название камеры
-                      <input
-                        value={form.name}
-                        maxLength={80}
-                        onChange={(e) =>
-                          setForm({ ...form, name: e.target.value })
-                        }
-                      />
-                    </label>
-                    <div className="form-columns">
-                      <label>
-                        Подтверждение, сек.
-                        <input
-                          type="number"
-                          min="0.2"
-                          max="60"
-                          step="0.1"
-                          value={form.confirm_seconds}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              confirm_seconds: Number(e.target.value),
-                            })
-                          }
-                        />
-                      </label>
-                      <label>
-                        Завершение, сек.
-                        <input
-                          type="number"
-                          min="0.2"
-                          max="60"
-                          step="0.1"
-                          value={form.clear_seconds}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              clear_seconds: Number(e.target.value),
-                            })
-                          }
-                        />
-                      </label>
-                    </div>
-                    <p>
-                      Подтверждение требует наблюдаемого нарушения. Завершение —
-                      его отсутствия в течение указанного времени.
-                    </p>
-                    {[
-                      ["helmet", "Контроль каски"],
-                      ["vest", "Контроль жилета"],
-                      ["mask", "Контроль респиратора"],
-                      ["smoking", "Контроль курения"],
-                      ["zone_enabled", "Контроль опасной зоны"],
-                      ["running_enabled", "Контроль бега по цеху"],
-                    ].map(([key, title]) => {
-                      // Rule needs at least one of its VIOLATION classes in the model.
-                      // Unknown backend info preserves the legacy default
-                      // (everything but smoking enabled).
-                      const known = safety.info?.inference?.supported_classes;
-                      const need: Record<string, string[]> = {
-                        helmet: ["no_helmet"],
-                        vest: ["no_vest"],
-                        mask: ["no_mask"],
-                        smoking: ["smoking"],
-                        zone_enabled: ["person"],
-                        running_enabled: ["person"],
-                      };
-                      const supported =
-                        known === undefined
-                          ? key !== "smoking"
-                          : (need[key] ?? []).some((c) => known.includes(c));
-                      return (
-                        <label className="check-label" key={key}>
-                          <input
-                            type="checkbox"
-                            checked={Boolean(form[key as keyof Config])}
-                            disabled={!supported}
-                            onChange={(e) =>
-                              setForm({ ...form, [key]: e.target.checked })
-                            }
-                          />
-                          {title}
-                          {!supported && " — не поддерживается моделью"}
-                        </label>
-                      );
-                    })}
-                    <div className="inline">
-                      <button className="button" onClick={() => editZone()}>
-                        <ScanLine size={16} />
-                        Редактор зоны
-                      </button>
-                      <button
-                        className="button"
-                        onClick={() =>
-                          setForm({ ...form, zone: [], zone_enabled: false })
-                        }
-                      >
-                        Удалить зону
-                      </button>
-                    </div>
-                    <div className="form-footer">
-                      <span>Изменение правил прерывает текущие инциденты.</span>
-                      <button
-                        className="button primary"
-                        disabled={busy || !form.name.trim()}
-                        onClick={() => void save(form)}
-                      >
-                        <Check size={15} />
-                        Сохранить
-                      </button>
-                    </div>
-                  </section>
-                )}
-              </section>
-            )}
-            {page !== "cameras" && (
-              <section className="incidents-panel">
-                <div className="section-heading">
-                  <div>
-                    <span className="eyebrow">
-                      {page === "incidents" ? "ИСТОРИЯ" : "ЖУРНАЛ"}
-                    </span>
-                    <h2>
-                      {page === "incidents"
-                        ? "Журнал инцидентов"
-                        : "Последние события"}
-                      <span className="count">{safety.total}</span>
-                    </h2>
-                  </div>
-                  <div className="inline">
-                    <select
-                      aria-label="Фильтр статуса"
-                      value={safety.filter}
-                      onChange={(e) => safety.setFilter(e.target.value)}
-                    >
-                      <option value="">Все статусы</option>
-                      <option value="active">Активные</option>
-                      <option value="resolved">Завершённые</option>
-                      <option value="interrupted">Прерванные</option>
-                    </select>
-                    <select
-                      aria-label="Фильтр типа нарушения"
-                      value={safety.incidentType}
-                      onChange={(e) => safety.setIncidentType(e.target.value)}
-                    >
-                      <option value="">Все типы</option>
-                      {[
-                        "no_helmet",
-                        "no_vest",
-                        "no_mask",
-                        "smoking",
-                        "danger_zone",
-                        "running",
-                      ].map((kind) => (
-                        <option key={kind} value={kind}>
-                          {typeLabels[kind] || labels[kind] || kind}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      aria-label="Фильтр камеры"
-                      value={safety.incidentCamera}
-                      onChange={(e) => safety.setIncidentCamera(e.target.value)}
-                    >
-                      <option value="">Все камеры</option>
-                      {safety.cameras.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                    {page !== "incidents" && (
-                      <button
-                        className="text-button"
-                        onClick={() => setPage("incidents")}
-                      >
-                        Весь журнал
-                        <ArrowUpRight size={15} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {safety.incidents.length ? (
-                  <div className="table-scroll">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Событие</th>
-                          <th>Камера / сотрудник</th>
-                          <th>Время</th>
-                          <th>Уверенность</th>
-                          <th>Статус</th>
-                          <th />
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(page === "incidents"
-                          ? safety.incidents
-                          : safety.incidents.slice(0, 5)
-                        ).map((i) => (
-                          <tr key={i.id}>
-                            <td>
-                              <button
-                                className="event-button"
-                                onClick={() => setDetail(i)}
-                              >
-                                <span className={"event-icon " + i.type}>
-                                  <AlertTriangle size={16} />
-                                </span>
-                                {typeLabels[i.type] || labels[i.type] || i.type}
-                              </button>
-                            </td>
-                            <td>
-                              <button
-                                className="text-button"
-                                title="Открыть камеру"
-                                onClick={() => {
-                                  setSelected(i.camera_id);
-                                  setPage("monitor");
-                                }}
-                              >
-                                {i.camera_name}
-                              </button>
-                              <small>Worker #{i.track_id}</small>
-                            </td>
-                            <td>
-                              {date(i.started_at)}
-                              <small>{i.duration.toFixed(1)} сек.</small>
-                            </td>
-                            <td>
-                              <span className="table-confidence">
-                                {percentage(i.confidence)}
-                              </span>
-                            </td>
-                            <td>
-                              <span className={"status-badge " + i.status}>
-                                {labels[i.status]}
-                              </span>
-                            </td>
-                            <td>
-                              <button
-                                className="icon-button"
-                                aria-label="Открыть инцидент"
-                                onClick={() => setDetail(i)}
-                              >
-                                <ExternalLink size={15} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="incidents-empty">
-                    <ShieldCheck size={27} />
-                    <div>
-                      <h3>Пока всё спокойно.</h3>
-                      <p>
-                        {safety.filter
-                          ? "Инцидентов с выбранным статусом нет."
-                          : "Подтверждённые нарушения появятся здесь с фотографией и временем."}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {page === "incidents" && safety.total > 30 && (
-                  <div className="pagination">
-                    <button
-                      className="button small"
-                      disabled={!safety.offset}
-                      onClick={() =>
-                        safety.setOffset(Math.max(0, safety.offset - 30))
-                      }
-                    >
-                      Назад
-                    </button>
-                    <span>
-                      {safety.offset + 1}–
-                      {Math.min(safety.offset + 30, safety.total)} из{" "}
-                      {safety.total}
-                    </span>
-                    <button
-                      className="button small"
-                      disabled={safety.offset + 30 >= safety.total}
-                      onClick={() => safety.setOffset(safety.offset + 30)}
-                    >
-                      Далее
-                    </button>
-                  </div>
-                )}
-              </section>
-            )}
-            <footer>
-              <a
-                className="footer-brand"
-                href="#"
-                onClick={(e) => e.preventDefault()}
-              >
-                safety ai
-                <ArrowRight size={14} />
-              </a>
-              <span>
-                Кадры и история хранятся на этом устройстве.
-                {safety.info?.telegram_ready
-                  ? " Снимки отправляются в Telegram."
-                  : ""}
-              </span>
-              <span>Локальное рабочее пространство</span>
-            </footer>
-          </main>
-          {detail && (
-            <IncidentDialog
-              incident={detail}
-              onClose={() => setDetail(null)}
-              busy={busy}
-              onFeedback={(verdict) =>
-                void act(async () => {
-                  setDetail(
-                    await api<Incident>(
-                      `/incidents/${detail.id}/feedback`,
-                      json({ verdict }),
-                    ),
-                  );
-                })
-              }
-            />
-          )}
-        </>
+            </li>
+          </ol>
+          <div className="p-help-shortcuts">
+            <span>
+              <kbd>F</kbd>Режим наблюдения
+            </span>
+            <span>
+              <kbd>Esc</kbd>Закрыть панель
+            </span>
+            <span>
+              <kbd>Ctrl / ⌘ Z</kbd>Отменить точку зоны
+            </span>
+          </div>
+        </Dialog>
       )}
-    </div>
+    </WorkspaceShell>
   );
 }

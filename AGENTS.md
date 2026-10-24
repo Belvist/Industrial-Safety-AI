@@ -88,3 +88,17 @@ python run.py            # one-command local start (installs vision+linq extras)
 - Reproducible real/controlled procedures: `docs/LINQ_5FPS_BENCHMARK.md`.
 - Hosted CI at `8f581d6` never started jobs due to GitHub billing/spending limit;
   do not describe it as an observed code failure or as green CI.
+
+## Monochrome operator UX (24 Oct 2026)
+
+- User explicitly replaced the previous purple style with Cursor/OpenCode-like
+  monochrome chrome. Default dark; neutral light toggle. Do not restore purple.
+- `frontend/src/workspace/` owns the new product flow; `WorkspaceShell` contains
+  activity navigation, camera explorer (Ctrl/Meta B), editor header and status bar.
+- One focused observation view; optional People/Radar/Events inspector. Keep source
+  connection and zone drawing in dialogs, settings separate, evidence in a drawer.
+- `feedback` filters the review queue independently of physical incident status.
+  Operator-only CSV export uses one SQLite read snapshot, all matching rows up to
+  10,000, and spreadsheet formula protection.
+- Browser tests use simulated media or explicitly labelled isolated incident
+  fixtures; never describe those as real hardware, real incidents or model recall.

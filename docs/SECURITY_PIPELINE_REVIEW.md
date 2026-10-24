@@ -43,3 +43,23 @@ Dependency findings before fixes: npm reported 2 critical and 1 moderate advisor
 in Vitest/transitive test packages; the Python project closure reported advisories
 for certifi and pytest. The broader execution environment includes unrelated tools;
 only the project's 41-package dependency closure was used for the scoped result.
+
+
+## Operator workflow follow-up — 24 October 2026
+
+- Review filtering uses parameterized SQL and the existing camera scope.
+- CSV is operator-only. It shares journal validation, reads a single SQLite
+  snapshot, caps export at 10,000 records and neutralizes formula-leading cells
+  (including whitespace-prefixed formulas). Unauthenticated/scoped-phone export
+  rejection and exports spanning more than one UI page are tested.
+- Evidence uses authenticated blob fetches and revokes object URLs on cleanup.
+  Missing media has an explicit retry/error state. H.264 actually plays in the
+  isolated Chromium review test.
+- Pairing-code expiry now counts down; expired QR codes disappear. Camera/source
+  changes clear the displayed code. Operator tokens remain tab-scoped.
+- A cancelled remote startup cleans up the acknowledged session by session ID;
+  a failed history refresh does not falsely report an already committed save as
+  failed. Unsaved settings are guarded on navigation and browser Back.
+
+These checks do not establish a complete security audit or enterprise deployment
+certification. The boundaries listed above remain in force.

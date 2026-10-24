@@ -79,7 +79,7 @@ Broker queue latency is unavailable without synchronized vendor telemetry.
 A worker-reported inference duration is never treated as end-to-end latency.
 Browser diagnostics also expose bounded p50/p95/p99 samples for complete API
 round trips and authenticated frame fetch-to-display time; no URLs or credentials
-are recorded in these timings. API polling is up to 10 Hz and is never reported
+are recorded in these timings. API polling is up to 5 Hz (1.5 s when idle) and is never reported
 as inference FPS. Browser/E2E
 validation measures user flows, not remote TPU performance.
 
@@ -178,3 +178,31 @@ or establish a green hosted CI run. The existing `demo-stable-c809154` tag is un
 Final local checks: 244 Python tests passed, 4 skipped; 32 frontend tests passed;
 TypeScript/Vite production build passed. The controlled 60-second suite passed
 16 tests when explicitly enabled. Both browser E2E scripts passed in Chromium.
+
+
+## Revalidation — 24 October 2026
+
+The monochrome workspace does not change detector resolution, thresholds or
+remote admission limits. Current environment preflight confirms neither
+`LINQ_AMQP_HOST` nor `LINQ_ENDPOINT` is configured. The managed environment has
+no configured accelerator capability, runtime variable or secret binding.
+No real remote benchmark was possible; default in-flight stays **1**.
+
+A repeated controlled 60-second run passed 17 concurrency tests:
+[controlled-amqp-20261024.json](benchmarks/controlled-amqp-20261024.json).
+It completed 1,852 synthetic replies in 60.064 s (30.834 replies/s), with
+RPC p50/p95/p99 27.994 / 31.443 / 33.542 ms, peak in-flight 4, zero failures
+and zero pending requests at shutdown. This peer and its tiny tensor are
+fixtures; **these are not TPU throughput or latency measurements**.
+
+Local checks: 247 Python tests pass, 4 optional tests skip; 38 frontend tests
+pass; production build passes. All three browser regressions pass, including
+H.264 playback, separate operator feedback/lifecycle, complete CSV export,
+light/dark themes, zone editing and mobile layout. The incident review browser
+test creates only labelled fixtures in its own temporary backend.
+
+The latest checked hosted CI for `d587ecf` is run
+[40037414631](https://github.com/judogaaa/Industrial-Safety-AI/actions/runs/40037414631).
+Its annotation was rechecked: jobs did not start because recent account
+payments failed or the spending limit must be increased. This is unresolved;
+local success is not represented as green GitHub Actions.

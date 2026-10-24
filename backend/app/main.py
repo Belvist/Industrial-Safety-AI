@@ -478,6 +478,7 @@ def create_app(config: Settings = settings, runtime=None):
     def incidents(
         request: Request,
         status: str | None = None,
+        feedback: str | None = None,
         types: Annotated[list[str] | None, Query(alias="type")] = None,
         camera_id: Annotated[list[str] | None, Query()] = None,
         zone: Annotated[str | None, Query(max_length=80)] = None,
@@ -488,6 +489,8 @@ def create_app(config: Settings = settings, runtime=None):
     ):
         if status not in {None, "active", "resolved", "interrupted"}:
             raise HTTPException(422, "Неизвестный статус.")
+        if feedback not in {None, "unreviewed", "confirmed", "false_positive"}:
+            raise HTTPException(422, "Неизвестная оценка оператора.")
         if types:
             unknown = set(types) - incident_types
             if unknown:
@@ -510,6 +513,108 @@ def create_app(config: Settings = settings, runtime=None):
             zone_name=zone.strip() if zone else None,
             from_time=start,
             to_time=end,
+            feedback=feedback,
+        )
+
+    @app.get("/api/v1/incidents/export.csv")
+    def export_incidents(
+        request: Request,
+        status: str | None = None,
+        feedback: str | None = None,
+        types: Annotated[list[str] | None, Query(alias="type")] = None,
+        camera_id: Annotated[list[str] | None, Query()] = None,
+        zone: Annotated[str | None, Query(max_length=80)] = None,
+        from_time: datetime | None = None,
+        to_time: datetime | None = None,
+    ):
+        import csv
+        import io
+
+        master, _ = caller(request)
+        if not master:
+            raise HTTPException(403, "Экспорт доступен только оператору.")
+        # One SQLite snapshot, same validation and filters as the journal.
+        result = incidents(
+            request,
+            status,
+            feedback,
+            types,
+            camera_id,
+            zone,
+            from_time,
+            to_time,
+            10001,
+            0,
+        )
+        if result["total"] > 10000:
+            raise HTTPException(413, "Больше 10 000 событий. Ограничьте период экспорта.")
+        output = io.StringIO(newline="")
+        writer = csv.writer(output, delimiter=";")
+        writer.writerow(
+            [
+                "ID события",
+                "Событие",
+                "Камера",
+                "Зона",
+                "Трек",
+                "Время UTC",
+                "Длительность, сек.",
+                "Состояние наблюдения",
+                "Решение оператора",
+            ]
+        )
+        titles = {
+            "no_helmet": "Без каски",
+            "no_vest": "Без жилета",
+            "no_mask": "Без респиратора",
+            "smoking": "Курение",
+            "danger_zone": "Вход в опасную зону",
+            "running": "Быстрое перемещение",
+        }
+        states = {
+            "active": "Продолжается",
+            "resolved": "Завершено",
+            "interrupted": "Наблюдение прервано",
+        }
+        reviews = {
+            "unreviewed": "На проверке",
+            "confirmed": "Подтверждено",
+            "false_positive": "Ложное срабатывание",
+        }
+
+        def safe_cell(value):
+            text = str(value if value is not None else "")
+            # Quoting alone does not prevent spreadsheet formula execution.
+            return (
+                "'" + text
+                if text.lstrip().startswith(("=", "+", "-", "@")) or text.startswith(("\t", "\r"))
+                else text
+            )
+
+        for item in result["items"]:
+            writer.writerow(
+                [
+                    safe_cell(value)
+                    for value in [
+                        item["id"],
+                        titles.get(item["type"], item["type"]),
+                        item["camera_name"],
+                        item["zone_name"],
+                        item["track_id"],
+                        item["started_at"],
+                        item["duration"],
+                        states[item["status"]],
+                        reviews[item["feedback"]],
+                    ]
+                ]
+            )
+        return Response(
+            ("\ufeff" + output.getvalue()).encode("utf-8"),
+            media_type="text/csv; charset=utf-8",
+            headers={
+                "Content-Disposition": 'attachment; filename="industrial-safety.csv"',
+                "Cache-Control": "no-store",
+            },
         )
 
     def _own_incident(request: Request, incident_id: str) -> dict:

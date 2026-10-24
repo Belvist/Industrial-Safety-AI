@@ -115,9 +115,7 @@ class Storage:
             "camera_name": name,
             "track_id": key[0],
             "type": key[1],
-            "severity": "critical"
-            if key[1] in {"danger_zone", "smoking"}
-            else "warning",
+            "severity": "critical" if key[1] in {"danger_zone", "smoking"} else "warning",
             "status": "active",
             "started_at": started_at or utcnow(),
             "confidence": confidence,
@@ -159,9 +157,7 @@ class Storage:
             if cursor.rowcount != 1:
                 raise ValueError("Incident not found or its terminal state cannot change.")
 
-    def finish_incident(
-        self, incident_id, outcome, reason, ended_at=None, duration=None
-    ):
+    def finish_incident(self, incident_id, outcome, reason, ended_at=None, duration=None):
         """Atomically finish an ACTIVE incident exactly once.
 
         outcome is "resolved" (violation proven cleared) or "interrupted".
@@ -264,9 +260,15 @@ class Storage:
         zone_name=None,
         from_time=None,
         to_time=None,
+        feedback=None,
     ):
         with self.connection() as db:
+            # Freeze count and rows together while live cameras append incidents.
+            db.execute("BEGIN")
             clauses, params = [], []
+            if feedback:
+                clauses.append("feedback=?")
+                params.append(feedback)
             if status:
                 clauses.append("status=?")
                 params.append(status)
@@ -323,22 +325,19 @@ class Storage:
             known = {r["snapshot"] for r in db.execute("SELECT snapshot FROM incidents")}
         if snapshots_dir.is_dir():
             for path in snapshots_dir.iterdir():
-                if (
-                    path.is_file()
-                    and not path.name.startswith(".")
-                    and path.name not in known
-                ):
+                if path.is_file() and not path.name.startswith(".") and path.name not in known:
                     path.unlink(missing_ok=True)
                     removed += 1
         return removed
 
     def stats(self, camera_ids=None):
         if camera_ids is not None and not camera_ids:
-            return {"total": 0, "active": 0, "today": 0, "false_positive": 0}
+            return {"total": 0, "active": 0, "today": 0, "false_positive": 0, "unreviewed": 0}
         sql = (
             "SELECT count(*) AS total, coalesce(sum(status='active'),0) AS active, "
             "coalesce(sum(started_at >= date('now')),0) AS today, "
-            "coalesce(sum(feedback='false_positive'),0) AS false_positive "
+            "coalesce(sum(feedback='false_positive'),0) AS false_positive, "
+            "coalesce(sum(feedback='unreviewed'),0) AS unreviewed "
             "FROM incidents"
         )
         params = []

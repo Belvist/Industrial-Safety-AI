@@ -41,12 +41,17 @@ def main():
     args = parser.parse_args()
 
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(args=CHROMIUM_ARGS, executable_path=args.browser_executable)
+        browser = pw.chromium.launch(
+            args=CHROMIUM_ARGS, executable_path=args.browser_executable
+        )
         operator = browser.new_context()
         operator.grant_permissions(["camera", "microphone"])
         page = operator.new_page()
         page.goto(f"{args.base}/?token={args.master}")
-        page.get_by_role("button", name="Камеры и правила").click()
+        page.get_by_role("navigation", name="Основная навигация").get_by_role(
+            "button", name="Камеры", exact=True
+        ).click()
+        page.get_by_role("button", name="Подключение", exact=True).click()
 
         with page.expect_response(re.compile(r"/api/v1/pairing$")) as pairing:
             page.get_by_role("button", name="Создать код для телефона").click()
