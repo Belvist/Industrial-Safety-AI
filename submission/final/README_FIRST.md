@@ -4,13 +4,12 @@
 
 Репозиторий: `https://github.com/Belvist/Industrial-Safety-AI`
 Сдаваемая ветка: `fix/ppe-always-on-accuracy`.
-Закреплённый релизный тег: `linq-defense-20261025-final` (указатель на
+Закреплённый релизный тег: `linq-defense-20261025-verified` (указатель на
 проверенный финальный commit; см. `git rev-parse`). `main` намеренно не используется.
 
 Проверенные локальные изменения перед публикацией: backend Ruff clean,
-281 passed / 1 skipped; frontend Vitest 39 passed; TypeScript и Vite build
-успешны. Эти результаты относятся к сдаваемой ревизии только после того,
-как соответствующий commit появится в публичном репозитории.
+282 passed / 1 skipped; frontend Vitest 39 passed; TypeScript и Vite build
+успешны. Полная clean-clone CPU browser E2E прошла; это не LinQ acceptance.
 
 ## Что это
 
@@ -25,33 +24,31 @@ worker приведены отдельно в `ACTUAL_RESULTS.md` и `LINQ_PROOF
 
 ## Чистая установка (CPU baseline)
 
+Проверено из чистого клона на Python 3.12.13:
+
 ```bash
 git clone https://github.com/Belvist/Industrial-Safety-AI.git
 cd Industrial-Safety-AI
-git checkout linq-defense-20261025-final
-
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -e "./backend[dev,vision,linq]" -c backend/constraints.txt
-cd frontend && npm ci && npm run build && cd ..
-python backend/scripts/download_model.py
+git checkout linq-defense-20261025-verified
+python3.12 run.py --setup-only
 ```
 
-Эта команда **только проверяет наличие и SHA-256 моделей**, она не скачивает
-отсутствующие файлы. Для чистой установки используйте `python run.py`, который
-настраивает окружение и собирает UI; если моделей нет, предварительно
-разместите registry-веса по процедуре в `backend/scripts/download_model.py` /
-`THIRD_PARTY.md`. В текущем чистом клоне загрузку модели отдельно подтвердить
-не удалось. `models/ppe-v4.onnx` и `ppe-v4cloud.onnx` — локальные
-экспериментальные веса, не baseline для чистого клона. После размещения и верификации `ppe.onnx` и
-`person.onnx` можно запустить API вручную:
+Bootstrap создал окружение, установил зависимости, собрал React и скачал
+стандартные модели с проверкой SHA-256:
+
+- `models/ppe.onnx`: `b99fed37bae1d111ddb622a0ef9077d42918a4daebd4a0bffbd8faaba273f246`
+- `models/person.onnx`: `190ba5f1e61411a001683e349d6b2cdb0804c0dc67a5e34cd8ff6fd00ee54b4d`
+
+Запуск приложения той же командой без `--setup-only`:
 
 ```bash
-python -m uvicorn app.main:app --app-dir backend --port 8000
+python3.12 run.py --host 127.0.0.1 --port 8000
 ```
 
-Откройте `http://127.0.0.1:8000`. Не подменяйте baseline локальными
-экспериментальными весами.
+`backend/scripts/download_model.py` через `check_path()` получает недостающие
+registry-модели с URL и проверяет SHA-256. Локальные экспериментальные
+`ppe-v4.onnx`/`ppe-v4cloud.onnx` в registry не имеют URL и не являются
+необходимыми для baseline.
 
 ## LinQ режим (только при наличии доступа)
 
