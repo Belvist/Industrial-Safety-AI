@@ -521,7 +521,7 @@ def test_one_camera_ppe_window_really_publishes_multiple_amqp_requests(
         for i in range(limit):
             rt.process(cam, frame, i * 0.2)
         deadline = time.monotonic() + 1
-        while len(peer.ids) < limit and time.monotonic() < deadline:
+        while peer.maximum < limit and time.monotonic() < deadline:
             time.sleep(0.005)
         assert len(peer.ids) == limit
         print(

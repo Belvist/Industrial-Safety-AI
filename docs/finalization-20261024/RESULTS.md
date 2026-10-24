@@ -59,9 +59,9 @@ Intel worker-zone-detection, 1920×1080, 59.94 исходных FPS; CPU quota 2
 
 ## Проверки и границы доказательства
 
-**271 Python tests passed, 4 skipped**, ruff clean, **38 frontend tests**, production build. Phone/workspace/review browser regressions и отдельный real-video E2E прошли. Первые три используют mock media или помеченные fixtures; они не являются доказательством recall.
+**272 Python tests passed, 3 skipped**, ruff clean, **38 frontend tests**, production build. Phone/workspace/review browser regressions и отдельный real-video E2E прошли. Первые три используют mock media или помеченные fixtures; они не являются доказательством recall.
 
-[Controlled AMQP proof](measurements/controlled-amqp-proof.txt): одна камера реально публикует 1/4 запросов до получения ответов; проходят полный preprocessing 1×3×640×640, сериализация, AMQP correlation и postprocessing. Peer искусственный и явно помечен. Out-of-order, старый head, timeout, stop/restart, смена/неоднозначность ID, FIFO/backpressure, потеря данных, геометрия и изоляция счётчиков проверены controlled tests. Это не проверка физического TPU/camera outage.
+[Controlled AMQP proof](measurements/controlled-amqp-proof.txt): одна камера реально публикует 1/4 запросов до получения ответов; проходят полный preprocessing 1×3×640×640, сериализация, AMQP correlation и postprocessing. Peer искусственный и явно помечен. В 60-секундном stress-test получено 1856 успешных ответов, 0 failures, peak pending=4, pending at end=0; [машинный отчёт](measurements/amqp-soak.json). Его synthetic replies/sec не являются скоростью LinQ. В тестовом peer устранено чтение peak до окончания публикации; производственный транспорт этим исправлением не менялся. Out-of-order, старый head, timeout, stop/restart, смена/неоднозначность ID, FIFO/backpressure, потеря данных, геометрия и изоляция счётчиков проверены controlled tests. Это не проверка физического TPU/camera outage.
 
 **LinQ BLOCKED:** в окружении нет VPN, TCP grants, endpoint/credentials и разрешённой квоты. [Машинный результат](measurements/linq-blocked.json): worker_verified=false, CPU fallback не запускался. Ни одного нового настоящего worker request эта работа не подтверждает; TPU FPS/latency/failures/positive-negative-UNKNOWN не измерены. Значения concurrency по умолчанию остались 1. Shared TPU не нагружался.
 
