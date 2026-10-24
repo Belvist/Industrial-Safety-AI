@@ -34,6 +34,8 @@ export function bootstrapOperatorAuth(): void {
 }
 function accessToken(): string | null {
   if (typeof location === "undefined") return null;
+  // Phone routes use only the scoped phone token. Operator UI must never
+  // inherit it — that would silently downgrade master access to phone scope.
   if (location.pathname === "/phone" || location.pathname === "/connect") {
     return typeof localStorage !== "undefined"
       ? localStorage.getItem("phone_token")
@@ -43,9 +45,6 @@ function accessToken(): string | null {
     new URLSearchParams(location.search).get("token") ||
     (typeof sessionStorage !== "undefined"
       ? sessionStorage.getItem("operator_token")
-      : null) ||
-    (typeof localStorage !== "undefined"
-      ? localStorage.getItem("phone_token")
       : null)
   );
 }
@@ -98,5 +97,14 @@ export const errorText = (value: unknown) => {
     );
   return value instanceof Error ? value.message : String(value);
 };
-export const stopPath = (cameraId: string, sessionId?: string | null) =>
-  `/cameras/${cameraId}/stop${sessionId ? "?session_id=" + encodeURIComponent(sessionId) : ""}`;
+export const stopPath = (
+  cameraId: string,
+  sessionId?: string | null,
+  revoke?: boolean,
+) => {
+  const params = new URLSearchParams();
+  if (sessionId) params.set("session_id", sessionId);
+  if (revoke !== undefined) params.set("revoke", revoke ? "true" : "false");
+  const query = params.toString();
+  return `/cameras/${cameraId}/stop${query ? `?${query}` : ""}`;
+};

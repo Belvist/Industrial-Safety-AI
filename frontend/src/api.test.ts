@@ -20,11 +20,19 @@ describe("pairing auth", () => {
     expect(authHeaders()).toEqual({ "X-API-Token": "master" });
   });
   it("uses the stored phone token on the phone page", () => {
-    vi.stubGlobal("location", new URL("https://192.168.1.194:8000/"));
+    vi.stubGlobal("location", new URL("https://192.168.1.194:8000/phone"));
     vi.stubGlobal("localStorage", {
       getItem: (key: string) => (key === "phone_token" ? "phone-token" : null),
     });
     expect(authHeaders()).toEqual({ "X-API-Token": "phone-token" });
+  });
+  it("does not use a phone token on the operator dashboard", () => {
+    vi.stubGlobal("location", new URL("https://192.168.1.194:8000/"));
+    vi.stubGlobal("sessionStorage", { getItem: () => null });
+    vi.stubGlobal("localStorage", {
+      getItem: (key: string) => (key === "phone_token" ? "phone-token" : null),
+    });
+    expect(authHeaders()).toEqual({});
   });
   it("builds the QR pairing URL without leaking other secrets", () => {
     expect(pairingUrl("https://192.168.1.194:8000/", "abc123")).toBe(

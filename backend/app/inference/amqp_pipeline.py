@@ -36,16 +36,21 @@ class AmqpPipeline:
         timeout = self.owner.timeout_seconds
         if self.stopping.is_set():
             raise RuntimeError("LinQ transport is closed.")
-        if not self.slots.acquire(timeout=timeout):
+        # One wall-clock budget for acquire + wait (not 2× timeout).
+        deadline = time.monotonic() + timeout
+        if not self.slots.acquire(timeout=max(0.0, deadline - time.monotonic())):
             raise RuntimeError("LinQ backpressure: in-flight limit reached.")
         future = Future()
         future.add_done_callback(lambda _: self.slots.release())
-        item = Request(uuid.uuid4().hex, body, time.monotonic() + timeout, future)
+        item = Request(uuid.uuid4().hex, body, deadline, future)
         try:
             if self.stopping.is_set():
                 raise RuntimeError("LinQ transport is closed.")
             self.queue.put_nowait(item)
-            return future.result(timeout=timeout)
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError
+            return future.result(timeout=remaining)
         except TimeoutError:
             future.cancel()
             raise RuntimeError(f"LinQ TPU не ответил за {timeout:.1f} с.") from None
@@ -71,8 +76,9 @@ class AmqpPipeline:
     def _reply(self, _channel, _method, props, body):
         from app.inference.tpu_wire import MESSAGE_ID_ATTR_NAME
 
-        key = (props.headers or {}).get(MESSAGE_ID_ATTR_NAME)
-        item = self.pending.pop(key, None)
+        headers = props.headers or {}
+        key = headers.get(MESSAGE_ID_ATTR_NAME) or getattr(props, "correlation_id", None)
+        item = self.pending.pop(key, None) if key else None
         if item is None or item.future.done():
             return
         if time.monotonic() >= item.deadline:

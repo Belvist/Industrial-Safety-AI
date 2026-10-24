@@ -130,9 +130,12 @@ class BoundedPpeExecutor:
                 worker.join()
 
 
+DEFAULT_ABSENCE_GRACE_SECONDS = 0.15
+
 class IndependentPpe:
-    def __init__(self):
+    def __init__(self, absence_grace_seconds: float = DEFAULT_ABSENCE_GRACE_SECONDS):
         self.engine = TemporalEngine()
+        self.absence_grace_seconds = float(absence_grace_seconds)
         # Insertion order is strictly increasing source time. Completed replies
         # wait here for their predecessors, never for motion processing.
         self.pending = {}
@@ -153,25 +156,39 @@ class IndependentPpe:
     def reset(self):
         for future, _ in list(self.pending.values()) + list(self.retired.values()):
             future.cancel()
-        self.__init__()
+        self.__init__(absence_grace_seconds=self.absence_grace_seconds)
 
     def observe_tracks(self, tracks, now):
-        """An occlusion/crossing invalidates PPE identity continuity, not motion IDs."""
+        """Update PPE identity continuity from source timestamps.
+
+        A continuously observed worker keeps one version even when frames are
+        sparse (1 FPS). Continuity breaks only when the track is absent longer
+        than ``absence_grace_seconds`` or when workers overlap so much that PPE
+        cannot be attributed safely. The previous 0.6 s wall-clock reset broke
+        identity on normal inter-frame spacing.
+        """
         present = {t.id for t in tracks}
-        invalid = set(self.versions) - present
+        invalid: set[int] = set()
+
+        for tid in list(self.versions):
+            if tid in present:
+                continue
+            absent = now - self.last_seen.get(tid, now)
+            if absent > self.absence_grace_seconds:
+                invalid.add(tid)
+                self.versions.pop(tid, None)
+                self.last_seen.pop(tid, None)
+                self.values.pop(tid, None)
+
         for t in tracks:
             ambiguous = any(o.id != t.id and iou(t.bbox, o.bbox) > 0.2 for o in tracks)
-            broken = now - self.last_seen.get(t.id, now) > 0.6
-            if t.id not in self.versions or ambiguous or broken:
+            if t.id not in self.versions or ambiguous:
                 if t.id in self.versions:
                     invalid.add(t.id)
                 self.serial += 1
                 self.versions[t.id] = self.serial
             self.last_seen[t.id] = now
-        for tid in list(self.versions):
-            if tid not in present:
-                self.versions.pop(tid, None)
-                self.last_seen.pop(tid, None)
+
         for tid in invalid:
             self.values.pop(tid, None)
         return invalid

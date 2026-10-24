@@ -1,0 +1,168 @@
+{
+ "auto": [
+  {
+   "img": "coco_000001.jpg",
+   "people": 7,
+   "ppe": [
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.68
+    ]
+   ],
+   "wall_ms": 1366.7
+  },
+  {
+   "img": "coco_000124.jpg",
+   "people": 4,
+   "ppe": [
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.5
+    ]
+   ],
+   "wall_ms": 973.4
+  },
+  {
+   "img": "coco_000127.jpg",
+   "people": 4,
+   "ppe": [
+    [
+     "helmet",
+     0.82
+    ],
+    [
+     "helmet",
+     0.82
+    ],
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.32
+    ]
+   ],
+   "wall_ms": 1377.7
+  },
+  {
+   "img": "frame_30.jpg",
+   "people": 3,
+   "ppe": [],
+   "wall_ms": 1123.2
+  },
+  {
+   "img": "frame_300.jpg",
+   "people": 2,
+   "ppe": [],
+   "wall_ms": 1065.8
+  }
+ ],
+ "off": [
+  {
+   "img": "coco_000001.jpg",
+   "people": 7,
+   "ppe": [
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.68
+    ]
+   ],
+   "wall_ms": 1322.3
+  },
+  {
+   "img": "coco_000124.jpg",
+   "people": 4,
+   "ppe": [
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.5
+    ]
+   ],
+   "wall_ms": 1062.8
+  },
+  {
+   "img": "coco_000127.jpg",
+   "people": 4,
+   "ppe": [
+    [
+     "helmet",
+     0.82
+    ],
+    [
+     "helmet",
+     0.82
+    ],
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.68
+    ],
+    [
+     "helmet",
+     0.32
+    ]
+   ],
+   "wall_ms": 970.6
+  },
+  {
+   "img": "frame_30.jpg",
+   "people": 3,
+   "ppe": [],
+   "wall_ms": 980.9
+  },
+  {
+   "img": "frame_300.jpg",
+   "people": 2,
+   "ppe": [],
+   "wall_ms": 1047.1
+  }
+ ]
+}

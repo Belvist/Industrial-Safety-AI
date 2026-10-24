@@ -237,12 +237,17 @@ export function useBrowserCamera(onError: (message: string) => void) {
       requests.current.clear();
       const old = resource.current;
       old?.stream.getTracks().forEach((t) => t.stop());
+      // Soft stop on tab close: end the stream but keep a valid phone
+      // pairing so the user can resume without scanning a new QR.
       if (old)
-        void fetch("/api/v1" + stopPath(old.cameraId, old.sessionId), {
-          method: "POST",
-          headers: authHeaders(),
-          keepalive: true,
-        });
+        void fetch(
+          "/api/v1" + stopPath(old.cameraId, old.sessionId, false),
+          {
+            method: "POST",
+            headers: authHeaders(),
+            keepalive: true,
+          },
+        );
     };
     window.addEventListener("pagehide", leave);
     return () => {

@@ -359,9 +359,25 @@ def create_app(config: Settings = settings, runtime=None):
         return rt(request).start(camera_id, source.kind, source.url)
 
     @app.post("/api/v1/cameras/{camera_id}/stop", response_model=CameraView)
-    def stop(camera_id: str, request: Request, session_id: str | None = None):
+    def stop(
+        camera_id: str,
+        request: Request,
+        session_id: str | None = None,
+        revoke: bool | None = None,
+    ):
+        """Stop capture. Token revoke is explicit:
+
+        - Phone caller, revoke omitted/true → unpair (need a new QR).
+        - Phone caller, revoke=false → pause only; trusted session kept.
+        - Operator caller → keep phone pairing unless revoke=true.
+        """
         session(request, camera_id)
-        return rt(request).stop(camera_id, expected_session=session_id)
+        master, _scope = caller(request)
+        if revoke is None:
+            revoke = not master
+        return rt(request).stop(
+            camera_id, expected_session=session_id, revoke_tokens=revoke
+        )
 
     @app.post("/api/v1/cameras/{camera_id}/video", response_model=CameraView)
     async def upload(camera_id: str, request: Request):

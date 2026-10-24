@@ -1,0 +1,44 @@
+[
+ {
+  "in_flight": 1,
+  "fps": 0.517,
+  "failures": 0,
+  "e2e_p50": 1916.3,
+  "e2e_p95": 2212.8,
+  "worker_p50": 8.27,
+  "worker_p95": 62.55,
+  "person_p50": 69.74,
+  "rpc_p50": 1909.5,
+  "publish_p50": 958.1,
+  "tracking_p50": 0.049,
+  "radar_p50": 0.027
+ },
+ {
+  "in_flight": 2,
+  "fps": 0.617,
+  "failures": 0,
+  "e2e_p50": 3020.8,
+  "e2e_p95": 3731.8,
+  "worker_p50": 13.2,
+  "worker_p95": 71.14,
+  "person_p50": 64.46,
+  "rpc_p50": 3015.0,
+  "publish_p50": 680.8,
+  "tracking_p50": 0.041,
+  "radar_p50": 0.013
+ },
+ {
+  "in_flight": 1,
+  "fps": 0.717,
+  "failures": 0,
+  "e2e_p50": 1381.3,
+  "e2e_p95": 1632.4,
+  "worker_p50": 13.28,
+  "worker_p95": 74.05,
+  "person_p50": 69.23,
+  "rpc_p50": 1373.3,
+  "publish_p50": 508.2,
+  "tracking_p50": 0.074,
+  "radar_p50": 0.087
+ }
+]

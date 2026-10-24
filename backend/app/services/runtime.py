@@ -1004,9 +1004,16 @@ class Runtime:
 
         started = time.monotonic()
         now = timestamp if timestamp is not None else captured
-        if session.last_timestamp is not None and now <= session.last_timestamp:
-            session.metrics.mark("stale")
-            raise RuntimeError("Нарушен порядок кадров.")
+        # Browser posts without X-Capture-Time use wall monotonic. On Windows
+        # the clock can repeat across consecutive frames; equal (and micro-
+        # rewind from prior nudges) must advance instead of killing the session.
+        if session.last_timestamp is not None:
+            delta = now - session.last_timestamp
+            if delta < -1e-4:
+                session.metrics.mark("stale")
+                raise RuntimeError("Нарушен порядок кадров.")
+            if delta <= 0:
+                now = session.last_timestamp + 1e-6
         session.last_timestamp = now
         if session.source_origin is None:
             session.source_origin = 0.0 if session.kind == "video" else now

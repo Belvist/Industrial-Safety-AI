@@ -253,3 +253,75 @@ def test_expired_isolated_phone_token_cannot_reclaim_workspace(tmp_path):
             assert client.get("/api/v1/cameras", headers=headers).status_code == 401
     finally:
         runtime.close()
+
+
+def test_phone_soft_stop_keeps_token(tmp_path):
+    """revoke=false pauses capture without unpairing (tab-close / resume)."""
+    runtime = _runtime(tmp_path)
+    try:
+        with TestClient(create_app(runtime.settings, runtime)) as client:
+            mine = client.get("/api/v1/cameras?token=master-secret").json()[0]["id"]
+            code = client.post(
+                "/api/v1/pairing?token=master-secret", json={"camera_id": mine}
+            ).json()["code"]
+            phone = client.post("/api/v1/pairing/exchange", json={"code": code}).json()["token"]
+            headers = {"X-API-Token": phone}
+            assert (
+                client.post(
+                    f"/api/v1/cameras/{mine}/start",
+                    json={"kind": "browser"},
+                    headers=headers,
+                ).status_code
+                == 200
+            )
+            assert (
+                client.post(
+                    f"/api/v1/cameras/{mine}/stop?revoke=false", headers=headers
+                ).status_code
+                == 200
+            )
+            assert (
+                client.post(
+                    f"/api/v1/cameras/{mine}/start",
+                    json={"kind": "browser"},
+                    headers=headers,
+                ).status_code
+                == 200
+            )
+    finally:
+        runtime.close()
+
+
+def test_operator_stop_keeps_phone_pairing(tmp_path):
+    """Operator pause must not force a new QR for an already-paired phone."""
+    runtime = _runtime(tmp_path)
+    try:
+        with TestClient(create_app(runtime.settings, runtime)) as client:
+            mine = client.get("/api/v1/cameras?token=master-secret").json()[0]["id"]
+            code = client.post(
+                "/api/v1/pairing?token=master-secret", json={"camera_id": mine}
+            ).json()["code"]
+            phone = client.post("/api/v1/pairing/exchange", json={"code": code}).json()["token"]
+            headers = {"X-API-Token": phone}
+            assert (
+                client.post(
+                    f"/api/v1/cameras/{mine}/start",
+                    json={"kind": "browser"},
+                    headers=headers,
+                ).status_code
+                == 200
+            )
+            assert (
+                client.post(f"/api/v1/cameras/{mine}/stop?token=master-secret").status_code
+                == 200
+            )
+            assert (
+                client.post(
+                    f"/api/v1/cameras/{mine}/start",
+                    json={"kind": "browser"},
+                    headers=headers,
+                ).status_code
+                == 200
+            )
+    finally:
+        runtime.close()

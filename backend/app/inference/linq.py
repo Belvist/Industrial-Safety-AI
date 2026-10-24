@@ -104,7 +104,6 @@ class LinqProvider(InferenceProvider):
         self.model_path = Path(model_path)
         self.confidence = confidence
         self.threads = threads
-        self.allow_spinning = allow_spinning
         self.person_model_path = person_model_path
         # ``endpoint`` is kept for backward compatibility and means the AMQP
         # host when set (e.g. LINQ_ENDPOINT=10.0.114.30). It never triggers the
@@ -124,6 +123,7 @@ class LinqProvider(InferenceProvider):
         self.tpu_program = tpu_program
         self.tpu_cache_dir = tpu_cache_dir.rstrip("/")
         self.tpu_output_is_logits = tpu_output_is_logits
+        self.allow_spinning = allow_spinning
         # Vendor EP name may differ from the guess — override via LINQ_PROVIDERS.
         self.requested_providers = list(providers) if providers else ["LinQExecutionProvider"]
         self.thresholds = dict(thresholds) if thresholds else {}
@@ -376,12 +376,40 @@ class LinqProvider(InferenceProvider):
     def predict_ppe(self, frame, people=None):
         started = time.perf_counter()
         if self.mode == "linq_remote":
-            detections = [d for d in self._predict_remote(frame) if d.class_name != "person"]
+            detections = self._predict_ppe_remote(frame, people or [])
         else:
             detections = self._local.predict_ppe(frame, people)
         self.stats.last_latency_ms = (time.perf_counter() - started) * 1000
         self.stats.frames += 1
         return detections
+
+    def _predict_ppe_remote(self, frame, people):
+        """Mirror LocalOnnxProvider ROI crops so remote TPU sees the same PPE path."""
+        from app.inference.local_onnx import (
+            deduplicate_ppe,
+            person_roi_pixels,
+            project_roi_detection,
+        )
+
+        if self.roi_mode == "auto":
+            strong = [d for d in people if d.class_name == "person" and not d.weak]
+            height, width = frame.shape[:2]
+            if 1 <= len(strong) <= 2:
+                rois = [person_roi_pixels(d.bbox, width, height) for d in strong]
+                if all(
+                    x2 - x1 >= 72
+                    and y2 - y1 >= 72
+                    and (x2 - x1) * (y2 - y1) <= 0.8 * width * height
+                    for x1, y1, x2, y2 in rois
+                ):
+                    ppe = []
+                    for roi in rois:
+                        x1, y1, x2, y2 = roi
+                        for det in self._predict_remote(frame[y1:y2, x1:x2]):
+                            if det.class_name != "person":
+                                ppe.append(project_roi_detection(det, roi, width, height))
+                    return deduplicate_ppe(ppe)
+        return [d for d in self._predict_remote(frame) if d.class_name != "person"]
 
     def _predict_people(self, frame):
         with self.metrics.stage("cpu_person_ms"):
