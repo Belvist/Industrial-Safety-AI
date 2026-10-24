@@ -195,14 +195,16 @@ class IndependentPpe:
             self.values.pop(tid, None)
         return invalid
 
-    def take(self, session, now, max_age):
-        """Return at most one valid result per ordered motion commit.
-
-        Expired heads do not block newer completed results. An expired running
-        Future is quarantined, still counting against admission until finished;
-        its late answer is never applied. At most one packet is applied per
-        commit so incident state/snapshot remains tied to that exact packet.
-        """
+    def take(
+        self,
+        session,
+        now,
+        source_freshness_limit,
+        rpc_timeout_budget=8.0,
+        current_track_ids=None,
+    ):
+        """Return only ordered results whose source is still current and identifiable."""
+        current_track_ids = set(self.last_seen) if current_track_ids is None else current_track_ids
         for key, (future, _) in list(self.retired.items()):
             if future.done():
                 self.retired.pop(key)
@@ -213,27 +215,25 @@ class IndependentPpe:
             invalid = (
                 packet.session_id != session.session_id or packet.generation != session.generation
             )
-            # Two independent ages:
-            # - source age preserves ordering/actuality of the video frame;
-            # - wall age bounds how long a reply may take. A 5 FPS file
-            #   advances source time faster than the remote RPC (~1.4 s),
-            #   so source age alone marked every reply stale.
-            source_expired = now - packet.timestamp > max_age
-            wall_age = time.monotonic() - packet.submitted_at
-            # A reply is only useless once the *observation* is stale by more
-            # than max_age AND we have waited unreasonably long. When the
-            # remote RPC itself is slower than max_age (measured 4.6 s during
-            # broker degradation), discarding would drop every result; keep it
-            # if its own frame is still within the video's recent window.
-            wall_expired = wall_age > max(max_age, max_age * 4)
-            expired = source_expired and wall_expired
-            if invalid or expired:
+            source_age = max(0.0, now - packet.timestamp)
+            wall_age = max(0.0, time.monotonic() - packet.submitted_at)
+            if future.done():
+                session.metrics.observe("rpc_wait_ms", wall_age * 1000)
+            stale = source_age > source_freshness_limit
+            timed_out = wall_age > rpc_timeout_budget
+            if invalid or stale or timed_out:
+                if not future.done():
+                    session.metrics.observe("rpc_wait_ms", wall_age * 1000)
+                session.metrics.observe("source_age_ms", source_age * 1000)
                 self.pending.pop(key)
                 future.cancel()
                 if not future.done():
                     self.retired[key] = (future, packet)
-                session.metrics.mark("ppe_invalid_generation" if invalid else "ppe_stale")
-                self.status = "stale"
+                if stale or timed_out:
+                    session.metrics.mark("ppe_rejected_stale")
+                    self.status = "stale"
+                else:
+                    session.metrics.mark("ppe_invalid_generation")
                 continue
             if not future.done():
                 return None
@@ -248,7 +248,9 @@ class IndependentPpe:
                 session.metrics.mark("ppe_out_of_order_discarded")
                 continue
             packet.tracks = [
-                t for t in packet.tracks if self.versions.get(t.id) == packet.versions[t.id]
+                t
+                for t in packet.tracks
+                if t.id in current_track_ids and self.versions.get(t.id) == packet.versions[t.id]
             ]
             if not packet.tracks:
                 self.status = "identity_uncertain"
@@ -258,7 +260,8 @@ class IndependentPpe:
             self.last_result = packet.timestamp
             self.status, self.error = "current", None
             session.metrics.mark("ppe_applied")
-            session.metrics.observe("ppe_applied_age_ms", max(0, now - packet.timestamp) * 1000)
+            session.metrics.observe("source_age_ms", source_age * 1000)
+            session.metrics.observe("ppe_applied_age_ms", source_age * 1000)
             return packet
         return None
 
@@ -334,14 +337,20 @@ class IndependentPpe:
             self.status = "pending"
         return True
 
-    def describe(self, now, max_age):
+    def describe(self, now, source_freshness_limit, display_ttl, rpc_timeout_budget):
         age = max(0, now - self.last_result) if self.last_result is not None else None
         packets = list(self.pending.values()) + list(self.retired.values())
         return {
             "independent_motion": True,
-            "state": self.status,
+            "state": (
+                "stale"
+                if age is not None and age > source_freshness_limit
+                else self.status
+            ),
             "age_seconds": round(age, 3) if age is not None else None,
-            "maximum_age_seconds": max_age,
+            "source_freshness_limit_seconds": source_freshness_limit,
+            "display_ttl_seconds": display_ttl,
+            "rpc_timeout_budget_seconds": rpc_timeout_budget,
             "pending": bool(packets),
             "pending_count": len(self.pending),
             "retired_count": len(self.retired),

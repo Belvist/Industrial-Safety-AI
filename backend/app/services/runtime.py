@@ -890,23 +890,8 @@ class Runtime:
         metrics.mark("ppe")
         return detections
 
-    def _ppe_age_budget(self):
-        """Packet window that adapts to the measured remote RPC.
-
-        A fixed 2.5 s window silently dropped every reply while broker
-        publish/RPC degraded to ~3.5/4.6 s. Use the observed RPC p95 with
-        headroom, bounded by the configured maximum.
-        """
-        base = self.settings.ppe_max_age_seconds
-        stages = getattr(self.provider, "metrics", None)
-        if stages is None:
-            return base
-        try:
-            rpc = stages.snapshot()["stages"].get("rpc_ms") or {}
-            p95 = float(rpc.get("p95") or 0.0) / 1000.0
-        except Exception:  # noqa: BLE001 - metrics must never break analysis
-            return base
-        return min(max(base, p95 * 1.5), max(base, 20.0))
+    def _ppe_rpc_timeout_budget(self):
+        return self.settings.linq_timeout_seconds
 
     def _update_ppe(self, session, frame, tracks, quality, now, captured):
         ppe = session.independent_ppe
@@ -918,25 +903,44 @@ class Runtime:
                 )
                 ppe.engine.states.pop(key, None)
                 ppe.engine.votes.pop(key, None)
+        rpc_timeout_budget = self._ppe_rpc_timeout_budget()
         events = []
-        packet = ppe.take(session, now, self.settings.ppe_max_age_seconds)
+        packet = ppe.take(
+            session,
+            now,
+            self.settings.ppe_source_freshness_seconds,
+            rpc_timeout_budget,
+            {track.id for track in tracks},
+        )
         if packet is not None:
+            packet_age = max(0.0, now - packet.timestamp)
             cfg = session.config.model_copy(update={"zone_enabled": False, "zone": [], "zones": []})
             assigned, _ = assign_detections(packet.tracks, packet.detections, cfg)
             for track in packet.tracks:
                 if not packet.quality["tracks"][track.id]["ppe_observable"]:
                     assigned[track.id] = {}
             observed = evaluate_assigned(packet.tracks, assigned, cfg)
-            cleared = cleared_assigned(packet.tracks, assigned, cfg)
-            events = ppe.engine.update(
-                observed,
-                packet.timestamp,
-                cfg.confirm_seconds,
-                cfg.clear_seconds,
-                cfg.temporal_window,
-                cfg.temporal_required,
-                cleared,
-            )
+            if packet_age <= self.settings.ppe_incident_freshness_seconds:
+                cleared = cleared_assigned(packet.tracks, assigned, cfg)
+                events = ppe.engine.update(
+                    observed,
+                    packet.timestamp,
+                    cfg.confirm_seconds,
+                    cfg.clear_seconds,
+                    cfg.temporal_window,
+                    cfg.temporal_required,
+                    cleared,
+                )
+            else:
+                for state in ppe.engine.states.values():
+                    self._finish(
+                        state.incident_id,
+                        "interrupted",
+                        "ppe_evidence_stale",
+                        state.last - state.since,
+                    )
+                ppe.engine = TemporalEngine()
+                session.metrics.mark("ppe_incident_rejected_stale")
             for track in packet.tracks:
                 ppe.values[track.id] = (
                     dict(track.ppe),
@@ -946,7 +950,17 @@ class Runtime:
                 )
         if (
             ppe.last_result is not None
-            and now - ppe.last_result > self.settings.ppe_max_age_seconds
+            and now - ppe.last_result > self.settings.ppe_incident_freshness_seconds
+            and ppe.engine.states
+        ):
+            for state in ppe.engine.states.values():
+                self._finish(
+                    state.incident_id, "interrupted", "ppe_incident_evidence_stale", state.last - state.since
+                )
+            ppe.engine = TemporalEngine()
+        if (
+            ppe.last_result is not None
+            and now - ppe.last_result > self.settings.ppe_display_ttl_seconds
         ):
             for state in ppe.engine.states.values():
                 self._finish(
@@ -959,8 +973,11 @@ class Runtime:
         for track in tracks:
             value = ppe.values.get(track.id)
             if value and quality["tracks"][track.id]["ppe_observable"]:
-                track.ppe, track.ppe_confidence = value[0], value[1]
-                track.ppe_age_seconds = round(max(0, now - value[2]), 3)
+                display_age = max(0.0, now - value[2])
+                session.metrics.observe("ppe_display_age_ms", display_age * 1000)
+                if display_age <= self.settings.ppe_display_ttl_seconds:
+                    track.ppe, track.ppe_confidence = value[0], value[1]
+                    track.ppe_age_seconds = round(display_age, 3)
         if any(
             (
                 session.config.helmet,
@@ -982,7 +999,7 @@ class Runtime:
                 limit=min(
                     self.settings.ppe_max_in_flight_per_camera, self.settings.linq_max_in_flight
                 ),
-                max_age=self._ppe_age_budget(),
+                max_age=self.settings.ppe_source_freshness_seconds,
             )
         return events, packet
 
@@ -1398,7 +1415,12 @@ class Runtime:
             "radar_fps": measured["rates"].get("radar", {}).get("fps"),
             "tpu_fps": measured["rates"].get("tpu", {}).get("fps"),
             "ppe": {
-                **session.independent_ppe.describe(now, self._ppe_age_budget()),
+                **session.independent_ppe.describe(
+                    now,
+                    self.settings.ppe_source_freshness_seconds,
+                    self.settings.ppe_display_ttl_seconds,
+                    self._ppe_rpc_timeout_budget(),
+                ),
                 "runtime": "tpu"
                 if getattr(self.provider, "mode", None) == "linq_remote"
                 else "cpu",

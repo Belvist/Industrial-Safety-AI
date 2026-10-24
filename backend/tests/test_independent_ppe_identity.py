@@ -95,7 +95,7 @@ def test_take_rejects_packet_after_identity_break():
     ppe.pending = {Packet.frame_id: (future, Packet())}
     ppe.observe_tracks([], 0.5)
     ppe.observe_tracks([person(1)], 0.6)
-    assert ppe.take(Sess(), now=0.7, max_age=5.0) is None
+    assert ppe.take(Sess(), now=0.7, source_freshness_limit=5.0, current_track_ids={1}) is None
     assert ppe.status == "identity_uncertain"
 
 
@@ -132,7 +132,7 @@ def test_late_ppe_accepted_when_sparse_but_continuous():
     ppe.pending = {Packet.frame_id: (future, Packet())}
     ppe.observe_tracks([person(1)], 1.0)
     ppe.observe_tracks([person(1)], 2.0)
-    out = ppe.take(Sess(), now=2.1, max_age=5.0)
+    out = ppe.take(Sess(), now=2.1, source_freshness_limit=5.0, current_track_ids={1})
     assert out is not None
     assert ppe.status == "current"
 
