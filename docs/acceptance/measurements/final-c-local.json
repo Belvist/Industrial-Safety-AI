@@ -1,0 +1,192 @@
+{
+  "source_sha256": "b8b58b8100a81600bc42ee7ee082ced777b12a32a3619139ef289d27cbdcd284",
+  "config": {
+    "name": "Intel C — каска и жилет",
+    "owner": null,
+    "helmet": true,
+    "vest": true,
+    "mask": false,
+    "smoking": false,
+    "zone_enabled": false,
+    "zone_name": "Опасная зона",
+    "zone": [],
+    "zones": [],
+    "running_enabled": false,
+    "running_speed": 1.8,
+    "running_min_seconds": 0.8,
+    "confirm_seconds": 1.0,
+    "clear_seconds": 1.0,
+    "temporal_window": 4,
+    "temporal_required": 3
+  },
+  "provider_requested": "local_onnx",
+  "git_sha": "caddade3579b9015d01decc2019cfc1f0be5c386",
+  "git_dirty": false,
+  "cameras": [
+    {
+      "camera_id": "6b5b8cbfd60b451e98797d3d8dc95ada",
+      "frames_observed": 61,
+      "wall_seconds": 16.072713706000286,
+      "metrics": {
+        "window_seconds": 16.057,
+        "rates": {
+          "capture": {
+            "fps": 46.398,
+            "window_count": 745,
+            "total": 745
+          },
+          "sampled_out": {
+            "fps": 42.474,
+            "window_count": 682,
+            "total": 682
+          },
+          "person": {
+            "fps": 3.799,
+            "window_count": 61,
+            "total": 61
+          },
+          "radar": {
+            "fps": 3.799,
+            "window_count": 61,
+            "total": 61
+          },
+          "analytics": {
+            "fps": 3.799,
+            "window_count": 61,
+            "total": 61
+          },
+          "ppe": {
+            "fps": 0.561,
+            "window_count": 9,
+            "total": 9
+          },
+          "ppe_identity_rejected": {
+            "fps": 0.062,
+            "window_count": 1,
+            "total": 1
+          }
+        },
+        "stages": {
+          "capture_decode_ms": {
+            "samples": 745,
+            "p50": 2.491,
+            "p95": 10.307,
+            "p99": 39.771,
+            "max": 43.565
+          },
+          "capture_retrieve_ms": {
+            "samples": 63,
+            "p50": 1.117,
+            "p95": 3.553,
+            "p99": 5.516,
+            "max": 5.662
+          },
+          "cpu_person_ms": {
+            "samples": 61,
+            "p50": 224.886,
+            "p95": 362.386,
+            "p99": 443.506,
+            "max": 456.2
+          },
+          "inference_ms": {
+            "samples": 61,
+            "p50": 224.915,
+            "p95": 362.4,
+            "p99": 443.538,
+            "max": 456.225
+          },
+          "tracking_ms": {
+            "samples": 61,
+            "p50": 0.03,
+            "p95": 0.051,
+            "p99": 0.056,
+            "max": 0.06
+          },
+          "radar_ms": {
+            "samples": 61,
+            "p50": 0.068,
+            "p95": 0.119,
+            "p99": 0.138,
+            "max": 0.147
+          },
+          "jpeg_annotated_ms": {
+            "samples": 61,
+            "p50": 8.201,
+            "p95": 40.927,
+            "p99": 45.139,
+            "max": 45.214
+          },
+          "jpeg_raw_ms": {
+            "samples": 61,
+            "p50": 8.177,
+            "p95": 40.442,
+            "p99": 44.068,
+            "max": 49.056
+          },
+          "analytics_ms": {
+            "samples": 61,
+            "p50": 19.104,
+            "p95": 55.418,
+            "p99": 58.371,
+            "max": 60.596
+          },
+          "end_to_end_ms": {
+            "samples": 61,
+            "p50": 670.46,
+            "p95": 1096.738,
+            "p99": 1283.151,
+            "max": 1286.066
+          },
+          "ppe_inference_ms": {
+            "samples": 9,
+            "p50": 1349.999,
+            "p95": 1442.075,
+            "p99": 1451.967,
+            "max": 1454.44
+          }
+        }
+      },
+      "measurement_window": null,
+      "last_source_seconds": 12.012,
+      "terminal_state": "stopped",
+      "error": null,
+      "events": [],
+      "incidents": [],
+      "statistics": {
+        "incidents": [],
+        "warnings": [],
+        "note": "Counts of recorded observations, not accident probabilities."
+      },
+      "ppe_observations": 24,
+      "tracks_issued": 1,
+      "max_people": 1,
+      "running_history_ready_frames": 0,
+      "radar_history_ready_frames": 0,
+      "maximum_data_age_ms": 1291.3,
+      "unique_ppe_source_frames": 8
+    }
+  ],
+  "status": "MEASURED",
+  "worker_verified": false,
+  "provider": {
+    "provider": "local_onnx",
+    "mode": "local_onnx",
+    "requested_providers": [],
+    "active_providers": [
+      "CPUExecutionProvider"
+    ],
+    "supported_classes": [
+      "helmet",
+      "mask",
+      "no_helmet",
+      "no_mask",
+      "no_vest",
+      "person",
+      "vest"
+    ],
+    "model": "ppe.onnx",
+    "ppe_roi_mode": "auto"
+  },
+  "independent_motion": true,
+  "replay": []
+}

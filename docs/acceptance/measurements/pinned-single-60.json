@@ -1,0 +1,944 @@
+{
+  "source_sha256": "b8b58b8100a81600bc42ee7ee082ced777b12a32a3619139ef289d27cbdcd284",
+  "config": {
+    "name": "Intel — длительный контроль движения",
+    "owner": null,
+    "helmet": false,
+    "vest": false,
+    "mask": false,
+    "smoking": false,
+    "zone_enabled": true,
+    "zone_name": "Демонстрационная зона пересечения",
+    "zone": [
+      [
+        0.55,
+        0.5
+      ],
+      [
+        0.85,
+        0.5
+      ],
+      [
+        0.85,
+        0.8
+      ],
+      [
+        0.55,
+        0.8
+      ]
+    ],
+    "zones": [
+      {
+        "id": "marked",
+        "name": "Демонстрационная зона пересечения",
+        "enabled": true,
+        "points": [
+          [
+            0.55,
+            0.5
+          ],
+          [
+            0.85,
+            0.5
+          ],
+          [
+            0.85,
+            0.8
+          ],
+          [
+            0.55,
+            0.8
+          ]
+        ]
+      }
+    ],
+    "running_enabled": true,
+    "running_speed": 1.8,
+    "running_min_seconds": 0.8,
+    "confirm_seconds": 0.6,
+    "clear_seconds": 0.6,
+    "temporal_window": 4,
+    "temporal_required": 3
+  },
+  "provider_requested": "local_onnx",
+  "git_sha": "b06572b4fdfd7b42a14c44aeb2bee3d2e1a0047a",
+  "git_dirty": false,
+  "cameras": [
+    {
+      "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+      "frames_observed": 305,
+      "wall_seconds": 65.29047294700013,
+      "metrics": {
+        "window_seconds": 60.0,
+        "rates": {
+          "capture": {
+            "fps": 55.8,
+            "window_count": 3348,
+            "total": 3670
+          },
+          "sampled_out": {
+            "fps": 51.133,
+            "window_count": 3068,
+            "total": 3363
+          },
+          "person": {
+            "fps": 4.65,
+            "window_count": 279,
+            "total": 305
+          },
+          "radar": {
+            "fps": 4.65,
+            "window_count": 279,
+            "total": 305
+          },
+          "analytics": {
+            "fps": 4.65,
+            "window_count": 279,
+            "total": 305
+          }
+        },
+        "stages": {
+          "capture_decode_ms": {
+            "samples": 3670,
+            "p50": 4.145,
+            "p95": 23.406,
+            "p99": 45.074,
+            "max": 62.884
+          },
+          "cpu_person_ms": {
+            "samples": 305,
+            "p50": 138.94,
+            "p95": 320.08,
+            "p99": 377.316,
+            "max": 405.241
+          },
+          "inference_ms": {
+            "samples": 305,
+            "p50": 138.969,
+            "p95": 320.101,
+            "p99": 377.343,
+            "max": 405.258
+          },
+          "tracking_ms": {
+            "samples": 305,
+            "p50": 0.033,
+            "p95": 0.053,
+            "p99": 0.08,
+            "max": 0.274
+          },
+          "radar_ms": {
+            "samples": 305,
+            "p50": 0.428,
+            "p95": 0.728,
+            "p99": 0.912,
+            "max": 23.067
+          },
+          "jpeg_annotated_ms": {
+            "samples": 305,
+            "p50": 5.409,
+            "p95": 17.871,
+            "p99": 47.744,
+            "max": 53.905
+          },
+          "jpeg_raw_ms": {
+            "samples": 305,
+            "p50": 4.442,
+            "p95": 35.035,
+            "p99": 43.379,
+            "max": 48.312
+          },
+          "analytics_ms": {
+            "samples": 305,
+            "p50": 12.141,
+            "p95": 51.834,
+            "p99": 65.38,
+            "max": 68.176
+          },
+          "end_to_end_ms": {
+            "samples": 305,
+            "p50": 398.525,
+            "p95": 995.899,
+            "p99": 1076.907,
+            "max": 1159.913
+          },
+          "event_delay_ms": {
+            "samples": 15,
+            "p50": 183.827,
+            "p95": 558.712,
+            "p99": 708.732,
+            "max": 746.237
+          }
+        }
+      },
+      "measurement_window": {
+        "duration_seconds": 60.10790833899955,
+        "counts": {
+          "person": 279,
+          "radar": 279,
+          "analytics": 279,
+          "tpu": 0,
+          "ppe": 0,
+          "capture": 3357,
+          "dropped": 0
+        },
+        "fps": {
+          "person": 4.641652117163718,
+          "radar": 4.641652117163718,
+          "analytics": 4.641652117163718,
+          "tpu": 0.0,
+          "ppe": 0.0,
+          "capture": 55.849556119421514,
+          "dropped": 0.0
+        }
+      },
+      "last_source_seconds": 60.81075,
+      "terminal_state": "stopped",
+      "error": null,
+      "events": [
+        {
+          "id": 1,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 1,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "warning",
+          "source_seconds": 5.8058000000000005,
+          "occurred_at": "2026-10-24T10:16:18.752754+00:00",
+          "recorded_at": "2026-10-24T10:16:18.851360+00:00",
+          "episode_id": "81eb0beddf8b46368a424bff26d0d72b",
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_5805_42b2f1.mp4",
+          "payload": "{\"lead_time_seconds\": null, \"predicted_entry_seconds\": 0.7364, \"event_delay_ms\": 87.382}"
+        },
+        {
+          "id": 2,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 1,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "critical",
+          "source_seconds": 6.6066,
+          "occurred_at": "2026-10-24T10:16:19.553554+00:00",
+          "recorded_at": "2026-10-24T10:16:19.651286+00:00",
+          "episode_id": "81eb0beddf8b46368a424bff26d0d72b",
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_6606_3bc250.mp4",
+          "payload": "{\"lead_time_seconds\": 0.8008, \"predicted_entry_seconds\": null, \"event_delay_ms\": 86.506}"
+        },
+        {
+          "id": 3,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 1,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "confirmed",
+          "source_seconds": 7.2072,
+          "occurred_at": "2026-10-24T10:16:20.154154+00:00",
+          "recorded_at": "2026-10-24T10:16:20.348713+00:00",
+          "episode_id": "81eb0beddf8b46368a424bff26d0d72b",
+          "incident_id": "13f6e879adb7460fa72f51df4dfc5e4b",
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_6606_3bc250.mp4",
+          "payload": "{\"type\": \"danger_zone\"}"
+        },
+        {
+          "id": 4,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 1,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "resolved",
+          "source_seconds": 8.8088,
+          "occurred_at": "2026-10-24T10:16:21.755754+00:00",
+          "recorded_at": "2026-10-24T10:16:22.780311+00:00",
+          "episode_id": "81eb0beddf8b46368a424bff26d0d72b",
+          "incident_id": "13f6e879adb7460fa72f51df4dfc5e4b",
+          "evidence": null,
+          "payload": "{\"reason\": \"violation_cleared\"}"
+        },
+        {
+          "id": 5,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 6.6066,
+          "occurred_at": "2026-10-24T10:16:26.677657+00:00",
+          "recorded_at": "2026-10-24T10:16:26.677671+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_6606_3bc250.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 6,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 5.8058000000000005,
+          "occurred_at": "2026-10-24T10:16:28.675377+00:00",
+          "recorded_at": "2026-10-24T10:16:28.675395+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_5805_42b2f1.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 7,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 2,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "warning",
+          "source_seconds": 26.609916666666667,
+          "occurred_at": "2026-10-24T10:16:39.556871+00:00",
+          "recorded_at": "2026-10-24T10:16:39.679874+00:00",
+          "episode_id": "fc71d873de014b4d92969a1b0b1dc6dd",
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_26609_689ed9.mp4",
+          "payload": "{\"lead_time_seconds\": null, \"predicted_entry_seconds\": 1.3859, \"event_delay_ms\": 111.66}"
+        },
+        {
+          "id": 8,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 2,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "critical",
+          "source_seconds": 27.811116666666667,
+          "occurred_at": "2026-10-24T10:16:40.758071+00:00",
+          "recorded_at": "2026-10-24T10:16:40.935560+00:00",
+          "episode_id": "fc71d873de014b4d92969a1b0b1dc6dd",
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_27811_f71360.mp4",
+          "payload": "{\"lead_time_seconds\": 1.2012, \"predicted_entry_seconds\": null, \"event_delay_ms\": 166.124}"
+        },
+        {
+          "id": 9,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 2,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "confirmed",
+          "source_seconds": 28.411716666666667,
+          "occurred_at": "2026-10-24T10:16:41.358671+00:00",
+          "recorded_at": "2026-10-24T10:16:41.748521+00:00",
+          "episode_id": "fc71d873de014b4d92969a1b0b1dc6dd",
+          "incident_id": "8f5fc44c56bb467a8243e285cf2926e3",
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_27811_f71360.mp4",
+          "payload": "{\"type\": \"danger_zone\"}"
+        },
+        {
+          "id": 10,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 2,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "resolved",
+          "source_seconds": 30.013316666666668,
+          "occurred_at": "2026-10-24T10:16:42.960271+00:00",
+          "recorded_at": "2026-10-24T10:16:43.535275+00:00",
+          "episode_id": "fc71d873de014b4d92969a1b0b1dc6dd",
+          "incident_id": "8f5fc44c56bb467a8243e285cf2926e3",
+          "evidence": null,
+          "payload": "{\"reason\": \"violation_cleared\"}"
+        },
+        {
+          "id": 11,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 26.609916666666667,
+          "occurred_at": "2026-10-24T10:16:46.471459+00:00",
+          "recorded_at": "2026-10-24T10:16:46.471470+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_26609_689ed9.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 12,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 27.811116666666667,
+          "occurred_at": "2026-10-24T10:16:49.133458+00:00",
+          "recorded_at": "2026-10-24T10:16:49.133475+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_27811_f71360.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 13,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 3,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "warning",
+          "source_seconds": 38.405033333333336,
+          "occurred_at": "2026-10-24T10:16:51.351987+00:00",
+          "recorded_at": "2026-10-24T10:16:51.488672+00:00",
+          "episode_id": "9e29604f109e4b7b81aa74d673e434c4",
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_38405_07de1a.mp4",
+          "payload": "{\"lead_time_seconds\": null, \"predicted_entry_seconds\": 1.149, \"event_delay_ms\": 125.197}"
+        },
+        {
+          "id": 14,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 3,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "critical",
+          "source_seconds": 39.20583333333333,
+          "occurred_at": "2026-10-24T10:16:52.152787+00:00",
+          "recorded_at": "2026-10-24T10:16:52.289043+00:00",
+          "episode_id": "9e29604f109e4b7b81aa74d673e434c4",
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_39205_2af66a.mp4",
+          "payload": "{\"lead_time_seconds\": 0.8008, \"predicted_entry_seconds\": null, \"event_delay_ms\": 124.923}"
+        },
+        {
+          "id": 15,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 4,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "warning",
+          "source_seconds": 39.606233333333336,
+          "occurred_at": "2026-10-24T10:16:52.553187+00:00",
+          "recorded_at": "2026-10-24T10:16:52.747749+00:00",
+          "episode_id": "b0594081034f4549aea397fe99901d0d",
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_39606_7c4f44.mp4",
+          "payload": "{\"lead_time_seconds\": null, \"predicted_entry_seconds\": 1.1362, \"event_delay_ms\": 183.29}"
+        },
+        {
+          "id": 16,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 3,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "confirmed",
+          "source_seconds": 39.80643333333333,
+          "occurred_at": "2026-10-24T10:16:52.753387+00:00",
+          "recorded_at": "2026-10-24T10:16:52.939461+00:00",
+          "episode_id": "9e29604f109e4b7b81aa74d673e434c4",
+          "incident_id": "f645d60fa0914534b4cc20b934630c22",
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_39205_2af66a.mp4",
+          "payload": "{\"type\": \"danger_zone\"}"
+        },
+        {
+          "id": 17,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 4,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "critical",
+          "source_seconds": 40.807433333333336,
+          "occurred_at": "2026-10-24T10:16:53.754387+00:00",
+          "recorded_at": "2026-10-24T10:16:54.145799+00:00",
+          "episode_id": "b0594081034f4549aea397fe99901d0d",
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_40807_266bdb.mp4",
+          "payload": "{\"lead_time_seconds\": 1.2012, \"predicted_entry_seconds\": null, \"event_delay_ms\": 380.158}"
+        },
+        {
+          "id": 18,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 4,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "confirmed",
+          "source_seconds": 41.408033333333336,
+          "occurred_at": "2026-10-24T10:16:54.354987+00:00",
+          "recorded_at": "2026-10-24T10:16:54.843774+00:00",
+          "episode_id": "b0594081034f4549aea397fe99901d0d",
+          "incident_id": "e6054225977a457cbc608bd969e97d53",
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_40807_266bdb.mp4",
+          "payload": "{\"type\": \"danger_zone\"}"
+        },
+        {
+          "id": 19,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 3,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "resolved",
+          "source_seconds": 42.20883333333333,
+          "occurred_at": "2026-10-24T10:16:55.155787+00:00",
+          "recorded_at": "2026-10-24T10:16:55.755630+00:00",
+          "episode_id": "9e29604f109e4b7b81aa74d673e434c4",
+          "incident_id": "f645d60fa0914534b4cc20b934630c22",
+          "evidence": null,
+          "payload": "{\"reason\": \"violation_cleared\"}"
+        },
+        {
+          "id": 20,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 4,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "resolved",
+          "source_seconds": 43.209833333333336,
+          "occurred_at": "2026-10-24T10:16:56.156787+00:00",
+          "recorded_at": "2026-10-24T10:16:57.051977+00:00",
+          "episode_id": "b0594081034f4549aea397fe99901d0d",
+          "incident_id": "e6054225977a457cbc608bd969e97d53",
+          "evidence": null,
+          "payload": "{\"reason\": \"violation_cleared\"}"
+        },
+        {
+          "id": 21,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 38.405033333333336,
+          "occurred_at": "2026-10-24T10:16:58.332187+00:00",
+          "recorded_at": "2026-10-24T10:16:58.332201+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_38405_07de1a.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 22,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 39.20583333333333,
+          "occurred_at": "2026-10-24T10:17:02.128984+00:00",
+          "recorded_at": "2026-10-24T10:17:02.128998+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_39205_2af66a.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 23,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 39.606233333333336,
+          "occurred_at": "2026-10-24T10:17:06.828853+00:00",
+          "recorded_at": "2026-10-24T10:17:06.828866+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_39606_7c4f44.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 24,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 5,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "warning",
+          "source_seconds": 52.20215,
+          "occurred_at": "2026-10-24T10:17:05.149104+00:00",
+          "recorded_at": "2026-10-24T10:17:07.731458+00:00",
+          "episode_id": "3c2a8aac067a490eb6b5f34a7306ec07",
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_52202_8b64e0.mp4",
+          "payload": "{\"lead_time_seconds\": null, \"predicted_entry_seconds\": 0.9118, \"event_delay_ms\": 454.914}"
+        },
+        {
+          "id": 25,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 5,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "critical",
+          "source_seconds": 53.20315,
+          "occurred_at": "2026-10-24T10:17:06.150104+00:00",
+          "recorded_at": "2026-10-24T10:17:08.575374+00:00",
+          "episode_id": "3c2a8aac067a490eb6b5f34a7306ec07",
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_53203_5b4a96.mp4",
+          "payload": "{\"lead_time_seconds\": 1.001, \"predicted_entry_seconds\": null, \"event_delay_ms\": 429.655}"
+        },
+        {
+          "id": 26,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 5,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "confirmed",
+          "source_seconds": 53.80375,
+          "occurred_at": "2026-10-24T10:17:06.750704+00:00",
+          "recorded_at": "2026-10-24T10:17:09.426857+00:00",
+          "episode_id": "3c2a8aac067a490eb6b5f34a7306ec07",
+          "incident_id": "3f6b71f52de840f89268c34cbd76076e",
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_53203_5b4a96.mp4",
+          "payload": "{\"type\": \"danger_zone\"}"
+        },
+        {
+          "id": 27,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 40.807433333333336,
+          "occurred_at": "2026-10-24T10:17:09.621300+00:00",
+          "recorded_at": "2026-10-24T10:17:09.621316+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_40807_266bdb.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 28,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": 5,
+          "zone_name": "Демонстрационная зона пересечения",
+          "kind": "resolved",
+          "source_seconds": 55.20515,
+          "occurred_at": "2026-10-24T10:17:08.152104+00:00",
+          "recorded_at": "2026-10-24T10:17:11.316367+00:00",
+          "episode_id": "3c2a8aac067a490eb6b5f34a7306ec07",
+          "incident_id": "3f6b71f52de840f89268c34cbd76076e",
+          "evidence": null,
+          "payload": "{\"reason\": \"violation_cleared\"}"
+        },
+        {
+          "id": 29,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 52.20215,
+          "occurred_at": "2026-10-24T10:17:14.821580+00:00",
+          "recorded_at": "2026-10-24T10:17:14.821595+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_52202_8b64e0.mp4",
+          "payload": "{}"
+        },
+        {
+          "id": 30,
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "track_id": null,
+          "zone_name": null,
+          "kind": "evidence_ready",
+          "source_seconds": 53.20315,
+          "occurred_at": "2026-10-24T10:17:17.071475+00:00",
+          "recorded_at": "2026-10-24T10:17:17.071493+00:00",
+          "episode_id": null,
+          "incident_id": null,
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_53203_5b4a96.mp4",
+          "payload": "{}"
+        }
+      ],
+      "incidents": [
+        {
+          "id": "3f6b71f52de840f89268c34cbd76076e",
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "camera_name": "Intel — длительный контроль движения",
+          "track_id": 5,
+          "type": "danger_zone",
+          "severity": "critical",
+          "status": "resolved",
+          "started_at": "2026-10-24T10:17:06.150104+00:00",
+          "resolved_at": "2026-10-24T10:17:08.152104+00:00",
+          "confidence": 0.9021258354187012,
+          "duration": 1.8018,
+          "snapshot": "3f6b71f52de840f89268c34cbd76076e.jpg",
+          "feedback": "unreviewed",
+          "resolution_reason": "violation_cleared",
+          "notification": "disabled",
+          "zone_name": "Демонстрационная зона пересечения",
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_53203_5b4a96.mp4",
+          "ended_at": "2026-10-24T10:17:08.152104+00:00",
+          "episode_id": "3c2a8aac067a490eb6b5f34a7306ec07",
+          "source_seconds": 53.20315
+        },
+        {
+          "id": "e6054225977a457cbc608bd969e97d53",
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "camera_name": "Intel — длительный контроль движения",
+          "track_id": 4,
+          "type": "danger_zone",
+          "severity": "critical",
+          "status": "resolved",
+          "started_at": "2026-10-24T10:16:53.754387+00:00",
+          "resolved_at": "2026-10-24T10:16:56.156787+00:00",
+          "confidence": 0.8954176306724548,
+          "duration": 2.2021999999999977,
+          "snapshot": "e6054225977a457cbc608bd969e97d53.jpg",
+          "feedback": "unreviewed",
+          "resolution_reason": "violation_cleared",
+          "notification": "disabled",
+          "zone_name": "Демонстрационная зона пересечения",
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_40807_266bdb.mp4",
+          "ended_at": "2026-10-24T10:16:56.156787+00:00",
+          "episode_id": "b0594081034f4549aea397fe99901d0d",
+          "source_seconds": 40.807433333333336
+        },
+        {
+          "id": "f645d60fa0914534b4cc20b934630c22",
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "camera_name": "Intel — длительный контроль движения",
+          "track_id": 3,
+          "type": "danger_zone",
+          "severity": "critical",
+          "status": "resolved",
+          "started_at": "2026-10-24T10:16:52.152787+00:00",
+          "resolved_at": "2026-10-24T10:16:55.155787+00:00",
+          "confidence": 0.911338210105896,
+          "duration": 2.802800000000005,
+          "snapshot": "f645d60fa0914534b4cc20b934630c22.jpg",
+          "feedback": "unreviewed",
+          "resolution_reason": "violation_cleared",
+          "notification": "disabled",
+          "zone_name": "Демонстрационная зона пересечения",
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_39205_2af66a.mp4",
+          "ended_at": "2026-10-24T10:16:55.155787+00:00",
+          "episode_id": "9e29604f109e4b7b81aa74d673e434c4",
+          "source_seconds": 39.20583333333333
+        },
+        {
+          "id": "8f5fc44c56bb467a8243e285cf2926e3",
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "camera_name": "Intel — длительный контроль движения",
+          "track_id": 2,
+          "type": "danger_zone",
+          "severity": "critical",
+          "status": "resolved",
+          "started_at": "2026-10-24T10:16:40.758071+00:00",
+          "resolved_at": "2026-10-24T10:16:42.960271+00:00",
+          "confidence": 0.9189373254776001,
+          "duration": 2.001999999999999,
+          "snapshot": "8f5fc44c56bb467a8243e285cf2926e3.jpg",
+          "feedback": "unreviewed",
+          "resolution_reason": "violation_cleared",
+          "notification": "disabled",
+          "zone_name": "Демонстрационная зона пересечения",
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_27811_f71360.mp4",
+          "ended_at": "2026-10-24T10:16:42.960271+00:00",
+          "episode_id": "fc71d873de014b4d92969a1b0b1dc6dd",
+          "source_seconds": 27.811116666666667
+        },
+        {
+          "id": "13f6e879adb7460fa72f51df4dfc5e4b",
+          "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+          "camera_name": "Intel — длительный контроль движения",
+          "track_id": 1,
+          "type": "danger_zone",
+          "severity": "critical",
+          "status": "resolved",
+          "started_at": "2026-10-24T10:16:19.553554+00:00",
+          "resolved_at": "2026-10-24T10:16:21.755754+00:00",
+          "confidence": 0.902277410030365,
+          "duration": 2.0020000000000007,
+          "snapshot": "13f6e879adb7460fa72f51df4dfc5e4b.jpg",
+          "feedback": "unreviewed",
+          "resolution_reason": "violation_cleared",
+          "notification": "disabled",
+          "zone_name": "Демонстрационная зона пересечения",
+          "evidence": "radar_53dc576f7d69405baa3fa4c486cd6083_6606_3bc250.mp4",
+          "ended_at": "2026-10-24T10:16:21.755754+00:00",
+          "episode_id": "81eb0beddf8b46368a424bff26d0d72b",
+          "source_seconds": 6.6066
+        }
+      ],
+      "statistics": {
+        "incidents": [
+          {
+            "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+            "type": "danger_zone",
+            "zone_name": "Демонстрационная зона пересечения",
+            "day": "2026-10-24",
+            "count": 5,
+            "confirmed": 0,
+            "false_positive": 0
+          }
+        ],
+        "warnings": [
+          {
+            "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+            "zone_name": "Демонстрационная зона пересечения",
+            "kind": "critical",
+            "day": "2026-10-24",
+            "count": 5
+          },
+          {
+            "camera_id": "53dc576f7d69405baa3fa4c486cd6083",
+            "zone_name": "Демонстрационная зона пересечения",
+            "kind": "warning",
+            "day": "2026-10-24",
+            "count": 5
+          }
+        ],
+        "note": "Counts of recorded observations, not accident probabilities."
+      },
+      "ppe_observations": 0,
+      "tracks_issued": 6,
+      "max_people": 2,
+      "running_history_ready_frames": 277,
+      "radar_history_ready_frames": 289,
+      "maximum_data_age_ms": 1185.8,
+      "unique_ppe_source_frames": 0
+    }
+  ],
+  "status": "MEASURED",
+  "worker_verified": false,
+  "provider": {
+    "provider": "local_onnx",
+    "mode": "local_onnx",
+    "requested_providers": [],
+    "active_providers": [
+      "CPUExecutionProvider"
+    ],
+    "supported_classes": [
+      "helmet",
+      "mask",
+      "no_helmet",
+      "no_mask",
+      "no_vest",
+      "person",
+      "vest"
+    ],
+    "model": "ppe.onnx",
+    "ppe_roi_mode": "auto"
+  },
+  "independent_motion": true,
+  "replay": [
+    {
+      "file": "radar_53dc576f7d69405baa3fa4c486cd6083_26609_689ed9.mp4",
+      "bytes": 966770,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.200000",
+            "nb_frames": "21"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_53dc576f7d69405baa3fa4c486cd6083_27811_f71360.mp4",
+      "bytes": 1018782,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.200000",
+            "nb_frames": "21"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_53dc576f7d69405baa3fa4c486cd6083_38405_07de1a.mp4",
+      "bytes": 1075262,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.200000",
+            "nb_frames": "21"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_53dc576f7d69405baa3fa4c486cd6083_39205_2af66a.mp4",
+      "bytes": 1057727,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.200000",
+            "nb_frames": "21"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_53dc576f7d69405baa3fa4c486cd6083_39606_7c4f44.mp4",
+      "bytes": 1051640,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.200000",
+            "nb_frames": "21"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_53dc576f7d69405baa3fa4c486cd6083_40807_266bdb.mp4",
+      "bytes": 1061128,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.200000",
+            "nb_frames": "21"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_53dc576f7d69405baa3fa4c486cd6083_52202_8b64e0.mp4",
+      "bytes": 1001545,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.200000",
+            "nb_frames": "21"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_53dc576f7d69405baa3fa4c486cd6083_53203_5b4a96.mp4",
+      "bytes": 955479,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.200000",
+            "nb_frames": "21"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_53dc576f7d69405baa3fa4c486cd6083_5805_42b2f1.mp4",
+      "bytes": 1048475,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.200000",
+            "nb_frames": "21"
+          }
+        ]
+      }
+    },
+    {
+      "file": "radar_53dc576f7d69405baa3fa4c486cd6083_6606_3bc250.mp4",
+      "bytes": 1041640,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "duration": "4.200000",
+            "nb_frames": "21"
+          }
+        ]
+      }
+    }
+  ]
+}

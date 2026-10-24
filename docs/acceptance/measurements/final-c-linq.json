@@ -1,0 +1,29 @@
+{
+  "source_sha256": "b8b58b8100a81600bc42ee7ee082ced777b12a32a3619139ef289d27cbdcd284",
+  "config": {
+    "name": "Intel C — каска и жилет",
+    "owner": null,
+    "helmet": true,
+    "vest": true,
+    "mask": false,
+    "smoking": false,
+    "zone_enabled": false,
+    "zone_name": "Опасная зона",
+    "zone": [],
+    "zones": [],
+    "running_enabled": false,
+    "running_speed": 1.8,
+    "running_min_seconds": 0.8,
+    "confirm_seconds": 1.0,
+    "clear_seconds": 1.0,
+    "temporal_window": 4,
+    "temporal_required": 3
+  },
+  "provider_requested": "linq",
+  "git_sha": "caddade3579b9015d01decc2019cfc1f0be5c386",
+  "git_dirty": false,
+  "cameras": [],
+  "status": "BLOCKED",
+  "reason": "No configured LinQ endpoint; no fallback was run.",
+  "worker_verified": false
+}

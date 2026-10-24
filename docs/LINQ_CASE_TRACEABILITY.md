@@ -1,6 +1,6 @@
 # LinQ case traceability
 
-Status date: 23 October 2026. Source of truth for the case: `КЕЙС_LinQ.pdf`
+Status date: 24 October 2026. Source of truth for the case: `КЕЙС_LinQ.pdf`
 (slides 4, 13, 15, 18, 19) and the two LinQ procedure PDFs. This file maps
 every claim to code, tests and an honest verification level. No requirement
 is marked PASS on the basis of a plan or a placeholder. Hardware evidence is
@@ -14,6 +14,15 @@ Verification levels:
 - **FAIL** — known gap; not implemented.
 - **DONE** — obtained/executed manually; the exact artifact or command is recorded, but it is not an automated CI test.
 - **BLOCKED** — cannot be verified without external access (VPN/SDK/device).
+
+## Critical acceptance update (24 October)
+
+The current real-video matrix and limitations are in
+[acceptance/RESULTS.md](acceptance/RESULTS.md). That report distinguishes code
+coverage from actual inference and hardware proof. CPU person/Radar are now
+independent of PPE, real industrial A/B clips show predicted WARNING before
+entry and an actual saved incident. The new pipeline has **not** been verified
+on LinQ; scenario C and five TPU-complete frames/second remain BLOCKED.
 
 ## Slide 13 — mandatory requirements
 
@@ -45,9 +54,9 @@ Verification levels:
 |---|---|---|
 | Custom danger zones | PASS | Polygon editor + `danger_zone` rule; `test_contracts.py`, UI. |
 | Operator confirm/reject | PASS | `POST /api/v1/incidents/{id}/feedback`; tested in `test_runtime.py`. |
-| Statistics by type/camera/time | PARTIAL | `Storage.stats` covers total/active/today/false-positive; type/time breakdown is not implemented. |
-| Multiple concurrent streams | PARTIAL | Multi-camera UI and per-camera workers; no load test on physical cameras. |
-| Scalability | UNTESTED | Architecture is per-camera threads; no measured multi-camera benchmark. |
+| Statistics by type/camera/time | PARTIAL | `Storage.stats` covers total/active/today/false-positive; Camera/type/zone/day counts and recorded WARNING/CRITICAL transitions now implemented in `risk_statistics`, operator-only API/UI, with scope tests and actual video ledger. Field accuracy is not validated. |
+| Multiple concurrent streams | PARTIAL | Multi-camera UI and per-camera workers; two concurrent real-file streams measured for 60 seconds on 2 CPU cores; physical cameras and realtime RTSP capacity remain untested. |
+| Scalability | UNTESTED | Architecture is per-camera threads; two real-file streams measured at about 2.96 FPS per camera; no claim of 5 FPS per live camera or wider scalability. |
 
 ## Hardware / vendor boundary
 

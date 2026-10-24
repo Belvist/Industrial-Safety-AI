@@ -1,0 +1,42 @@
+{
+  "final-single-60": [
+    {
+      "camera_id": "0ee791e9f62f4f34ad4513bbb2b0419a",
+      "selected_frames": 284,
+      "selection": "sequence > end analytics total - measured window analytics count",
+      "age_at_api_observation_ms": {
+        "p50": 386.7,
+        "p95": 849.7099999999996,
+        "p99": 1089.6030000000003
+      },
+      "max_age_ms": 1119.3,
+      "note": "Includes API polling/scheduling delay; not worker inference latency."
+    }
+  ],
+  "final-two-60": [
+    {
+      "camera_id": "b43ea2030f5d467e854ee57a81ec54e7",
+      "selected_frames": 178,
+      "selection": "sequence > end analytics total - measured window analytics count",
+      "age_at_api_observation_ms": {
+        "p50": 935.8499999999999,
+        "p95": 1700.0450000000003,
+        "p99": 1885.3929999999998
+      },
+      "max_age_ms": 1950.9,
+      "note": "Includes API polling/scheduling delay; not worker inference latency."
+    },
+    {
+      "camera_id": "6f3591eb7fba4e1faa276f1f5d63a5dd",
+      "selected_frames": 178,
+      "selection": "sequence > end analytics total - measured window analytics count",
+      "age_at_api_observation_ms": {
+        "p50": 915.55,
+        "p95": 1717.2250000000001,
+        "p99": 1902.261
+      },
+      "max_age_ms": 1943.5,
+      "note": "Includes API polling/scheduling delay; not worker inference latency."
+    }
+  ]
+}

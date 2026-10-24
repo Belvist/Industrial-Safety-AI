@@ -1,0 +1,16 @@
+
+> industrial-safety-ai@0.2.0 build
+> tsc -b && vite build
+
+vite v6.4.4 building for production...
+transforming...
+✓ 1658 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                 0.48 kB │ gzip:   0.33 kB
+dist/assets/manrope-cyrillic-Dvxsihut.woff2    14.50 kB
+dist/assets/manrope-latin-ext-Ch3YOpNY.woff2   15.12 kB
+dist/assets/manrope-latin-DHIcAJRg.woff2       24.84 kB
+dist/assets/index-E-i7nsdK.css                137.62 kB │ gzip:  27.75 kB
+dist/assets/index-CYjbvCXA.js                 392.37 kB │ gzip: 120.38 kB
+✓ built in 2.34s

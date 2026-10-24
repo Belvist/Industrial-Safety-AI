@@ -1,0 +1,1 @@
+Workspace E2E: PASS (source wizard, real ONNX, optional panels, focus, zones, unsaved settings, mobile)

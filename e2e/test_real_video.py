@@ -22,6 +22,11 @@ def main():
     p.add_argument("--config", type=Path, required=True)
     p.add_argument("--artifacts", type=Path, required=True)
     p.add_argument("--browser-executable", default=None)
+    p.add_argument(
+        "--record-video",
+        action="store_true",
+        help="Record the real browser journey as WebM",
+    )
     args = p.parse_args()
     args.artifacts.mkdir(parents=True, exist_ok=True)
 
@@ -56,7 +61,15 @@ def main():
             browser = pw.chromium.launch(
                 executable_path=args.browser_executable, args=["--no-sandbox"]
             )
-            page = browser.new_page(viewport={"width": 1440, "height": 960})
+            page = browser.new_page(
+                viewport={"width": 1440, "height": 960},
+                record_video_dir=str(args.artifacts / "screen-recording")
+                if args.record_video
+                else None,
+                record_video_size={"width": 1440, "height": 960}
+                if args.record_video
+                else None,
+            )
             page.on("pageerror", lambda error: errors.append(str(error)))
             page.goto(args.base + "/?token=" + args.master + "#monitor/" + cid)
             expect(
@@ -129,6 +142,9 @@ def main():
             page.wait_for_function(
                 'document.querySelector("[role=dialog] video")?.currentTime > 0.2'
             )
+            dialog.get_by_text(
+                "Раннее предупреждение", exact=True
+            ).scroll_into_view_if_needed()
             page.screenshot(
                 path=str(args.artifacts / "incident-timeline.png"), full_page=True
             )
@@ -142,6 +158,13 @@ def main():
                 api(f"/incidents/{incident['id']}/timeline")["items"][-1]["kind"]
                 == "operator_review"
             )
+            timeline = api(f"/incidents/{incident['id']}/timeline")["items"]
+            incident = next(
+                row
+                for row in api(f"/incidents?camera_id={cid}")["items"]
+                if row["id"] == incident["id"]
+            )
+            assert incident["feedback"] == "confirmed"
             assert not errors, errors
             report = {
                 "status": "PASS",

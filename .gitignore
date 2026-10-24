@@ -67,3 +67,7 @@ training/*.log
 ppe_public_v3/
 models/*.bak
 norm_err.txt
+
+# Explicit CC BY licensed acceptance derivatives; original/private video stays ignored.
+!docs/acceptance/assets/zone-entry-replay.mp4
+!docs/acceptance/assets/operator-demo.mp4

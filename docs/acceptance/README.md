@@ -49,8 +49,10 @@ realtime RTSP. Проверка камеры/сети отдельно обяз�
 Браузерная проверка на изолированном запущенном backend:
 
 ```bash
-python e2e/test_real_video.py --base http://127.0.0.1:8002 --master "$ACCEPTANCE_OPERATOR_TOKEN" --video /tmp/worker-zone-detection.mp4 --config docs/acceptance/configs/worker-zone-b.json --artifacts /tmp/safety-browser
+python e2e/test_real_video.py --base http://127.0.0.1:8002 --master "$ACCEPTANCE_OPERATOR_TOKEN" --video /tmp/worker-zone-detection.mp4 --config docs/acceptance/configs/worker-zone-b.json --artifacts /tmp/safety-browser --record-video
 ```
+
+Для записи экрана установите `python -m playwright install ffmpeg`.
 
 Тест загружает видео через API и использует настоящий детектор. Он не создаёт
 bbox/риски/инциденты вручную. Другие E2E с искусственной камерой или помеченными
