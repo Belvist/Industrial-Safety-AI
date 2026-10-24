@@ -74,6 +74,10 @@ def test_expired_running_head_does_not_block_or_overwrite_newer_reply():
     old = pool.jobs[0][0]
     assert old.set_running_or_notify_cancel()
     pool.jobs[1][0].set_result([])
+    # Make the head genuinely old in wall-clock too: a reply may only be
+    # discarded when BOTH source age and wall age exceed max_age.
+    for _, packet in ppe.pending.values():
+        packet.submitted_at -= 5.0
     packet = ppe.take(s, 1.1, 1)
     assert packet.timestamp == 0.2
     assert len(ppe.retired) == 1 and ppe.last_result == 0.2

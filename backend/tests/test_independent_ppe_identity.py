@@ -1,5 +1,6 @@
 """PPE identity continuity vs observation gaps (source timestamps)."""
 
+import time
 from concurrent.futures import Future
 
 from app.domain.models import BoundingBox
@@ -85,6 +86,7 @@ def test_take_rejects_packet_after_identity_break():
         session_id = "s"
         generation = 1
         timestamp = 0.0
+        submitted_at = time.monotonic()
         frame_id = 1
         versions = packet_versions
         tracks = [person(1)]
@@ -121,6 +123,7 @@ def test_late_ppe_accepted_when_sparse_but_continuous():
         session_id = "s"
         generation = 1
         timestamp = 0.0
+        submitted_at = time.monotonic()
         frame_id = 1
         versions = packet_versions
         tracks = [person(1)]

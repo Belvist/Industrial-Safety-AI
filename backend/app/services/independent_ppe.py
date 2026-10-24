@@ -4,6 +4,7 @@ import copy
 import math
 import queue
 import threading
+import time
 from concurrent.futures import Future
 from dataclasses import dataclass, field
 from uuid import uuid4
@@ -59,6 +60,7 @@ class PpePacket:
     generation: int
     detections: list | None = None
     request_id: str = field(default_factory=lambda: uuid4().hex)
+    submitted_at: float = 0.0
 
 
 class BoundedPpeExecutor:
@@ -211,7 +213,20 @@ class IndependentPpe:
             invalid = (
                 packet.session_id != session.session_id or packet.generation != session.generation
             )
-            expired = now - packet.timestamp > max_age
+            # Two independent ages:
+            # - source age preserves ordering/actuality of the video frame;
+            # - wall age bounds how long a reply may take. A 5 FPS file
+            #   advances source time faster than the remote RPC (~1.4 s),
+            #   so source age alone marked every reply stale.
+            source_expired = now - packet.timestamp > max_age
+            wall_age = time.monotonic() - packet.submitted_at
+            # A reply is only useless once the *observation* is stale by more
+            # than max_age AND we have waited unreasonably long. When the
+            # remote RPC itself is slower than max_age (measured 4.6 s during
+            # broker degradation), discarding would drop every result; keep it
+            # if its own frame is still within the video's recent window.
+            wall_expired = wall_age > max(max_age, max_age * 4)
+            expired = source_expired and wall_expired
             if invalid or expired:
                 self.pending.pop(key)
                 future.cancel()
@@ -308,6 +323,7 @@ class IndependentPpe:
         if future is None:
             session.metrics.mark("ppe_backpressure")
             return False
+        packet.submitted_at = time.monotonic()
         self.pending[packet.frame_id] = (future, packet)
         self.last_submitted = now
         self.last_submission_frame_id = packet.frame_id
