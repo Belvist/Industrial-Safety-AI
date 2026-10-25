@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+.venv-train/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Models and runtime data
+models/*.pt
+models/*.pth
+models/*.onnx
+models/*.engine
+data/*.db
+data/*.sqlite*
+data/snapshots/*
+!data/snapshots/.gitkeep
+
+# Video / generated media
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Raw self-recorded footage for future datasets (large, private)
+footage_v4/
+
+# Training datasets (large, downloaded artifacts)
+datasets/
+*.zip
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Runtime files and generated build metadata
+**/models/*.onnx
+**/models/*.pt
+**/models/*.download
+data/uploads/
+data/certs/
+data/api_token
+data/*.db-*
+**/*.tsbuildinfo
+
+# Pretrained checkpoints downloaded by trainers
+/yolo11m.pt
+# Training runs (checkpoints, plots, large artifacts)
+training/runs/
+audit_compare/
+
+# Local experiment artifacts (large / generated)
+training/*.log
+ppe_public_v3/
+models/*.bak
+norm_err.txt
+
+# Explicit CC BY licensed acceptance derivatives; original/private video stays ignored.
+!docs/acceptance/assets/zone-entry-replay.mp4
+!docs/acceptance/assets/operator-demo.mp4
+!docs/finalization-20261024/assets/operator-demo.mp4
+!docs/finalization-20261024/assets/reentry-1.mp4
+!docs/finalization-20261024/assets/reentry-2.mp4

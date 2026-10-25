@@ -1,0 +1,34 @@
+{
+  "production_runtime_sha": "caddade3579b9015d01decc2019cfc1f0be5c386",
+  "license": "CC BY 4.0; see source.json and INTEL_SOURCE_LICENSE.txt",
+  "assets": {
+    "warning.png": {
+      "sha256": "1a66e6f157ee5d39a8e380ee960409d744d4bb26dd029f4ed484a480ab5c6a76",
+      "bytes": 447935
+    },
+    "zone-entry-replay.mp4": {
+      "sha256": "84bf31ba8676a280442b85a4cae8bf83c0c69baef6e60a6dc2c2ef769d23104d",
+      "bytes": 1041640
+    },
+    "statistics.png": {
+      "sha256": "db507c2e0f53ae5e2f9466dbfc4f64fe03e22f64ce384bd20affd67a8082d6df",
+      "bytes": 102275
+    },
+    "incident-timeline.png": {
+      "sha256": "f424ce7f16564793a49ebfe93bf8b01a541145f1bdd6d255bc316ff6a8d05c9b",
+      "bytes": 107889
+    },
+    "operator-demo.mp4": {
+      "sha256": "f5dc5becfc92de10000722ef1e5df5909cdfc2d25401fbc9394d0290be32a971",
+      "bytes": 958153
+    },
+    "zone-entry.jpg": {
+      "sha256": "d51163c26ee99183b2bf0a707abd7756f80e7b4e96d3e5f6ba73ee28bc5f82cd",
+      "bytes": 202997
+    },
+    "critical.png": {
+      "sha256": "3b0ed557f5070c4f0d7492fa4a3c3f3350bb6323403630c07c88204593bbc90c",
+      "bytes": 502417
+    }
+  }
+}

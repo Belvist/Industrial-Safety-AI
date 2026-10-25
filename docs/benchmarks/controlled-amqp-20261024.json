@@ -1,0 +1,72 @@
+{
+  "peer": "controlled_fake_not_hardware",
+  "real_worker_verified": false,
+  "seconds": 60.06372918800025,
+  "successful_replies": 1852,
+  "replies_per_second": 30.83391632582812,
+  "in_flight": 4,
+  "peak_pending": 4,
+  "pending_at_end": 0,
+  "failures": 0,
+  "metrics": {
+    "window_seconds": 60.0,
+    "rates": {
+      "tpu": {
+        "fps": 30.8,
+        "window_count": 1848,
+        "total": 1852
+      }
+    },
+    "stages": {
+      "serialization_ms": {
+        "samples": 1852,
+        "p50": 0.031,
+        "p95": 0.115,
+        "p99": 0.229,
+        "max": 1.804
+      },
+      "tensor_bytes": {
+        "samples": 1852,
+        "p50": 800.0,
+        "p95": 800.0,
+        "p99": 800.0,
+        "max": 800.0
+      },
+      "publish_ms": {
+        "samples": 1852,
+        "p50": 0.202,
+        "p95": 0.541,
+        "p99": 0.986,
+        "max": 4.412
+      },
+      "rpc_ms": {
+        "samples": 1852,
+        "p50": 27.994,
+        "p95": 31.443,
+        "p99": 33.542,
+        "max": 39.898
+      },
+      "deserialize_ms": {
+        "samples": 1852,
+        "p50": 0.123,
+        "p95": 0.242,
+        "p99": 0.453,
+        "max": 1.424
+      },
+      "worker_inference_ms": {
+        "samples": 1852,
+        "p50": 74.0,
+        "p95": 74.0,
+        "p99": 74.0,
+        "max": 74.0
+      },
+      "remote_total_ms": {
+        "samples": 1852,
+        "p50": 28.209,
+        "p95": 31.706,
+        "p99": 34.216,
+        "max": 40.25
+      }
+    }
+  }
+}
