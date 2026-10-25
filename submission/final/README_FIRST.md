@@ -9,7 +9,11 @@
 
 Проверенные локальные изменения перед публикацией: backend Ruff clean,
 282 passed / 1 skipped; frontend Vitest 39 passed; TypeScript и Vite build
-успешны. Полная clean-clone CPU browser E2E прошла; это не LinQ acceptance.
+успешны. На точном теге `linq-defense-20261025-verified` clean-clone CPU browser
+E2E прошла: WARNING→CRITICAL, один подтверждённый инцидент, Replay в Chrome,
+ошибок браузера нет. Playwright устанавливался отдельно только в disposable
+`.venv` для приёмки, это не обязательная runtime-зависимость. После рестарта
+инцидент остался в SQLite; snapshot и Replay вернули HTTP 200. Это не LinQ acceptance.
 
 ## Что это
 
